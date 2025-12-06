@@ -1,105 +1,12 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Text3D, Center, Float, MeshTransmissionMaterial } from "@react-three/drei";
-import * as THREE from "three";
 import { portfolioData } from "@/lib/data";
 import { AnimatedText, GlitchText } from "../animations/AnimatedText";
 import { Button } from "../ui/button";
 import { ArrowDown, Sparkles } from "lucide-react";
 import Link from "next/link";
-
-function Name3D() {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const [hovered, setHovered] = useState(false);
-
-  useFrame((state) => {
-    if (!meshRef.current) return;
-    const time = state.clock.getElapsedTime();
-    meshRef.current.rotation.y = Math.sin(time * 0.3) * 0.1;
-    meshRef.current.position.y = Math.sin(time * 0.5) * 0.2;
-  });
-
-  return (
-    <Float speed={1.5} rotationIntensity={0.5} floatIntensity={1}>
-      <Center>
-        <Text3D
-          ref={meshRef}
-          font="/fonts/helvetiker_bold.typeface.json"
-          size={1}
-          height={0.3}
-          curveSegments={12}
-          bevelEnabled
-          bevelThickness={0.02}
-          bevelSize={0.02}
-          bevelOffset={0}
-          bevelSegments={5}
-          onPointerOver={() => setHovered(true)}
-          onPointerOut={() => setHovered(false)}
-        >
-          {portfolioData.name.split(" ")[0]}
-          <MeshTransmissionMaterial
-            backside
-            backsideThickness={0.3}
-            thickness={0.3}
-            chromaticAberration={0.5}
-            anisotropicBlur={0.5}
-            distortion={hovered ? 0.5 : 0.2}
-            distortionScale={0.5}
-            temporalDistortion={0.2}
-            iridescence={1}
-            iridescenceIOR={1}
-            iridescenceThicknessRange={[0, 1400]}
-          />
-        </Text3D>
-      </Center>
-    </Float>
-  );
-}
-
-function FloatingSkillOrbs() {
-  const skills = portfolioData.skills.slice(0, 6);
-  
-  return (
-    <>
-      {skills.map((skill, i) => {
-        const angle = (i / skills.length) * Math.PI * 2;
-        const radius = 5;
-        const x = Math.cos(angle) * radius;
-        const z = Math.sin(angle) * radius;
-        
-        return (
-          <Float key={skill.name} speed={2 + i * 0.5} rotationIntensity={1}>
-            <mesh position={[x, Math.sin(i) * 2, z]}>
-              <sphereGeometry args={[0.3, 32, 32]} />
-              <meshStandardMaterial
-                color={skill.color}
-                emissive={skill.color}
-                emissiveIntensity={0.5}
-                metalness={0.8}
-                roughness={0.2}
-              />
-            </mesh>
-          </Float>
-        );
-      })}
-    </>
-  );
-}
-
-function Scene3D() {
-  return (
-    <Canvas camera={{ position: [0, 0, 8], fov: 50 }}>
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[10, 10, 5]} intensity={1} />
-      <pointLight position={[-10, -10, -5]} intensity={0.5} color="#a855f7" />
-      <Name3D />
-      <FloatingSkillOrbs />
-    </Canvas>
-  );
-}
 
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -117,9 +24,58 @@ export default function Hero() {
       ref={containerRef}
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
-      {/* 3D Scene */}
-      <div className="absolute inset-0 opacity-60">
-        <Scene3D />
+      {/* Animated Background */}
+      <div className="absolute inset-0">
+        <motion.div
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-[var(--color-accent-neon)]/20 rounded-full blur-[128px]"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{ duration: 8, repeat: Infinity }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[var(--color-accent-purple)]/20 rounded-full blur-[128px]"
+          animate={{
+            scale: [1.2, 1, 1.2],
+            opacity: [0.5, 0.3, 0.5],
+          }}
+          transition={{ duration: 8, repeat: Infinity }}
+        />
+      </div>
+
+      {/* Floating Skill Orbs */}
+      <div className="absolute inset-0 pointer-events-none">
+        {portfolioData.skills.slice(0, 6).map((skill, i) => {
+          const angle = (i / 6) * Math.PI * 2;
+          const radius = 300;
+          const x = 50 + Math.cos(angle) * 30;
+          const y = 50 + Math.sin(angle) * 30;
+
+          return (
+            <motion.div
+              key={skill.name}
+              className="absolute w-16 h-16 rounded-full flex items-center justify-center text-xs font-medium"
+              style={{
+                left: `${x}%`,
+                top: `${y}%`,
+                background: `radial-gradient(circle, ${skill.color}40, ${skill.color}10)`,
+                border: `1px solid ${skill.color}50`,
+              }}
+              animate={{
+                y: [0, -20, 0],
+                scale: [1, 1.1, 1],
+              }}
+              transition={{
+                duration: 4 + i,
+                repeat: Infinity,
+                delay: i * 0.5,
+              }}
+            >
+              {skill.name.slice(0, 2)}
+            </motion.div>
+          );
+        })}
       </div>
 
       {/* Content */}
@@ -132,9 +88,9 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="mb-8 inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-accent-neon/30"
+          className="mb-8 inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-[var(--color-accent-neon)]/30"
         >
-          <Sparkles className="w-4 h-4 text-accent-neon" />
+          <Sparkles className="w-4 h-4 text-[var(--color-accent-neon)]" />
           <span className="text-sm text-white/80">Available for work</span>
         </motion.div>
 
@@ -186,16 +142,16 @@ export default function Hero() {
           transition={{ duration: 0.6, delay: 1.6 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
-          <Button variant="default" size="lg" magnetic>
-            <Link href="/projects" className="flex items-center gap-2">
+          <Link href="/projects">
+            <Button variant="default" size="lg" magnetic>
               View My Work
-            </Link>
-          </Button>
-          <Button variant="outline" size="lg" magnetic>
-            <Link href="/contact" className="flex items-center gap-2">
+            </Button>
+          </Link>
+          <Link href="/contact">
+            <Button variant="outline" size="lg" magnetic>
               Get in Touch
-            </Link>
-          </Button>
+            </Button>
+          </Link>
         </motion.div>
       </motion.div>
 
@@ -217,9 +173,7 @@ export default function Hero() {
       </motion.div>
 
       {/* Gradient overlays */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background pointer-events-none" />
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-accent-neon/20 rounded-full blur-[128px]" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent-purple/20 rounded-full blur-[128px]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[var(--color-background)] pointer-events-none" />
     </section>
   );
 }

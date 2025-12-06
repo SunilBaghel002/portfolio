@@ -1,8 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import Image from "next/image";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { portfolioData } from "@/lib/data";
 import { ScrollReveal } from "../animations/ScrollReveal";
@@ -11,22 +10,16 @@ import { Button } from "../ui/button";
 import { ArrowRight, ExternalLink, Github } from "lucide-react";
 
 export default function FeaturedProjects() {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const { scrollYProgress } = useScroll({
-        target: containerRef,
-        offset: ["start end", "end start"],
-    });
-
     const featuredProjects = portfolioData.projects.filter((p) => p.featured).slice(0, 3);
 
     return (
-        <section ref={containerRef} className="py-32 relative overflow-hidden">
+        <section className="py-32 relative overflow-hidden">
             <div className="max-w-7xl mx-auto px-6">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
                     <div>
                         <ScrollReveal>
-                            <span className="text-accent-neon text-sm font-medium uppercase tracking-wider mb-4 block">
+                            <span className="text-[var(--color-accent-neon)] text-sm font-medium uppercase tracking-wider mb-4 block">
                                 Selected Work
                             </span>
                         </ScrollReveal>
@@ -64,18 +57,8 @@ export default function FeaturedProjects() {
                                         whileHover={{ scale: 1.02 }}
                                         transition={{ duration: 0.4 }}
                                     >
-                                        <div className="absolute inset-0 bg-gradient-to-br from-accent-neon/20 to-accent-purple/20" />
-                                        {project.image ? (
-                                            <Image
-                                                src={project.image}
-                                                alt={project.title}
-                                                fill
-                                                className="object-cover opacity-80"
-                                            />
-                                        ) : (
-                                            <div className="absolute inset-0 bg-gradient-to-br from-accent-neon/10 to-accent-purple/10" />
-                                        )}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+                                        <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-accent-neon)]/20 to-[var(--color-accent-purple)]/20" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-background)] via-transparent to-transparent" />
 
                                         {/* Floating year badge */}
                                         <motion.div
@@ -84,7 +67,7 @@ export default function FeaturedProjects() {
                                             whileInView={{ opacity: 1, y: 0 }}
                                             transition={{ delay: 0.3 }}
                                         >
-                                            <span className="text-sm font-mono text-accent-neon">
+                                            <span className="text-sm font-mono text-[var(--color-accent-neon)]">
                                                 {project.year}
                                             </span>
                                         </motion.div>
@@ -151,7 +134,7 @@ export default function FeaturedProjects() {
             </div>
 
             {/* Background decoration */}
-            <div className="absolute top-1/2 left-0 w-96 h-96 bg-accent-purple/10 rounded-full blur-[128px] pointer-events-none -translate-y-1/2" />
+            <div className="absolute top-1/2 left-0 w-96 h-96 bg-[var(--color-accent-purple)]/10 rounded-full blur-[128px] pointer-events-none -translate-y-1/2" />
         </section>
     );
 }
