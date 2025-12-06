@@ -38,7 +38,7 @@ export default function Header() {
         )}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.8, ease: [0.6, 0.01, -0.05, 0.95] }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           {/* Logo */}
@@ -50,21 +50,21 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
-            {navItems.map((item, i) => (
+            {navItems.map((item) => (
               <MagneticButton key={item.name} strength={0.15}>
                 <Link
                   href={item.href}
                   className={cn(
                     "relative px-4 py-2 text-sm font-medium transition-colors",
                     pathname === item.href
-                      ? "text-accent-neon"
+                      ? "text-[#00f0ff]"
                       : "text-white/70 hover:text-white"
                   )}
                 >
                   {item.name}
                   {pathname === item.href && (
                     <motion.span
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-accent-neon to-accent-purple"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#00f0ff] to-[#a855f7]"
                       layoutId="activeNav"
                       transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     />
@@ -86,12 +86,14 @@ export default function Header() {
                 rotate: isMobileMenuOpen ? 45 : 0,
                 y: isMobileMenuOpen ? 0 : -4,
               }}
+              transition={{ duration: 0.3 }}
             />
             <motion.span
               className="absolute w-6 h-0.5 bg-white"
               animate={{
                 opacity: isMobileMenuOpen ? 0 : 1,
               }}
+              transition={{ duration: 0.3 }}
             />
             <motion.span
               className="absolute w-6 h-0.5 bg-white"
@@ -99,6 +101,7 @@ export default function Header() {
                 rotate: isMobileMenuOpen ? -45 : 0,
                 y: isMobileMenuOpen ? 0 : 4,
               }}
+              transition={{ duration: 0.3 }}
             />
           </button>
         </div>
@@ -114,7 +117,7 @@ export default function Header() {
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="absolute inset-0 bg-background/95 backdrop-blur-xl"
+              className="absolute inset-0 bg-[var(--color-background)]/95 backdrop-blur-xl"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -136,6 +139,7 @@ export default function Header() {
                     open: { opacity: 1, y: 0 },
                     closed: { opacity: 0, y: 20 },
                   }}
+                  transition={{ duration: 0.3 }}
                 >
                   <Link
                     href={item.href}

@@ -27,20 +27,20 @@ export default function Hero() {
       {/* Animated Background */}
       <div className="absolute inset-0">
         <motion.div
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-[var(--color-accent-neon)]/20 rounded-full blur-[128px]"
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#00f0ff]/20 rounded-full blur-[128px]"
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.5, 0.3],
           }}
-          transition={{ duration: 8, repeat: Infinity }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[var(--color-accent-purple)]/20 rounded-full blur-[128px]"
+          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#a855f7]/20 rounded-full blur-[128px]"
           animate={{
             scale: [1.2, 1, 1.2],
             opacity: [0.5, 0.3, 0.5],
           }}
-          transition={{ duration: 8, repeat: Infinity }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
       </div>
 
@@ -48,7 +48,6 @@ export default function Hero() {
       <div className="absolute inset-0 pointer-events-none">
         {portfolioData.skills.slice(0, 6).map((skill, i) => {
           const angle = (i / 6) * Math.PI * 2;
-          const radius = 300;
           const x = 50 + Math.cos(angle) * 30;
           const y = 50 + Math.sin(angle) * 30;
 
@@ -70,6 +69,7 @@ export default function Hero() {
                 duration: 4 + i,
                 repeat: Infinity,
                 delay: i * 0.5,
+                ease: "easeInOut",
               }}
             >
               {skill.name.slice(0, 2)}
@@ -87,10 +87,10 @@ export default function Hero() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="mb-8 inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-[var(--color-accent-neon)]/30"
+          transition={{ duration: 0.5, delay: 0.5, ease: "easeOut" }}
+          className="mb-8 inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-[#00f0ff]/30"
         >
-          <Sparkles className="w-4 h-4 text-[var(--color-accent-neon)]" />
+          <Sparkles className="w-4 h-4 text-[#00f0ff]" />
           <span className="text-sm text-white/80">Available for work</span>
         </motion.div>
 
@@ -100,7 +100,7 @@ export default function Hero() {
             className="text-6xl md:text-8xl lg:text-9xl font-bold leading-none"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.2 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
           >
             <AnimatedText
               text={portfolioData.name}
@@ -116,7 +116,7 @@ export default function Hero() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.2 }}
+          transition={{ duration: 0.5, delay: 1.2, ease: "easeOut" }}
           className="mb-8"
         >
           <GlitchText
@@ -129,7 +129,7 @@ export default function Hero() {
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.4 }}
+          transition={{ duration: 0.5, delay: 1.4, ease: "easeOut" }}
           className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto mb-12"
         >
           {portfolioData.bio}
@@ -139,7 +139,7 @@ export default function Hero() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.6 }}
+          transition={{ duration: 0.5, delay: 1.6, ease: "easeOut" }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           <Link href="/projects">
@@ -160,11 +160,11 @@ export default function Hero() {
         className="absolute bottom-8 left-1/2 -translate-x-1/2"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2 }}
+        transition={{ delay: 2, duration: 0.5 }}
       >
         <motion.div
           animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
           className="flex flex-col items-center gap-2 text-white/40"
         >
           <span className="text-xs uppercase tracking-wider">Scroll</span>

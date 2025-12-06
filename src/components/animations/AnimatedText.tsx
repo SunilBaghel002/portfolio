@@ -47,12 +47,8 @@ export function AnimatedText({
                 };
             case "glitch":
                 return {
-                    hidden: {
-                        opacity: 0,
-                        x: () => Math.random() * 40 - 20,
-                        y: () => Math.random() * 40 - 20,
-                    },
-                    visible: { opacity: 1, x: 0, y: 0 },
+                    hidden: { opacity: 0, x: -20 },
+                    visible: { opacity: 1, x: 0 },
                 };
             default:
                 return {
@@ -77,9 +73,9 @@ export function AnimatedText({
                         className="inline-block"
                         variants={variants}
                         transition={{
-                            duration: 0.6,
+                            duration: 0.5,
                             delay: delay + i * 0.03,
-                            ease: [0.6, 0.01, -0.05, 0.95],
+                            ease: "easeOut",
                         }}
                     >
                         {element === " " ? "\u00A0" : element}
@@ -111,7 +107,7 @@ export function AnimatedHeading({ children, className, gradient = true }: Animat
             )}
             initial={{ opacity: 0, y: 50 }}
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-            transition={{ duration: 0.8, ease: [0.6, 0.01, -0.05, 0.95] }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
         >
             {children}
         </motion.h2>
@@ -128,13 +124,13 @@ export function GlitchText({ text, className }: GlitchTextProps) {
         <span className={cn("relative inline-block", className)}>
             <span className="relative z-10">{text}</span>
             <span
-                className="absolute top-0 left-0.5 text-accent-neon opacity-70 animate-pulse"
+                className="absolute top-0 left-0.5 text-[#00f0ff] opacity-70 animate-pulse"
                 style={{ clipPath: "inset(45% 0 35% 0)" }}
             >
                 {text}
             </span>
             <span
-                className="absolute top-0 -left-0.5 text-accent-pink opacity-70 animate-pulse"
+                className="absolute top-0 -left-0.5 text-[#ec4899] opacity-70 animate-pulse"
                 style={{ clipPath: "inset(25% 0 55% 0)", animationDelay: "0.1s" }}
             >
                 {text}

@@ -39,7 +39,7 @@ export function ParallaxWrapper({
     return (
         <motion.div
             ref={ref}
-            className={cn(className)}
+            className={cn("relative", className)}
             style={{
                 y,
                 opacity: opacity ? opacityValue : 1,

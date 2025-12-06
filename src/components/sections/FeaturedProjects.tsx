@@ -1,140 +1,251 @@
 "use client";
 
-import { useRef } from "react";
-import { motion } from "framer-motion";
-import Link from "next/link";
+import { useState, useRef } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import Image from "next/image";
 import { portfolioData } from "@/lib/data";
 import { ScrollReveal } from "../animations/ScrollReveal";
 import { AnimatedHeading } from "../animations/AnimatedText";
 import { Button } from "../ui/button";
-import { ArrowRight, ExternalLink, Github } from "lucide-react";
+import { ExternalLink, Github, Play } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-export default function FeaturedProjects() {
-    const featuredProjects = portfolioData.projects.filter((p) => p.featured).slice(0, 3);
+const categories = ["All", "Frontend", "Backend", "Full Stack", "3D"];
+
+interface ProjectCardProps {
+    project: typeof portfolioData.projects[0];
+    index: number;
+}
+
+function ProjectCard({ project, index }: ProjectCardProps) {
+    const [isHovered, setIsHovered] = useState(false);
+    const cardRef = useRef<HTMLDivElement>(null);
+
+    const x = useMotionValue(0);
+    const y = useMotionValue(0);
+
+    const xSpring = useSpring(x, { stiffness: 100, damping: 20 });
+    const ySpring = useSpring(y, { stiffness: 100, damping: 20 });
+
+    const rotateX = useTransform(ySpring, [-0.5, 0.5], [15, -15]);
+    const rotateY = useTransform(xSpring, [-0.5, 0.5], [-15, 15]);
+
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (!cardRef.current) return;
+        const rect = cardRef.current.getBoundingClientRect();
+        const xPos = (e.clientX - rect.left) / rect.width - 0.5;
+        const yPos = (e.clientY - rect.top) / rect.height - 0.5;
+        x.set(xPos);
+        y.set(yPos);
+    };
+
+    const handleMouseLeave = () => {
+        x.set(0);
+        y.set(0);
+        setIsHovered(false);
+    };
+
+    const getHeight = () => {
+        const heights = ["h-[400px]", "h-[350px]", "h-[450px]", "h-[380px]", "h-[420px]"];
+        return heights[index % heights.length];
+    };
 
     return (
-        <section className="py-32 relative overflow-hidden">
+        <motion.div
+            ref={cardRef}
+            className={cn("masonry-item", getHeight())}
+            onMouseMove={handleMouseMove}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={handleMouseLeave}
+            style={{
+                transformStyle: "preserve-3d",
+                rotateX,
+                rotateY,
+            }}
+        >
+            <div className="relative h-full rounded-2xl overflow-hidden glass group cursor-pointer">
+                {/* Background Image */}
+                <div className="absolute inset-0">
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#00f0ff]/20 to-[#a855f7]/20" />
+                    {project.image && (
+                        <Image
+                            src={project.image}
+                            alt={project.title}
+                            fill
+                            className="object-cover opacity-50 group-hover:opacity-70 transition-opacity duration-500"
+                        />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-background)] via-[var(--color-background)]/50 to-transparent" />
+                </div>
+
+                {/* Video Preview on Hover */}
+                {project.video && isHovered && (
+                    <motion.div
+                        className="absolute inset-0"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                    >
+                        <video
+                            src={project.video}
+                            autoPlay
+                            muted
+                            loop
+                            className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-background)] via-[var(--color-background)]/30 to-transparent" />
+                    </motion.div>
+                )}
+
+                {/* Content */}
+                <div className="absolute inset-0 p-6 flex flex-col justify-end">
+                    {/* Tags */}
+                    <motion.div
+                        className="flex flex-wrap gap-2 mb-4"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 20 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        {project.tags.map((tag) => (
+                            <span
+                                key={tag}
+                                className="px-2 py-1 text-xs font-medium rounded-md bg-white/10 text-white/80"
+                            >
+                                {tag}
+                            </span>
+                        ))}
+                    </motion.div>
+
+                    {/* Title */}
+                    <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-[#00f0ff] transition-colors">
+                        {project.title}
+                    </h3>
+
+                    {/* Description */}
+                    <p className="text-white/60 text-sm mb-4 line-clamp-2">
+                        {project.description}
+                    </p>
+
+                    {/* Actions */}
+                    <motion.div
+                        className="flex items-center gap-3"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 20 }}
+                        transition={{ duration: 0.3, delay: 0.1 }}
+                    >
+                        {project.link && (
+                            <a
+                                href={project.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-2 rounded-lg glass hover:bg-white/10 transition-colors"
+                            >
+                                <ExternalLink className="w-4 h-4" />
+                            </a>
+                        )}
+                        {project.github && (
+                            <a
+                                href={project.github}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-2 rounded-lg glass hover:bg-white/10 transition-colors"
+                            >
+                                <Github className="w-4 h-4" />
+                            </a>
+                        )}
+                        {project.video && (
+                            <button className="p-2 rounded-lg glass hover:bg-white/10 transition-colors">
+                                <Play className="w-4 h-4" />
+                            </button>
+                        )}
+                    </motion.div>
+                </div>
+
+                {/* Featured Badge */}
+                {project.featured && (
+                    <div className="absolute top-4 right-4">
+                        <span className="px-3 py-1 text-xs font-medium rounded-full bg-[#00f0ff]/20 text-[#00f0ff] border border-[#00f0ff]/30">
+                            Featured
+                        </span>
+                    </div>
+                )}
+
+                {/* Year */}
+                <div className="absolute top-4 left-4">
+                    <span className="text-sm font-mono text-white/40">{project.year}</span>
+                </div>
+            </div>
+        </motion.div>
+    );
+}
+
+export default function Projects() {
+    const [activeCategory, setActiveCategory] = useState("All");
+    const [filteredProjects, setFilteredProjects] = useState(portfolioData.projects);
+
+    const handleFilter = (category: string) => {
+        setActiveCategory(category);
+        if (category === "All") {
+            setFilteredProjects(portfolioData.projects);
+        } else {
+            setFilteredProjects(
+                portfolioData.projects.filter((p) =>
+                    p.tags.some((t) => t.toLowerCase().includes(category.toLowerCase()))
+                )
+            );
+        }
+    };
+
+    return (
+        <section className="py-32 relative">
             <div className="max-w-7xl mx-auto px-6">
                 {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
-                    <div>
-                        <ScrollReveal>
-                            <span className="text-[var(--color-accent-neon)] text-sm font-medium uppercase tracking-wider mb-4 block">
-                                Selected Work
-                            </span>
-                        </ScrollReveal>
-                        <AnimatedHeading>Featured Projects</AnimatedHeading>
-                    </div>
-                    <ScrollReveal direction="right">
-                        <Link href="/projects">
-                            <Button variant="ghost" className="group">
-                                View All Projects
-                                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform" />
-                            </Button>
-                        </Link>
+                <div className="text-center mb-16">
+                    <ScrollReveal>
+                        <span className="text-[#00f0ff] text-sm font-medium uppercase tracking-wider mb-4 block">
+                            Portfolio
+                        </span>
+                    </ScrollReveal>
+                    <AnimatedHeading>Selected Works</AnimatedHeading>
+                    <ScrollReveal delay={0.2}>
+                        <p className="text-white/60 max-w-2xl mx-auto mt-6">
+                            A collection of projects that showcase my expertise in building
+                            modern, performant, and visually stunning applications.
+                        </p>
                     </ScrollReveal>
                 </div>
 
-                {/* Projects */}
-                <div className="space-y-32">
-                    {featuredProjects.map((project, index) => {
-                        const isEven = index % 2 === 0;
-
-                        return (
-                            <ScrollReveal
-                                key={project.id}
-                                direction={isEven ? "left" : "right"}
-                                delay={index * 0.2}
+                {/* Filter */}
+                <ScrollReveal delay={0.3}>
+                    <div className="flex flex-wrap justify-center gap-2 mb-12">
+                        {categories.map((category) => (
+                            <Button
+                                key={category}
+                                variant={activeCategory === category ? "default" : "ghost"}
+                                size="sm"
+                                onClick={() => handleFilter(category)}
+                                className="rounded-full"
                             >
-                                <motion.div
-                                    className={`grid lg:grid-cols-2 gap-12 items-center ${isEven ? "" : "lg:flex-row-reverse"
-                                        }`}
-                                >
-                                    {/* Image */}
-                                    <motion.div
-                                        className={`relative aspect-video rounded-3xl overflow-hidden glass ${isEven ? "" : "lg:order-2"
-                                            }`}
-                                        whileHover={{ scale: 1.02 }}
-                                        transition={{ duration: 0.4 }}
-                                    >
-                                        <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-accent-neon)]/20 to-[var(--color-accent-purple)]/20" />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-background)] via-transparent to-transparent" />
+                                {category}
+                            </Button>
+                        ))}
+                    </div>
+                </ScrollReveal>
 
-                                        {/* Floating year badge */}
-                                        <motion.div
-                                            className="absolute top-6 right-6 glass px-4 py-2 rounded-full"
-                                            initial={{ opacity: 0, y: -20 }}
-                                            whileInView={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.3 }}
-                                        >
-                                            <span className="text-sm font-mono text-[var(--color-accent-neon)]">
-                                                {project.year}
-                                            </span>
-                                        </motion.div>
-                                    </motion.div>
-
-                                    {/* Content */}
-                                    <div className={`space-y-6 ${isEven ? "" : "lg:order-1"}`}>
-                                        <motion.div
-                                            className="flex flex-wrap gap-2"
-                                            initial={{ opacity: 0 }}
-                                            whileInView={{ opacity: 1 }}
-                                            transition={{ delay: 0.2 }}
-                                        >
-                                            {project.tags.map((tag) => (
-                                                <span
-                                                    key={tag}
-                                                    className="px-3 py-1 text-xs font-medium rounded-full bg-white/5 text-white/60 border border-white/10"
-                                                >
-                                                    {tag}
-                                                </span>
-                                            ))}
-                                        </motion.div>
-
-                                        <h3 className="text-3xl md:text-4xl font-bold text-white">
-                                            {project.title}
-                                        </h3>
-
-                                        <p className="text-white/60 text-lg leading-relaxed">
-                                            {project.longDescription || project.description}
-                                        </p>
-
-                                        <div className="flex items-center gap-4 pt-4">
-                                            {project.link && (
-                                                <Button variant="default" asChild>
-                                                    <a
-                                                        href={project.link}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                    >
-                                                        <ExternalLink className="w-4 h-4 mr-2" />
-                                                        Live Demo
-                                                    </a>
-                                                </Button>
-                                            )}
-                                            {project.github && (
-                                                <Button variant="outline" asChild>
-                                                    <a
-                                                        href={project.github}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                    >
-                                                        <Github className="w-4 h-4 mr-2" />
-                                                        Source Code
-                                                    </a>
-                                                </Button>
-                                            )}
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            </ScrollReveal>
-                        );
-                    })}
-                </div>
+                {/* Masonry Grid */}
+                <motion.div
+                    className="masonry-grid"
+                    layout
+                    transition={{ duration: 0.5, ease: "easeInOut" }}
+                >
+                    {filteredProjects.map((project, index) => (
+                        <ProjectCard key={project.id} project={project} index={index} />
+                    ))}
+                </motion.div>
             </div>
 
             {/* Background decoration */}
-            <div className="absolute top-1/2 left-0 w-96 h-96 bg-[var(--color-accent-purple)]/10 rounded-full blur-[128px] pointer-events-none -translate-y-1/2" />
+            <div className="absolute top-1/3 left-0 w-96 h-96 bg-[#a855f7]/10 rounded-full blur-[128px] pointer-events-none" />
         </section>
     );
 }
