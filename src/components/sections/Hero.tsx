@@ -5,6 +5,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { portfolioData } from "@/lib/data";
 import { AnimatedText, GlitchText } from "../animations/AnimatedText";
 import { Button } from "../ui/button";
+import { FloatingTechOrbs } from "../ui/TechIcon";
 import { ArrowDown, Sparkles } from "lucide-react";
 import Link from "next/link";
 
@@ -44,39 +45,11 @@ export default function Hero() {
         />
       </div>
 
-      {/* Floating Skill Orbs */}
-      <div className="absolute inset-0 pointer-events-none">
-        {portfolioData.skills.slice(0, 6).map((skill, i) => {
-          const angle = (i / 6) * Math.PI * 2;
-          const x = 50 + Math.cos(angle) * 30;
-          const y = 50 + Math.sin(angle) * 30;
-
-          return (
-            <motion.div
-              key={skill.name}
-              className="absolute w-16 h-16 rounded-full flex items-center justify-center text-xs font-medium"
-              style={{
-                left: `${x}%`,
-                top: `${y}%`,
-                background: `radial-gradient(circle, ${skill.color}40, ${skill.color}10)`,
-                border: `1px solid ${skill.color}50`,
-              }}
-              animate={{
-                y: [0, -20, 0],
-                scale: [1, 1.1, 1],
-              }}
-              transition={{
-                duration: 4 + i,
-                repeat: Infinity,
-                delay: i * 0.5,
-                ease: "easeInOut",
-              }}
-            >
-              {skill.name.slice(0, 2)}
-            </motion.div>
-          );
-        })}
-      </div>
+      {/* Floating Skill Orbs with Icons */}
+      <FloatingTechOrbs
+        skills={portfolioData.skills.slice(0, 6)}
+        className="opacity-80"
+      />
 
       {/* Content */}
       <motion.div

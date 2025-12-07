@@ -1,17 +1,17 @@
 export const portfolioData = {
   name: "<Sunil Baghel>",
-  role: "{Full Stack Developer}",
+  role: "{Full Stack Devepoler}",
   bio: "{BIO}",
-  email: "hello@example.com",
-  location: "San Francisco, CA",
+  email: "sunilbaghel93100@gmail.com",
+  location: "Faridabad, Haryana, India",
 
   skills: [
     { name: "React", level: 95, category: "frontend", color: "#61DAFB" },
-    { name: "Next.js", level: 92, category: "frontend", color: "#000000" },
+    { name: "Next.js", level: 92, category: "frontend", color: "#ffffff" },
     { name: "TypeScript", level: 90, category: "language", color: "#3178C6" },
     { name: "Node.js", level: 88, category: "backend", color: "#339933" },
     { name: "Python", level: 85, category: "language", color: "#3776AB" },
-    { name: "Three.js", level: 80, category: "3d", color: "#000000" },
+    { name: "Three.js", level: 80, category: "3d", color: "#ffffff" },
     { name: "PostgreSQL", level: 82, category: "database", color: "#4169E1" },
     { name: "Docker", level: 78, category: "devops", color: "#2496ED" },
     { name: "AWS", level: 75, category: "cloud", color: "#FF9900" },
@@ -23,6 +23,10 @@ export const portfolioData = {
       category: "animation",
       color: "#0055FF",
     },
+    { name: "MongoDB", level: 80, category: "database", color: "#47A248" },
+    { name: "Redis", level: 75, category: "database", color: "#DC382D" },
+    { name: "Git", level: 90, category: "tools", color: "#F05032" },
+    { name: "Prisma", level: 85, category: "backend", color: "#2D3748" },
   ],
 
   projects: [
@@ -63,7 +67,7 @@ export const portfolioData = {
       longDescription:
         "A complete e-commerce solution featuring modern UI, secure payments, and inventory management.",
       image: "/projects/project3.jpg",
-      tags: ["Next.js", "Stripe", "Prisma", "Tailwind"],
+      tags: ["Next.js", "Stripe", "Prisma", "Tailwind CSS"],
       link: "https://example.com",
       featured: false,
       year: 2023,
@@ -89,7 +93,7 @@ export const portfolioData = {
       longDescription:
         "Empowering creators with tools to build their audience and monetize their content.",
       image: "/projects/project5.jpg",
-      tags: ["React Native", "Firebase", "Stripe", "Node.js"],
+      tags: ["React", "Firebase", "Stripe", "Node.js"],
       link: "https://example.com",
       featured: false,
       year: 2023,
@@ -168,3 +172,4 @@ export const portfolioData = {
 };
 
 export type PortfolioData = typeof portfolioData;
+export type Skill = (typeof portfolioData.skills)[0];

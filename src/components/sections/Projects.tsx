@@ -4,30 +4,30 @@ import { useState, useRef } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import Image from "next/image";
 import { portfolioData } from "@/lib/data";
-import { ScrollReveal, StaggerContainer, StaggerItem } from "../animations/ScrollReveal";
+import { ScrollReveal } from "../animations/ScrollReveal";
 import { AnimatedHeading } from "../animations/AnimatedText";
-import { Card3D } from "../ui/card";
+import { TechBadge } from "../ui/TechIcon";
 import { Button } from "../ui/button";
-import { ExternalLink, Github, Play, Filter } from "lucide-react";
+import { ExternalLink, Github, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const categories = ["All", "Frontend", "Backend", "Full Stack", "3D"];
 
 interface ProjectCardProps {
-  project: typeof portfolioData.projects[0];
+  project: (typeof portfolioData.projects)[0];
   index: number;
 }
 
 function ProjectCard({ project, index }: ProjectCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
-  
+
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  
+
   const xSpring = useSpring(x, { stiffness: 100, damping: 20 });
   const ySpring = useSpring(y, { stiffness: 100, damping: 20 });
-  
+
   const rotateX = useTransform(ySpring, [-0.5, 0.5], [15, -15]);
   const rotateY = useTransform(xSpring, [-0.5, 0.5], [-15, 15]);
 
@@ -47,14 +47,28 @@ function ProjectCard({ project, index }: ProjectCardProps) {
   };
 
   const getHeight = () => {
-    const heights = ["h-[400px]", "h-[350px]", "h-[450px]", "h-[380px]", "h-[420px]"];
+    const heights = [
+      "h-[400px]",
+      "h-[350px]",
+      "h-[450px]",
+      "h-[380px]",
+      "h-[420px]",
+    ];
     return heights[index % heights.length];
+  };
+
+  // Get color for each tag from skills data
+  const getTagColor = (tagName: string) => {
+    const skill = portfolioData.skills.find(
+      (s) => s.name.toLowerCase() === tagName.toLowerCase()
+    );
+    return skill?.color || "#00f0ff";
   };
 
   return (
     <motion.div
       ref={cardRef}
-      className={cn("masonry-item perspective-1000", getHeight())}
+      className={cn("masonry-item", getHeight())}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={handleMouseLeave}
@@ -67,7 +81,7 @@ function ProjectCard({ project, index }: ProjectCardProps) {
       <div className="relative h-full rounded-2xl overflow-hidden glass group cursor-pointer">
         {/* Background Image */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-accent-neon/20 to-accent-purple/20" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#00f0ff]/20 to-[#a855f7]/20" />
           {project.image && (
             <Image
               src={project.image}
@@ -76,7 +90,7 @@ function ProjectCard({ project, index }: ProjectCardProps) {
               className="object-cover opacity-50 group-hover:opacity-70 transition-opacity duration-500"
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-background)] via-[var(--color-background)]/50 to-transparent" />
         </div>
 
         {/* Video Preview on Hover */}
@@ -94,13 +108,13 @@ function ProjectCard({ project, index }: ProjectCardProps) {
               loop
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-background)] via-[var(--color-background)]/30 to-transparent" />
           </motion.div>
         )}
 
         {/* Content */}
         <div className="absolute inset-0 p-6 flex flex-col justify-end">
-          {/* Tags */}
+          {/* Tags with Icons */}
           <motion.div
             className="flex flex-wrap gap-2 mb-4"
             initial={{ opacity: 0, y: 20 }}
@@ -108,17 +122,17 @@ function ProjectCard({ project, index }: ProjectCardProps) {
             transition={{ duration: 0.3 }}
           >
             {project.tags.map((tag) => (
-              <span
+              <TechBadge
                 key={tag}
-                className="px-2 py-1 text-xs font-medium rounded-md bg-white/10 text-white/80"
-              >
-                {tag}
-              </span>
+                name={tag}
+                color={getTagColor(tag)}
+                variant="glow"
+              />
             ))}
           </motion.div>
 
           {/* Title */}
-          <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-accent-neon transition-colors">
+          <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-[#00f0ff] transition-colors">
             {project.title}
           </h3>
 
@@ -165,7 +179,7 @@ function ProjectCard({ project, index }: ProjectCardProps) {
         {/* Featured Badge */}
         {project.featured && (
           <div className="absolute top-4 right-4">
-            <span className="px-3 py-1 text-xs font-medium rounded-full bg-accent-neon/20 text-accent-neon border border-accent-neon/30">
+            <span className="px-3 py-1 text-xs font-medium rounded-full bg-[#00f0ff]/20 text-[#00f0ff] border border-[#00f0ff]/30">
               Featured
             </span>
           </div>
@@ -182,14 +196,15 @@ function ProjectCard({ project, index }: ProjectCardProps) {
 
 export default function Projects() {
   const [activeCategory, setActiveCategory] = useState("All");
-  const [filteredProjects, setFilteredProjects] = useState(portfolioData.projects);
+  const [filteredProjects, setFilteredProjects] = useState(
+    portfolioData.projects
+  );
 
   const handleFilter = (category: string) => {
     setActiveCategory(category);
     if (category === "All") {
       setFilteredProjects(portfolioData.projects);
     } else {
-      // Filter based on tags
       setFilteredProjects(
         portfolioData.projects.filter((p) =>
           p.tags.some((t) => t.toLowerCase().includes(category.toLowerCase()))
@@ -204,7 +219,7 @@ export default function Projects() {
         {/* Header */}
         <div className="text-center mb-16">
           <ScrollReveal>
-            <span className="text-accent-neon text-sm font-medium uppercase tracking-wider mb-4 block">
+            <span className="text-[#00f0ff] text-sm font-medium uppercase tracking-wider mb-4 block">
               Portfolio
             </span>
           </ScrollReveal>
@@ -247,7 +262,7 @@ export default function Projects() {
       </div>
 
       {/* Background decoration */}
-      <div className="absolute top-1/3 left-0 w-96 h-96 bg-accent-purple/10 rounded-full blur-[128px] pointer-events-none" />
+      <div className="absolute top-1/3 left-0 w-96 h-96 bg-[#a855f7]/10 rounded-full blur-[128px] pointer-events-none" />
     </section>
   );
 }

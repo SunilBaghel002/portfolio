@@ -2,28 +2,22 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import dynamic from "next/dynamic";
-import { portfolioData } from "@/lib/data";
+import { portfolioData, Skill } from "@/lib/data";
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { AnimatedHeading } from "@/components/animations/AnimatedText";
+import {
+  TechGrid,
+  TechIcon,
+  SkillConstellation,
+} from "@/components/ui/TechIcon";
 import { X, ExternalLink, Folder } from "lucide-react";
 
-const SkillGalaxy = dynamic(() => import("@/components/three/SkillGalaxy"), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-[600px] flex items-center justify-center">
-      <div className="w-16 h-16 border-4 border-accent-neon border-t-transparent rounded-full animate-spin" />
-    </div>
-  ),
-});
-
 interface SkillModalProps {
-  skill: typeof portfolioData.skills[0];
+  skill: Skill;
   onClose: () => void;
 }
 
 function SkillModal({ skill, onClose }: SkillModalProps) {
-  // Example projects using this skill
   const relatedProjects = portfolioData.projects.filter((p) =>
     p.tags.some((t) => t.toLowerCase().includes(skill.name.toLowerCase()))
   );
@@ -36,7 +30,7 @@ function SkillModal({ skill, onClose }: SkillModalProps) {
       exit={{ opacity: 0 }}
     >
       <motion.div
-        className="absolute inset-0 bg-background/90 backdrop-blur-xl"
+        className="absolute inset-0 bg-[var(--color-background)]/90 backdrop-blur-xl"
         onClick={onClose}
       />
       <motion.div
@@ -60,17 +54,21 @@ function SkillModal({ skill, onClose }: SkillModalProps) {
             <X className="w-5 h-5" />
           </button>
 
-          <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-            style={{ backgroundColor: `${skill.color}30` }}
-          >
-            <span className="text-2xl font-bold" style={{ color: skill.color }}>
-              {skill.name.charAt(0)}
-            </span>
+          <div className="flex items-center gap-4 mb-4">
+            <div
+              className="w-20 h-20 rounded-2xl flex items-center justify-center"
+              style={{
+                backgroundColor: `${skill.color}20`,
+                border: `2px solid ${skill.color}40`,
+              }}
+            >
+              <TechIcon name={skill.name} color={skill.color} size={40} />
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold text-white">{skill.name}</h3>
+              <p className="text-white/60 capitalize">{skill.category}</p>
+            </div>
           </div>
-
-          <h3 className="text-2xl font-bold text-white">{skill.name}</h3>
-          <p className="text-white/60 mt-1 capitalize">{skill.category}</p>
         </div>
 
         {/* Content */}
@@ -81,7 +79,7 @@ function SkillModal({ skill, onClose }: SkillModalProps) {
               <span className="text-white/60">Proficiency</span>
               <span style={{ color: skill.color }}>{skill.level}%</span>
             </div>
-            <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+            <div className="h-3 rounded-full bg-white/10 overflow-hidden">
               <motion.div
                 className="h-full rounded-full"
                 style={{ backgroundColor: skill.color }}
@@ -111,7 +109,7 @@ function SkillModal({ skill, onClose }: SkillModalProps) {
                     key={project.id}
                     className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
                   >
-                    <Folder className="w-4 h-4 text-accent-neon" />
+                    <Folder className="w-4 h-4 text-[#00f0ff]" />
                     <span className="text-white/80 flex-1">{project.title}</span>
                     {project.link && (
                       <a
@@ -119,7 +117,7 @@ function SkillModal({ skill, onClose }: SkillModalProps) {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <ExternalLink className="w-4 h-4 text-white/40 hover:text-accent-neon" />
+                        <ExternalLink className="w-4 h-4 text-white/40 hover:text-[#00f0ff]" />
                       </a>
                     )}
                   </div>
@@ -133,49 +131,12 @@ function SkillModal({ skill, onClose }: SkillModalProps) {
   );
 }
 
-function SkillCard({ skill, onClick }: { skill: typeof portfolioData.skills[0]; onClick: () => void }) {
-  return (
-    <motion.div
-      className="glass p-6 rounded-2xl cursor-pointer group"
-      whileHover={{ scale: 1.02, y: -5 }}
-      onClick={onClick}
-    >
-      <div className="flex items-center gap-4 mb-4">
-        <div
-          className="w-12 h-12 rounded-xl flex items-center justify-center"
-          style={{ backgroundColor: `${skill.color}20` }}
-        >
-          <span className="text-lg font-bold" style={{ color: skill.color }}>
-            {skill.name.charAt(0)}
-          </span>
-        </div>
-        <div>
-          <h3 className="font-semibold text-white group-hover:text-accent-neon transition-colors">
-            {skill.name}
-          </h3>
-          <p className="text-sm text-white/40 capitalize">{skill.category}</p>
-        </div>
-      </div>
-
-      {/* Progress bar */}
-      <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
-        <motion.div
-          className="h-full rounded-full"
-          style={{ backgroundColor: skill.color }}
-          initial={{ width: 0 }}
-          whileInView={{ width: `${skill.level}%` }}
-          transition={{ duration: 1 }}
-          viewport={{ once: true }}
-        />
-      </div>
-    </motion.div>
-  );
-}
-
 export default function SkillsPage() {
-  const [selectedSkill, setSelectedSkill] = useState<typeof portfolioData.skills[0] | null>(null);
+  const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
 
-  const categories = Array.from(new Set(portfolioData.skills.map((s) => s.category)));
+  const categories = Array.from(
+    new Set(portfolioData.skills.map((s) => s.category))
+  );
 
   return (
     <div className="min-h-screen pt-32 pb-20">
@@ -183,23 +144,26 @@ export default function SkillsPage() {
         {/* Header */}
         <div className="text-center mb-16">
           <ScrollReveal>
-            <span className="text-accent-neon text-sm font-medium uppercase tracking-wider mb-4 block">
+            <span className="text-[#00f0ff] text-sm font-medium uppercase tracking-wider mb-4 block">
               Expertise
             </span>
           </ScrollReveal>
           <AnimatedHeading>Skills Galaxy</AnimatedHeading>
           <ScrollReveal delay={0.2}>
             <p className="text-white/60 max-w-2xl mx-auto mt-6">
-              Explore my technical skills visualized as an interactive galaxy. 
+              Explore my technical skills visualized as an interactive galaxy.
               Each node represents a technology I work with. Click to learn more.
             </p>
           </ScrollReveal>
         </div>
 
-        {/* 3D Galaxy */}
+        {/* 3D Constellation */}
         <ScrollReveal delay={0.3}>
-          <div className="mb-20 glass rounded-3xl overflow-hidden">
-            <SkillGalaxy onSkillClick={setSelectedSkill} />
+          <div className="mb-20 flex justify-center">
+            <SkillConstellation
+              skills={portfolioData.skills.slice(0, 12)}
+              className="max-w-[500px]"
+            />
           </div>
         </ScrollReveal>
 
@@ -207,19 +171,22 @@ export default function SkillsPage() {
         {categories.map((category) => (
           <div key={category} className="mb-16">
             <ScrollReveal>
-              <h3 className="text-xl font-semibold text-white mb-6 capitalize">
+              <h3 className="text-xl font-semibold text-white mb-6 capitalize flex items-center gap-3">
+                <span
+                  className="w-3 h-3 rounded-full"
+                  style={{
+                    backgroundColor:
+                      portfolioData.skills.find((s) => s.category === category)
+                        ?.color || "#00f0ff",
+                  }}
+                />
                 {category}
               </h3>
             </ScrollReveal>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {portfolioData.skills
-                .filter((s) => s.category === category)
-                .map((skill, index) => (
-                  <ScrollReveal key={skill.name} delay={index * 0.1}>
-                    <SkillCard skill={skill} onClick={() => setSelectedSkill(skill)} />
-                  </ScrollReveal>
-                ))}
-            </div>
+            <TechGrid
+              skills={portfolioData.skills.filter((s) => s.category === category)}
+              onSkillClick={setSelectedSkill}
+            />
           </div>
         ))}
       </div>
@@ -227,14 +194,17 @@ export default function SkillsPage() {
       {/* Modal */}
       <AnimatePresence>
         {selectedSkill && (
-          <SkillModal skill={selectedSkill} onClose={() => setSelectedSkill(null)} />
+          <SkillModal
+            skill={selectedSkill}
+            onClose={() => setSelectedSkill(null)}
+          />
         )}
       </AnimatePresence>
 
       {/* Background */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-1/3 left-0 w-96 h-96 bg-accent-neon/5 rounded-full blur-[128px]" />
-        <div className="absolute bottom-1/3 right-0 w-96 h-96 bg-accent-purple/5 rounded-full blur-[128px]" />
+      <div className="fixed inset-0 pointer-events-none -z-10">
+        <div className="absolute top-1/3 left-0 w-96 h-96 bg-[#00f0ff]/5 rounded-full blur-[128px]" />
+        <div className="absolute bottom-1/3 right-0 w-96 h-96 bg-[#a855f7]/5 rounded-full blur-[128px]" />
       </div>
     </div>
   );

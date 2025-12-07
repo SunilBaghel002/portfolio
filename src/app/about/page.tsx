@@ -4,10 +4,16 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import { portfolioData } from "@/lib/data";
-import { ScrollReveal, StaggerContainer, StaggerItem } from "@/components/animations/ScrollReveal";
-import { AnimatedHeading, AnimatedText } from "@/components/animations/AnimatedText";
-import { ParallaxWrapper } from "@/components/animations/ParallaxWrapper";
-import { Calendar, MapPin, Briefcase, GraduationCap, Heart } from "lucide-react";
+import {
+  ScrollReveal,
+  StaggerContainer,
+  StaggerItem,
+} from "@/components/animations/ScrollReveal";
+import {
+  AnimatedHeading,
+} from "@/components/animations/AnimatedText";
+import { SkillConstellation, TechBadge } from "@/components/ui/TechIcon";
+import { Calendar, MapPin, Briefcase, GraduationCap } from "lucide-react";
 
 const timeline = [
   {
@@ -16,6 +22,7 @@ const timeline = [
     company: "Tech Corp",
     description: "Leading frontend architecture and mentoring junior developers.",
     icon: Briefcase,
+    technologies: ["React", "TypeScript", "AWS"],
   },
   {
     year: "2022",
@@ -23,6 +30,7 @@ const timeline = [
     company: "Startup Inc",
     description: "Built core product features driving 300% user growth.",
     icon: Briefcase,
+    technologies: ["Next.js", "Node.js", "PostgreSQL"],
   },
   {
     year: "2020",
@@ -30,6 +38,7 @@ const timeline = [
     company: "Agency Co",
     description: "Crafted award-winning websites for Fortune 500 clients.",
     icon: Briefcase,
+    technologies: ["React", "Tailwind CSS", "Framer Motion"],
   },
   {
     year: "2018",
@@ -37,6 +46,7 @@ const timeline = [
     company: "University",
     description: "Graduated with honors, specializing in web technologies.",
     icon: GraduationCap,
+    technologies: ["Python", "JavaScript", "Git"],
   },
 ];
 
@@ -49,7 +59,13 @@ const interests = [
   { name: "Coffee", icon: "☕" },
 ];
 
-function TimelineItem({ item, index }: { item: typeof timeline[0]; index: number }) {
+function TimelineItem({
+  item,
+  index,
+}: {
+  item: (typeof timeline)[0];
+  index: number;
+}) {
   const Icon = item.icon;
   const isLeft = index % 2 === 0;
 
@@ -59,24 +75,47 @@ function TimelineItem({ item, index }: { item: typeof timeline[0]; index: number
       delay={index * 0.1}
       className="relative"
     >
-      <div className={`flex items-center gap-8 ${isLeft ? "flex-row" : "flex-row-reverse"}`}>
+      <div
+        className={`flex items-center gap-8 ${isLeft ? "flex-row" : "flex-row-reverse"
+          }`}
+      >
         {/* Content */}
         <div className={`flex-1 ${isLeft ? "text-right" : "text-left"}`}>
           <motion.div
             className="glass p-6 rounded-2xl inline-block"
             whileHover={{ scale: 1.02, y: -5 }}
           >
-            <span className="text-accent-neon text-sm font-mono">{item.year}</span>
+            <span className="text-[#00f0ff] text-sm font-mono">{item.year}</span>
             <h3 className="text-xl font-bold text-white mt-2">{item.title}</h3>
-            <p className="text-accent-purple text-sm mt-1">{item.company}</p>
+            <p className="text-[#a855f7] text-sm mt-1">{item.company}</p>
             <p className="text-white/60 text-sm mt-2">{item.description}</p>
+
+            {/* Tech badges */}
+            <div
+              className={`flex flex-wrap gap-2 mt-4 ${isLeft ? "justify-end" : "justify-start"
+                }`}
+            >
+              {item.technologies.map((tech) => {
+                const skill = portfolioData.skills.find(
+                  (s) => s.name.toLowerCase() === tech.toLowerCase()
+                );
+                return (
+                  <TechBadge
+                    key={tech}
+                    name={tech}
+                    color={skill?.color || "#00f0ff"}
+                    variant="glow"
+                  />
+                );
+              })}
+            </div>
           </motion.div>
         </div>
 
         {/* Center Icon */}
         <div className="relative z-10">
           <motion.div
-            className="w-12 h-12 rounded-full bg-gradient-to-br from-accent-neon to-accent-purple flex items-center justify-center"
+            className="w-12 h-12 rounded-full bg-gradient-to-br from-[#00f0ff] to-[#a855f7] flex items-center justify-center"
             whileHover={{ scale: 1.2, rotate: 360 }}
             transition={{ duration: 0.5 }}
           >
@@ -88,81 +127,6 @@ function TimelineItem({ item, index }: { item: typeof timeline[0]; index: number
         <div className="flex-1" />
       </div>
     </ScrollReveal>
-  );
-}
-
-function SkillConstellation() {
-  const skills = portfolioData.skills.slice(0, 8);
-
-  return (
-    <div className="relative h-[400px] w-full">
-      {/* Connection lines */}
-      <svg className="absolute inset-0 w-full h-full">
-        {skills.map((_, i) => {
-          const nextIndex = (i + 1) % skills.length;
-          const angle1 = (i / skills.length) * Math.PI * 2;
-          const angle2 = (nextIndex / skills.length) * Math.PI * 2;
-          const r = 150;
-          const cx = 200;
-          const cy = 200;
-
-          return (
-            <motion.line
-              key={i}
-              x1={cx + Math.cos(angle1) * r}
-              y1={cy + Math.sin(angle1) * r}
-              x2={cx + Math.cos(angle2) * r}
-              y2={cy + Math.sin(angle2) * r}
-              stroke="rgba(0, 240, 255, 0.2)"
-              strokeWidth="1"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 1, delay: i * 0.1 }}
-            />
-          );
-        })}
-      </svg>
-
-      {/* Skill nodes */}
-      {skills.map((skill, i) => {
-        const angle = (i / skills.length) * Math.PI * 2;
-        const r = 150;
-        const x = 200 + Math.cos(angle) * r;
-        const y = 200 + Math.sin(angle) * r;
-
-        return (
-          <motion.div
-            key={skill.name}
-            className="absolute"
-            style={{ left: x - 30, top: y - 30 }}
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.5 + i * 0.1, type: "spring" }}
-            whileHover={{ scale: 1.3 }}
-          >
-            <div
-              className="w-[60px] h-[60px] rounded-full flex items-center justify-center text-white text-xs font-medium"
-              style={{
-                background: `radial-gradient(circle, ${skill.color}40, ${skill.color}10)`,
-                border: `2px solid ${skill.color}`,
-                boxShadow: `0 0 20px ${skill.color}30`,
-              }}
-            >
-              {skill.name.slice(0, 3)}
-            </div>
-          </motion.div>
-        );
-      })}
-
-      {/* Center */}
-      <motion.div
-        className="absolute left-[170px] top-[170px] w-[60px] h-[60px] rounded-full bg-gradient-to-br from-accent-neon to-accent-purple flex items-center justify-center"
-        animate={{ rotate: 360 }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-      >
-        <Heart className="w-6 h-6 text-white" />
-      </motion.div>
-    </div>
   );
 }
 
@@ -183,8 +147,8 @@ export default function AboutPage() {
           className="absolute inset-0 opacity-30"
           style={{ y: backgroundY }}
         >
-          <div className="absolute top-20 left-20 w-72 h-72 bg-accent-neon/30 rounded-full blur-[100px]" />
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-accent-purple/30 rounded-full blur-[120px]" />
+          <div className="absolute top-20 left-20 w-72 h-72 bg-[#00f0ff]/30 rounded-full blur-[100px]" />
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-[#a855f7]/30 rounded-full blur-[120px]" />
         </motion.div>
 
         <div className="max-w-6xl mx-auto px-6">
@@ -196,14 +160,14 @@ export default function AboutPage() {
                   className="relative aspect-square rounded-3xl overflow-hidden glass"
                   whileHover={{ scale: 1.02 }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-accent-neon/20 to-accent-purple/20" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#00f0ff]/20 to-[#a855f7]/20" />
                   <Image
                     src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=600&fit=crop"
                     alt={portfolioData.name}
                     fill
                     className="object-cover mix-blend-luminosity opacity-80"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-background)] via-transparent to-transparent" />
                 </motion.div>
 
                 {/* Floating badges */}
@@ -212,7 +176,7 @@ export default function AboutPage() {
                   animate={{ y: [0, -10, 0] }}
                   transition={{ duration: 3, repeat: Infinity }}
                 >
-                  <span className="text-accent-neon font-bold">5+</span>
+                  <span className="text-[#00f0ff] font-bold">5+</span>
                   <span className="text-white/60 text-sm ml-1">Years</span>
                 </motion.div>
 
@@ -221,7 +185,7 @@ export default function AboutPage() {
                   animate={{ y: [0, 10, 0] }}
                   transition={{ duration: 4, repeat: Infinity }}
                 >
-                  <span className="text-accent-purple font-bold">50+</span>
+                  <span className="text-[#a855f7] font-bold">50+</span>
                   <span className="text-white/60 text-sm ml-1">Projects</span>
                 </motion.div>
               </div>
@@ -230,14 +194,12 @@ export default function AboutPage() {
             {/* Content */}
             <div className="space-y-8">
               <ScrollReveal>
-                <span className="text-accent-neon text-sm font-medium uppercase tracking-wider">
+                <span className="text-[#00f0ff] text-sm font-medium uppercase tracking-wider">
                   About Me
                 </span>
               </ScrollReveal>
 
-              <AnimatedHeading>
-                Crafting Digital Experiences
-              </AnimatedHeading>
+              <AnimatedHeading>Crafting Digital Experiences</AnimatedHeading>
 
               <ScrollReveal delay={0.2}>
                 <p className="text-xl text-white/80 leading-relaxed">
@@ -247,22 +209,37 @@ export default function AboutPage() {
 
               <ScrollReveal delay={0.3}>
                 <p className="text-white/60 leading-relaxed">
-                  I believe in the power of clean code and beautiful design. Every project 
-                  is an opportunity to push boundaries and create something extraordinary. 
-                  My approach combines technical excellence with creative problem-solving.
+                  I believe in the power of clean code and beautiful design.
+                  Every project is an opportunity to push boundaries and create
+                  something extraordinary. My approach combines technical
+                  excellence with creative problem-solving.
                 </p>
               </ScrollReveal>
 
               <ScrollReveal delay={0.4}>
                 <div className="flex flex-wrap gap-4">
                   <div className="flex items-center gap-2 text-white/60">
-                    <MapPin className="w-4 h-4 text-accent-neon" />
+                    <MapPin className="w-4 h-4 text-[#00f0ff]" />
                     {portfolioData.location}
                   </div>
                   <div className="flex items-center gap-2 text-white/60">
-                    <Calendar className="w-4 h-4 text-accent-purple" />
+                    <Calendar className="w-4 h-4 text-[#a855f7]" />
                     Available for freelance
                   </div>
+                </div>
+              </ScrollReveal>
+
+              {/* Tech Stack Preview */}
+              <ScrollReveal delay={0.5}>
+                <div className="flex flex-wrap gap-2 pt-4">
+                  {portfolioData.skills.slice(0, 6).map((skill) => (
+                    <TechBadge
+                      key={skill.name}
+                      name={skill.name}
+                      color={skill.color}
+                      variant="glow"
+                    />
+                  ))}
                 </div>
               </ScrollReveal>
             </div>
@@ -275,7 +252,7 @@ export default function AboutPage() {
         <div className="max-w-4xl mx-auto px-6">
           <div className="text-center mb-16">
             <ScrollReveal>
-              <span className="text-accent-neon text-sm font-medium uppercase tracking-wider mb-4 block">
+              <span className="text-[#00f0ff] text-sm font-medium uppercase tracking-wider mb-4 block">
                 Journey
               </span>
             </ScrollReveal>
@@ -285,7 +262,7 @@ export default function AboutPage() {
           {/* Timeline */}
           <div className="relative">
             {/* Center line */}
-            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-accent-neon via-accent-purple to-accent-pink" />
+            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-[#00f0ff] via-[#a855f7] to-[#ec4899]" />
 
             <div className="space-y-16">
               {timeline.map((item, index) => (
@@ -302,21 +279,22 @@ export default function AboutPage() {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
               <ScrollReveal>
-                <span className="text-accent-neon text-sm font-medium uppercase tracking-wider mb-4 block">
+                <span className="text-[#00f0ff] text-sm font-medium uppercase tracking-wider mb-4 block">
                   Expertise
                 </span>
               </ScrollReveal>
               <AnimatedHeading>Skill Constellation</AnimatedHeading>
               <ScrollReveal delay={0.2}>
                 <p className="text-white/60 mt-6">
-                  My skills form an interconnected ecosystem, each one enhancing the others 
-                  to create comprehensive solutions. Hover over the nodes to explore.
+                  My skills form an interconnected ecosystem, each one enhancing
+                  the others to create comprehensive solutions. Hover over the
+                  nodes to explore.
                 </p>
               </ScrollReveal>
             </div>
 
             <ScrollReveal direction="right">
-              <SkillConstellation />
+              <SkillConstellation skills={portfolioData.skills.slice(0, 8)} />
             </ScrollReveal>
           </div>
         </div>
@@ -327,7 +305,7 @@ export default function AboutPage() {
         <div className="max-w-4xl mx-auto px-6">
           <div className="text-center mb-16">
             <ScrollReveal>
-              <span className="text-accent-neon text-sm font-medium uppercase tracking-wider mb-4 block">
+              <span className="text-[#00f0ff] text-sm font-medium uppercase tracking-wider mb-4 block">
                 Beyond Code
               </span>
             </ScrollReveal>
