@@ -20,6 +20,13 @@ export default function Hero() {
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8]);
 
+  // Get skills with their colors for floating orbs
+  const floatingSkills = portfolioData.skills.slice(0, 6).map(skill => ({
+    name: skill.name,
+    color: skill.color,
+    level: skill.level,
+  }));
+
   return (
     <section
       ref={containerRef}
@@ -45,11 +52,8 @@ export default function Hero() {
         />
       </div>
 
-      {/* Floating Skill Orbs with Icons */}
-      <FloatingTechOrbs
-        skills={portfolioData.skills.slice(0, 6)}
-        className="opacity-80"
-      />
+      {/* Floating Skill Orbs with Icons - Now with fixed positions */}
+      <FloatingTechOrbs skills={floatingSkills} className="opacity-80" />
 
       {/* Content */}
       <motion.div
@@ -146,7 +150,7 @@ export default function Hero() {
       </motion.div>
 
       {/* Gradient overlays */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[var(--color-background)] pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0a0a0a] pointer-events-none" />
     </section>
   );
 }
