@@ -496,7 +496,7 @@ export function TechBadge({
 }
 
 // ============================================
-// CONCENTRIC ORBITS VISUALIZATION
+// CONCENTRIC ORBITS VISUALIZATION - FIXED
 // ============================================
 
 interface ConcentricOrbitsProps {
@@ -507,192 +507,334 @@ interface ConcentricOrbitsProps {
 export function ConcentricOrbits({ categories, className }: ConcentricOrbitsProps) {
     const [activeCategory, setActiveCategory] = useState<string | null>(null);
     const [hoveredSkill, setHoveredSkill] = useState<string | null>(null);
+    const [isPaused, setIsPaused] = useState(false);
 
-    // Calculate orbit radii - start from center going outward
-    const baseRadius = 80;
-    const radiusStep = 60;
-    const centerSize = 60;
+    // Container size and orbit calculations
+    const containerSize = 700; // px
+    const centerSize = 70;
+    const baseRadius = 60; // Starting radius for first orbit
+    const radiusStep = 45; // Gap between orbits
+
+    // Calculate the center point
+    const center = containerSize / 2;
 
     return (
-        <div className={cn("relative w-full aspect-square max-w-[800px] mx-auto", className)}>
-            {/* SVG for orbit lines */}
-            <svg className="absolute inset-0 w-full h-full">
+        <div
+            className={cn("relative mx-auto", className)}
+            style={{ width: containerSize, height: containerSize }}
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+        >
+            {/* SVG for orbit rings */}
+            <svg
+                className="absolute inset-0 w-full h-full"
+                viewBox={`0 0 ${containerSize} ${containerSize}`}
+            >
                 <defs>
-                    {categories.map((cat, index) => (
-                        <linearGradient
-                            key={`gradient-${index}`}
-                            id={`orbit-gradient-${index}`}
-                            x1="0%"
-                            y1="0%"
-                            x2="100%"
-                            y2="100%"
-                        >
-                            <stop offset="0%" stopColor={cat.color} stopOpacity="0.3" />
-                            <stop offset="50%" stopColor={cat.color} stopOpacity="0.6" />
-                            <stop offset="100%" stopColor={cat.color} stopOpacity="0.3" />
-                        </linearGradient>
-                    ))}
+                    {/* Glow filter */}
+                    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+                        <feMerge>
+                            <feMergeNode in="coloredBlur" />
+                            <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                    </filter>
                 </defs>
 
-                {/* Orbit rings */}
+                {/* Draw orbit circles */}
                 {categories.map((category, index) => {
                     const radius = baseRadius + index * radiusStep;
-                    const isActive = activeCategory === category.name;
+                    const isActive = activeCategory === null || activeCategory === category.name;
+                    const isHighlighted = activeCategory === category.name;
 
                     return (
-                        <motion.circle
-                            key={category.name}
-                            cx="50%"
-                            cy="50%"
-                            r={radius}
-                            fill="none"
-                            stroke={`url(#orbit-gradient-${index})`}
-                            strokeWidth={isActive ? 3 : 1.5}
-                            strokeDasharray={isActive ? "none" : "8 4"}
-                            initial={{ opacity: 0, scale: 0 }}
-                            animate={{
-                                opacity: isActive ? 1 : 0.5,
-                                scale: 1,
-                                strokeWidth: isActive ? 3 : 1.5,
-                            }}
-                            transition={{ duration: 0.8, delay: index * 0.1 }}
-                        />
+                        <g key={category.name}>
+                            {/* Orbit ring */}
+                            <motion.circle
+                                cx={center}
+                                cy={center}
+                                r={radius}
+                                fill="none"
+                                stroke={category.color}
+                                strokeWidth={isHighlighted ? 2 : 1}
+                                strokeOpacity={isActive ? 0.4 : 0.1}
+                                strokeDasharray={isHighlighted ? "none" : "6 4"}
+                                initial={{ scale: 0, opacity: 0 }}
+                                animate={{
+                                    scale: 1,
+                                    opacity: 1,
+                                    strokeWidth: isHighlighted ? 2 : 1,
+                                    strokeOpacity: isActive ? 0.4 : 0.1,
+                                }}
+                                transition={{ duration: 0.6, delay: index * 0.1 }}
+                            />
+
+                            {/* Glowing orbit for highlighted category */}
+                            {isHighlighted && (
+                                <motion.circle
+                                    cx={center}
+                                    cy={center}
+                                    r={radius}
+                                    fill="none"
+                                    stroke={category.color}
+                                    strokeWidth={4}
+                                    strokeOpacity={0.2}
+                                    filter="url(#glow)"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                />
+                            )}
+                        </g>
                     );
                 })}
             </svg>
 
             {/* Center - Developer Icon */}
             <motion.div
-                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20"
+                className="absolute z-30"
+                style={{
+                    left: center - centerSize / 2,
+                    top: center - centerSize / 2,
+                    width: centerSize,
+                    height: centerSize,
+                }}
                 initial={{ scale: 0, rotate: -180 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.3 }}
             >
                 <motion.div
-                    className="rounded-full bg-gradient-to-br from-[#00f0ff] via-[#a855f7] to-[#ec4899] p-1"
-                    style={{ width: centerSize + 10, height: centerSize + 10 }}
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                    className="w-full h-full rounded-full bg-gradient-to-br from-[#00f0ff] via-[#a855f7] to-[#ec4899] p-[3px]"
+                    animate={{ rotate: isPaused ? 0 : 360 }}
+                    transition={{
+                        duration: 20,
+                        repeat: Infinity,
+                        ease: "linear",
+                        repeatType: "loop"
+                    }}
                 >
-                    <div
-                        className="w-full h-full rounded-full bg-[#0a0a0a] flex items-center justify-center"
-                    >
+                    <div className="w-full h-full rounded-full bg-[#0a0a0a] flex items-center justify-center">
                         <FaCode className="text-white" size={28} />
                     </div>
                 </motion.div>
             </motion.div>
 
-            {/* Category Labels on sides */}
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[calc(100%+20px)] hidden lg:flex flex-col gap-2">
+            {/* Skills on orbits */}
+            {categories.map((category, catIndex) => {
+                const radius = baseRadius + catIndex * radiusStep;
+                const skillCount = category.skills.length;
+                const isActive = activeCategory === null || activeCategory === category.name;
+                const rotationDuration = 60 + catIndex * 20; // Slower rotation for outer orbits
+
+                return (
+                    <motion.div
+                        key={category.name}
+                        className="absolute inset-0"
+                        animate={{
+                            rotate: isPaused ? 0 : 360
+                        }}
+                        transition={{
+                            duration: rotationDuration,
+                            repeat: Infinity,
+                            ease: "linear",
+                            repeatType: "loop"
+                        }}
+                        style={{
+                            // Alternate direction for visual interest
+                            animationDirection: catIndex % 2 === 0 ? "normal" : "reverse"
+                        }}
+                    >
+                        {category.skills.map((skill, skillIndex) => {
+                            // Calculate position on the orbit circle
+                            const angle = (skillIndex / skillCount) * Math.PI * 2 - Math.PI / 2;
+                            const x = center + radius * Math.cos(angle);
+                            const y = center + radius * Math.sin(angle);
+
+                            // Use skill's own color, fallback to category color
+                            const skillColor = skill.color || category.color;
+
+                            // Size based on skill level
+                            const orbSize = skill.level >= 85 ? 44 : skill.level >= 70 ? 38 : 32;
+                            const iconSize = skill.level >= 85 ? 20 : skill.level >= 70 ? 16 : 14;
+
+                            return (
+                                <motion.div
+                                    key={skill.name}
+                                    className="absolute"
+                                    style={{
+                                        left: x - orbSize / 2,
+                                        top: y - orbSize / 2,
+                                        width: orbSize,
+                                        height: orbSize,
+                                    }}
+                                    initial={{ scale: 0, opacity: 0 }}
+                                    animate={{
+                                        scale: isActive ? 1 : 0.5,
+                                        opacity: isActive ? 1 : 0.3,
+                                    }}
+                                    transition={{
+                                        duration: 0.4,
+                                        delay: catIndex * 0.1 + skillIndex * 0.03,
+                                    }}
+                                    onMouseEnter={() => setHoveredSkill(skill.name)}
+                                    onMouseLeave={() => setHoveredSkill(null)}
+                                >
+                                    {/* Counter-rotate to keep icons upright */}
+                                    <motion.div
+                                        animate={{
+                                            rotate: isPaused ? 0 : -360
+                                        }}
+                                        transition={{
+                                            duration: rotationDuration,
+                                            repeat: Infinity,
+                                            ease: "linear",
+                                            repeatType: "loop"
+                                        }}
+                                        className="w-full h-full"
+                                    >
+                                        <motion.div
+                                            className="w-full h-full rounded-full flex items-center justify-center cursor-pointer relative group"
+                                            style={{
+                                                background: `radial-gradient(circle at 30% 30%, ${skillColor}50, ${skillColor}15)`,
+                                                border: `2px solid ${skillColor}`,
+                                                boxShadow: hoveredSkill === skill.name
+                                                    ? `0 0 25px ${skillColor}80, 0 0 50px ${skillColor}40`
+                                                    : `0 0 15px ${skillColor}40`,
+                                            }}
+                                            whileHover={{ scale: 1.3, zIndex: 50 }}
+                                            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                                        >
+                                            <TechIcon
+                                                name={skill.name}
+                                                color={skillColor}
+                                                size={iconSize}
+                                            />
+
+                                            {/* Tooltip */}
+                                            <motion.div
+                                                className="absolute -top-20 left-1/2 -translate-x-1/2 glass px-4 py-3 rounded-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-[100] min-w-[140px]"
+                                                style={{
+                                                    border: `1px solid ${skillColor}40`,
+                                                    boxShadow: `0 0 20px ${skillColor}30`,
+                                                }}
+                                            >
+                                                <div className="flex flex-col items-center gap-2">
+                                                    <span className="text-sm font-semibold text-white">{skill.name}</span>
+                                                    <div className="w-full">
+                                                        <div className="flex justify-between text-xs mb-1">
+                                                            <span className="text-white/50">Proficiency</span>
+                                                            <span style={{ color: skillColor }}>{skill.level}%</span>
+                                                        </div>
+                                                        <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+                                                            <div
+                                                                className="h-full rounded-full transition-all duration-300"
+                                                                style={{
+                                                                    width: `${skill.level}%`,
+                                                                    backgroundColor: skillColor
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <span className="text-xs text-white/40">{category.name}</span>
+                                                </div>
+                                                {/* Arrow */}
+                                                <div
+                                                    className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 glass"
+                                                    style={{ borderColor: `${skillColor}40` }}
+                                                />
+                                            </motion.div>
+                                        </motion.div>
+                                    </motion.div>
+                                </motion.div>
+                            );
+                        })}
+                    </motion.div>
+                );
+            })}
+
+            {/* Category Legend - Right Side (Desktop) */}
+            <div className="absolute -right-4 top-1/2 -translate-y-1/2 translate-x-full hidden xl:flex flex-col gap-3 pl-8">
+                <div className="text-xs text-white/40 uppercase tracking-wider mb-2">Categories</div>
+                {categories.map((category, index) => (
+                    <motion.button
+                        key={category.name}
+                        className={cn(
+                            "flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium transition-all text-left",
+                            activeCategory === category.name
+                                ? "bg-white/10 backdrop-blur-sm"
+                                : "hover:bg-white/5"
+                        )}
+                        style={{
+                            color: activeCategory === category.name || activeCategory === null
+                                ? category.color
+                                : "rgba(255,255,255,0.3)",
+                            border: activeCategory === category.name
+                                ? `1px solid ${category.color}40`
+                                : "1px solid transparent",
+                        }}
+                        onClick={() => setActiveCategory(
+                            activeCategory === category.name ? null : category.name
+                        )}
+                        whileHover={{ x: 5 }}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                    >
+                        <span
+                            className="w-3 h-3 rounded-full"
+                            style={{
+                                backgroundColor: category.color,
+                                boxShadow: activeCategory === category.name
+                                    ? `0 0 10px ${category.color}`
+                                    : 'none'
+                            }}
+                        />
+                        <span>{category.name}</span>
+                        <span className="text-xs text-white/30 ml-auto">
+                            {category.skills.length}
+                        </span>
+                    </motion.button>
+                ))}
+            </div>
+
+            {/* Mobile Category Selector - Bottom */}
+            <div className="absolute -bottom-24 left-1/2 -translate-x-1/2 flex flex-wrap justify-center gap-2 xl:hidden w-full max-w-[500px]">
                 {categories.map((category) => (
                     <motion.button
                         key={category.name}
                         className={cn(
-                            "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all",
+                            "px-3 py-1.5 rounded-full text-xs font-medium transition-all",
                             activeCategory === category.name
-                                ? "bg-white/10"
-                                : "hover:bg-white/5"
+                                ? "bg-white/15"
+                                : "bg-white/5 hover:bg-white/10"
                         )}
                         style={{
-                            color: activeCategory === category.name ? category.color : "rgba(255,255,255,0.6)",
-                            borderLeft: `3px solid ${activeCategory === category.name ? category.color : "transparent"}`,
+                            color: category.color,
+                            border: `1px solid ${activeCategory === category.name ? category.color : "transparent"
+                                }`,
+                            boxShadow: activeCategory === category.name
+                                ? `0 0 15px ${category.color}40`
+                                : 'none',
                         }}
-                        onClick={() => setActiveCategory(activeCategory === category.name ? null : category.name)}
-                        whileHover={{ x: 5 }}
+                        onClick={() => setActiveCategory(
+                            activeCategory === category.name ? null : category.name
+                        )}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                     >
-                        <span
-                            className="w-2 h-2 rounded-full"
-                            style={{ backgroundColor: category.color }}
-                        />
                         {category.name}
                     </motion.button>
                 ))}
             </div>
 
-            {/* Orbiting Skills */}
-            {categories.map((category, catIndex) => {
-                const radius = baseRadius + catIndex * radiusStep;
-                const skillCount = category.skills.length;
-                const isActive = activeCategory === null || activeCategory === category.name;
-
-                return category.skills.map((skill, skillIndex) => {
-                    // Calculate position on orbit
-                    const angle = (skillIndex / skillCount) * Math.PI * 2 - Math.PI / 2;
-                    const x = 50 + (radius / 4) * Math.cos(angle);
-                    const y = 50 + (radius / 4) * Math.sin(angle);
-
-                    // Determine size based on level
-                    const size = skill.level > 80 ? "md" : "sm";
-
-                    return (
-                        <motion.div
-                            key={`${category.name}-${skill.name}`}
-                            className="absolute"
-                            style={{
-                                left: `${x}%`,
-                                top: `${y}%`,
-                                transform: "translate(-50%, -50%)",
-                            }}
-                            initial={{ opacity: 0, scale: 0 }}
-                            animate={{
-                                opacity: isActive ? 1 : 0.3,
-                                scale: isActive ? 1 : 0.7,
-                            }}
-                            transition={{
-                                duration: 0.5,
-                                delay: catIndex * 0.1 + skillIndex * 0.05,
-                            }}
-                            onMouseEnter={() => setHoveredSkill(skill.name)}
-                            onMouseLeave={() => setHoveredSkill(null)}
-                        >
-                            {/* Orbit animation wrapper */}
-                            <motion.div
-                                animate={{
-                                    rotate: [0, 360],
-                                }}
-                                transition={{
-                                    duration: 30 + catIndex * 10,
-                                    repeat: Infinity,
-                                    ease: "linear",
-                                }}
-                                style={{
-                                    transformOrigin: `${50 - x}% ${50 - y}%`,
-                                }}
-                            >
-                                <TechOrb
-                                    name={skill.name}
-                                    color={category.color}
-                                    size={size}
-                                    level={skill.level}
-                                    glowIntensity={hoveredSkill === skill.name ? "high" : "medium"}
-                                />
-                            </motion.div>
-                        </motion.div>
-                    );
-                });
-            })}
-
-            {/* Mobile Category Selector */}
-            <div className="absolute -bottom-20 left-0 right-0 flex flex-wrap justify-center gap-2 lg:hidden">
-                {categories.map((category) => (
-                    <button
-                        key={category.name}
-                        className={cn(
-                            "px-3 py-1.5 rounded-full text-xs font-medium transition-all",
-                            activeCategory === category.name
-                                ? "bg-white/20"
-                                : "bg-white/5 hover:bg-white/10"
-                        )}
-                        style={{
-                            color: category.color,
-                            border: `1px solid ${activeCategory === category.name ? category.color : "transparent"}`,
-                        }}
-                        onClick={() => setActiveCategory(activeCategory === category.name ? null : category.name)}
-                    >
-                        {category.name}
-                    </button>
-                ))}
-            </div>
+            {/* Instruction text */}
+            <motion.p
+                className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs text-white/30 whitespace-nowrap xl:hidden"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1 }}
+            >
+                Hover to pause • Click category to filter
+            </motion.p>
         </div>
     );
 }

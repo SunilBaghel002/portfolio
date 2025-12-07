@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { portfolioData, Skill } from "@/lib/data";
+import { portfolioData, CategorySkill } from "@/lib/data";
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { AnimatedHeading } from "@/components/animations/AnimatedText";
 import {
@@ -13,13 +13,14 @@ import {
 import { X, ExternalLink, Folder } from "lucide-react";
 
 interface SkillModalProps {
-  skill: { name: string; level: number };
+  skill: CategorySkill;
   category: string;
-  color: string;
   onClose: () => void;
 }
 
-function SkillModal({ skill, category, color, onClose }: SkillModalProps) {
+function SkillModal({ skill, category, onClose }: SkillModalProps) {
+  const color = skill.color || "#00f0ff";
+
   const relatedProjects = portfolioData.projects.filter((p) =>
     p.tags.some((t) => t.toLowerCase().includes(skill.name.toLowerCase()))
   );
@@ -61,6 +62,7 @@ function SkillModal({ skill, category, color, onClose }: SkillModalProps) {
               style={{
                 backgroundColor: `${color}20`,
                 border: `2px solid ${color}40`,
+                boxShadow: `0 0 30px ${color}30`,
               }}
             >
               <TechIcon name={skill.name} color={color} size={40} />
@@ -107,8 +109,8 @@ function SkillModal({ skill, category, color, onClose }: SkillModalProps) {
                   >
                     <Folder className="w-4 h-4" style={{ color }} />
                     <span className="text-white/80 flex-1">{project.title}</span>
-                    {project.link && (
-                      <a href={project.link} target="_blank" rel="noopener noreferrer">
+                    {project.github && (
+                      <a href={project.github} target="_blank" rel="noopener noreferrer">
                         <ExternalLink className="w-4 h-4 text-white/40 hover:text-white" />
                       </a>
                     )}
@@ -125,13 +127,12 @@ function SkillModal({ skill, category, color, onClose }: SkillModalProps) {
 
 export default function SkillsPage() {
   const [selectedSkill, setSelectedSkill] = useState<{
-    skill: { name: string; level: number };
+    skill: CategorySkill;
     category: string;
-    color: string;
   } | null>(null);
 
   return (
-    <div className="min-h-screen pt-32 pb-32">
+    <div className="min-h-screen pt-32 pb-48">
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
         <div className="text-center mb-16">
@@ -145,30 +146,46 @@ export default function SkillsPage() {
             <p className="text-white/60 max-w-2xl mx-auto mt-6">
               Explore my technical skills organized in concentric orbits.
               Each ring represents a different domain of expertise.
-              Hover over skills to see proficiency levels.
+              Hover over skills to see details, click categories to filter.
             </p>
           </ScrollReveal>
         </div>
 
         {/* Concentric Orbits Visualization */}
         <ScrollReveal delay={0.3}>
-          <div className="mb-32">
+          <div className="mb-48 flex justify-center">
             <ConcentricOrbits categories={portfolioData.skillCategories} />
           </div>
         </ScrollReveal>
 
         {/* Skills Grid by Category */}
-        <div className="mt-32 space-y-16">
+        <div className="mt-32 space-y-20">
+          <div className="text-center mb-12">
+            <AnimatedHeading>All Skills</AnimatedHeading>
+            <p className="text-white/50 mt-4">Click on any skill for details</p>
+          </div>
+
           {portfolioData.skillCategories.map((category, catIndex) => (
             <div key={category.name}>
               <ScrollReveal delay={catIndex * 0.1}>
                 <div className="flex items-center gap-4 mb-8">
                   <div
                     className="w-4 h-4 rounded-full"
-                    style={{ backgroundColor: category.color }}
+                    style={{
+                      backgroundColor: category.color,
+                      boxShadow: `0 0 15px ${category.color}60`
+                    }}
                   />
                   <h3 className="text-2xl font-bold text-white">{category.name}</h3>
-                  <div className="flex-1 h-px bg-gradient-to-r from-white/20 to-transparent" />
+                  <div
+                    className="flex-1 h-px"
+                    style={{
+                      background: `linear-gradient(to right, ${category.color}40, transparent)`
+                    }}
+                  />
+                  <span className="text-white/30 text-sm">
+                    {category.skills.length} skills
+                  </span>
                 </div>
               </ScrollReveal>
 
@@ -176,19 +193,18 @@ export default function SkillsPage() {
                 {category.skills.map((skill, skillIndex) => (
                   <ScrollReveal
                     key={skill.name}
-                    delay={catIndex * 0.1 + skillIndex * 0.03}
+                    delay={catIndex * 0.05 + skillIndex * 0.02}
                     direction="scale"
                   >
                     <TechCard
                       name={skill.name}
-                      color={category.color}
+                      color={skill.color || category.color}
                       level={skill.level}
                       category={category.name}
                       onClick={() =>
                         setSelectedSkill({
                           skill,
                           category: category.name,
-                          color: category.color,
                         })
                       }
                     />
@@ -206,7 +222,6 @@ export default function SkillsPage() {
           <SkillModal
             skill={selectedSkill.skill}
             category={selectedSkill.category}
-            color={selectedSkill.color}
             onClose={() => setSelectedSkill(null)}
           />
         )}

@@ -8,91 +8,91 @@ export const portfolioData = {
   skillCategories: [
     {
       name: "Languages",
-      color: "#3B82F6", // Blue
+      color: "#3B82F6",
       orbitIndex: 0,
       skills: [
-        { name: "JavaScript", level: 95 },
-        { name: "TypeScript", level: 90 },
-        { name: "Python", level: 85 },
-        { name: "Solidity", level: 70 },
-        { name: "C", level: 65 },
-        { name: "HTML5", level: 95 },
-        { name: "CSS3", level: 95 },
+        { name: "JavaScript", level: 95, color: "#F7DF1E" },
+        { name: "TypeScript", level: 90, color: "#3178C6" },
+        { name: "Python", level: 85, color: "#3776AB" },
+        { name: "Solidity", level: 70, color: "#363636" },
+        { name: "C", level: 65, color: "#A8B9CC" },
+        { name: "HTML5", level: 95, color: "#E34F26" },
+        { name: "CSS3", level: 95, color: "#1572B6" },
       ],
     },
     {
       name: "Frontend",
-      color: "#10B981", // Green
+      color: "#10B981",
       orbitIndex: 1,
       skills: [
-        { name: "React", level: 95 },
-        { name: "Next.js", level: 92 },
-        { name: "Tailwind CSS", level: 95 },
-        { name: "Framer Motion", level: 88 },
-        { name: "ShadCN UI", level: 85 },
-        { name: "Responsive Design", level: 90 },
+        { name: "React", level: 95, color: "#61DAFB" },
+        { name: "Next.js", level: 92, color: "#ffffff" },
+        { name: "Tailwind CSS", level: 95, color: "#06B6D4" },
+        { name: "Framer Motion", level: 88, color: "#FF0055" },
+        { name: "ShadCN UI", level: 85, color: "#ffffff" },
+        { name: "Responsive Design", level: 90, color: "#38BDF8" },
       ],
     },
     {
       name: "Backend",
-      color: "#F97316", // Orange
+      color: "#F97316",
       orbitIndex: 2,
       skills: [
-        { name: "Node.js", level: 88 },
-        { name: "Express", level: 85 },
-        { name: "FastAPI", level: 75 },
-        { name: "REST APIs", level: 90 },
-        { name: "JWT", level: 85 },
-        { name: "OAuth", level: 80 },
+        { name: "Node.js", level: 88, color: "#339933" },
+        { name: "Express", level: 85, color: "#ffffff" },
+        { name: "FastAPI", level: 75, color: "#009688" },
+        { name: "REST APIs", level: 90, color: "#FF6B6B" },
+        { name: "JWT", level: 85, color: "#D63AFF" },
+        { name: "OAuth", level: 80, color: "#EB5424" },
       ],
     },
     {
       name: "Databases",
-      color: "#8B5CF6", // Purple
+      color: "#8B5CF6",
       orbitIndex: 3,
       skills: [
-        { name: "MongoDB", level: 85 },
-        { name: "PostgreSQL", level: 82 },
-        { name: "Supabase", level: 80 },
-        { name: "Prisma", level: 85 },
-        { name: "Redis", level: 70 },
+        { name: "MongoDB", level: 85, color: "#47A248" },
+        { name: "PostgreSQL", level: 82, color: "#4169E1" },
+        { name: "Supabase", level: 80, color: "#3ECF8E" },
+        { name: "Prisma", level: 85, color: "#2D3748" },
+        { name: "Redis", level: 70, color: "#DC382D" },
       ],
     },
     {
       name: "DevOps & Tools",
-      color: "#78716C", // Brown/Gray
+      color: "#78716C",
       orbitIndex: 4,
       skills: [
-        { name: "Git", level: 90 },
-        { name: "GitHub", level: 90 },
-        { name: "Docker", level: 78 },
-        { name: "Vercel", level: 88 },
-        { name: "Postman", level: 85 },
-        { name: "VS Code", level: 95 },
+        { name: "Git", level: 90, color: "#F05032" },
+        { name: "GitHub", level: 90, color: "#ffffff" },
+        { name: "Docker", level: 78, color: "#2496ED" },
+        { name: "Vercel", level: 88, color: "#ffffff" },
+        { name: "Postman", level: 85, color: "#FF6C37" },
+        { name: "VS Code", level: 95, color: "#007ACC" },
       ],
     },
     {
       name: "Other Technologies",
-      color: "#EAB308", // Yellow
+      color: "#EAB308",
       orbitIndex: 5,
       skills: [
-        { name: "Leaflet.js", level: 75 },
-        { name: "Razorpay", level: 80 },
-        { name: "NodeMailer", level: 82 },
-        { name: "WebSockets", level: 70 },
-        { name: "Cloudinary", level: 78 },
-        { name: "Firebase", level: 75 },
+        { name: "Leaflet.js", level: 75, color: "#199900" },
+        { name: "Razorpay", level: 80, color: "#0C2451" },
+        { name: "NodeMailer", level: 82, color: "#22B573" },
+        { name: "WebSockets", level: 70, color: "#FF6B6B" },
+        { name: "Cloudinary", level: 78, color: "#3448C5" },
+        { name: "Firebase", level: 75, color: "#FFCA28" },
       ],
     },
     {
       name: "Exploring",
-      color: "#06B6D4", // Cyan
+      color: "#06B6D4",
       orbitIndex: 6,
       skills: [
-        { name: "Blockchain", level: 50 },
-        { name: "AI/ML", level: 45 },
-        { name: "Three.js", level: 60 },
-        { name: "Web3", level: 55 },
+        { name: "Blockchain", level: 50, color: "#F7931A" },
+        { name: "AI/ML", level: 45, color: "#FF6F61" },
+        { name: "Three.js", level: 60, color: "#ffffff" },
+        { name: "Web3", level: 55, color: "#F16822" },
       ],
     },
   ],
@@ -104,11 +104,16 @@ export const portfolioData = {
     { name: "Python", level: 85, category: "languages", color: "#3776AB" },
     { name: "Solidity", level: 70, category: "languages", color: "#363636" },
     { name: "React", level: 95, category: "frontend", color: "#61DAFB" },
-    { name: "Next.js", level: 92, category: "frontend", color: "#000000" },
+    { name: "Next.js", level: 92, category: "frontend", color: "#ffffff" },
     { name: "Tailwind CSS", level: 95, category: "frontend", color: "#06B6D4" },
-    { name: "Framer Motion", level: 88, category: "frontend", color: "#0055FF" },
+    {
+      name: "Framer Motion",
+      level: 88,
+      category: "frontend",
+      color: "#FF0055",
+    },
     { name: "Node.js", level: 88, category: "backend", color: "#339933" },
-    { name: "Express", level: 85, category: "backend", color: "#000000" },
+    { name: "Express", level: 85, category: "backend", color: "#ffffff" },
     { name: "FastAPI", level: 75, category: "backend", color: "#009688" },
     { name: "MongoDB", level: 85, category: "databases", color: "#47A248" },
     { name: "PostgreSQL", level: 82, category: "databases", color: "#4169E1" },
@@ -117,7 +122,7 @@ export const portfolioData = {
     { name: "Redis", level: 70, category: "databases", color: "#DC382D" },
     { name: "Git", level: 90, category: "devops", color: "#F05032" },
     { name: "Docker", level: 78, category: "devops", color: "#2496ED" },
-    { name: "Vercel", level: 88, category: "devops", color: "#000000" },
+    { name: "Vercel", level: 88, category: "devops", color: "#ffffff" },
     { name: "AWS", level: 70, category: "devops", color: "#FF9900" },
   ],
 
@@ -135,7 +140,6 @@ export const portfolioData = {
       featured: true,
       year: 2024,
     },
-
     {
       id: 2,
       title: "Sankalp Welfare Platform",
@@ -149,7 +153,6 @@ export const portfolioData = {
       featured: true,
       year: 2024,
     },
-
     {
       id: 3,
       title: "Skill Shastra",
@@ -163,7 +166,6 @@ export const portfolioData = {
       featured: false,
       year: 2024,
     },
-
     {
       id: 4,
       title: "Smart Power – Energy Harvesting System",
@@ -177,7 +179,6 @@ export const portfolioData = {
       featured: true,
       year: 2024,
     },
-
     {
       id: 5,
       title: "Pandemic Insights & Preparedness Hub (PIPH)",
@@ -270,3 +271,5 @@ export const portfolioData = {
 export type PortfolioData = typeof portfolioData;
 export type Skill = (typeof portfolioData.skills)[0];
 export type SkillCategory = (typeof portfolioData.skillCategories)[0];
+export type CategorySkill =
+  (typeof portfolioData.skillCategories)[0]["skills"][0];
