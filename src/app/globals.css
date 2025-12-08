@@ -72,6 +72,16 @@
       background-position: 200% 0;
     }
   }
+
+  @keyframes gradient {
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
 }
 
 /* Base styles */
@@ -216,4 +226,9 @@ html {
 .masonry-item {
   break-inside: avoid;
   margin-bottom: 1.5rem;
+}
+
+.animate-gradient {
+  animation: gradient 3s ease infinite;
+  background-size: 200% 200%;
 }
