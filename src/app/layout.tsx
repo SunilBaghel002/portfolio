@@ -3,13 +3,7 @@ import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import CustomCursor from "@/components/layout/CustomCursor";
-import dynamic from "next/dynamic";
-
-// Dynamically import ParticleField to avoid SSR issues
-const ParticleField = dynamic(() => import("@/components/three/ParticleField"), {
-  ssr: false,
-});
+import ClientProviders from "@/components/providers/ClientProviders";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -45,20 +39,17 @@ export default function RootLayout({
         {/* Noise overlay */}
         <div className="noise" />
 
-        {/* Custom cursor */}
-        <CustomCursor />
+        {/* Client-side providers (cursor, particles, etc.) */}
+        <ClientProviders>
+          {/* Header */}
+          <Header />
 
-        {/* 3D Particle background */}
-        <ParticleField />
+          {/* Main content */}
+          <main className="relative z-10">{children}</main>
 
-        {/* Header */}
-        <Header />
-
-        {/* Main content */}
-        <main className="relative z-10">{children}</main>
-
-        {/* Footer */}
-        <Footer />
+          {/* Footer */}
+          <Footer />
+        </ClientProviders>
       </body>
     </html>
   );
