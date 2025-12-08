@@ -3,7 +3,13 @@ import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import CursorGlow from "@/components/layout/CursorGlow";
+import CustomCursor from "@/components/layout/CustomCursor";
+import dynamic from "next/dynamic";
+
+// Dynamically import ParticleField to avoid SSR issues
+const ParticleField = dynamic(() => import("@/components/three/ParticleField"), {
+  ssr: false,
+});
 
 const inter = Inter({
   subsets: ["latin"],
@@ -21,9 +27,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Portfolio | Creative Developer",
-  description: "A premium portfolio showcasing creative development work",
-  keywords: ["developer", "portfolio", "react", "next.js", "creative"],
+  title: "Sunil Baghel | Full Stack Developer",
+  description: "Full-stack developer passionate about building impactful, scalable systems. 8× hackathon winner.",
+  keywords: ["developer", "portfolio", "react", "next.js", "full stack", "hackathon winner"],
 };
 
 export default function RootLayout({
@@ -36,10 +42,22 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} font-sans antialiased`}
       >
+        {/* Noise overlay */}
         <div className="noise" />
-        <CursorGlow />
+
+        {/* Custom cursor */}
+        <CustomCursor />
+
+        {/* 3D Particle background */}
+        <ParticleField />
+
+        {/* Header */}
         <Header />
+
+        {/* Main content */}
         <main className="relative z-10">{children}</main>
+
+        {/* Footer */}
         <Footer />
       </body>
     </html>
