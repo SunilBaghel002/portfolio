@@ -22,5 +22,5 @@ A modern, visually stunning portfolio built with Next.js 14, Framer Motion, and 
 
 1. **Clone the repository**
    ```bash
-   git clone <[Link to Clone repo.](https://github.com/SunilBaghel002/portfolio)>
+   git clone [Link to Clone repo.](https://github.com/SunilBaghel002/portfolio)
    cd portfolio
