@@ -1,35 +1,54 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 
-// Dynamically import components that need client-side only rendering
-const ParticleField = dynamic(() => import("@/components/three/ParticleField"), {
-    ssr: false,
-    loading: () => (
-        <div className="fixed inset-0 -z-10 bg-[#0a0a0a]" />
-    ),
-});
+// Only load particle field after initial render and on desktop
+const ParticleField = dynamic(
+  () => import("@/components/three/ParticleField"),
+  { ssr: false }
+);
 
-const CustomCursor = dynamic(() => import("@/components/layout/CustomCursor"), {
-    ssr: false,
-});
+// Simple cursor - only on desktop
+const CustomCursor = dynamic(
+  () => import("@/components/layout/CustomCursor"),
+  { ssr: false }
+);
 
 interface ClientProvidersProps {
-    children: ReactNode;
+  children: ReactNode;
 }
 
 export default function ClientProviders({ children }: ClientProvidersProps) {
-    return (
-        <>
-            {/* Custom cursor */}
-            <CustomCursor />
+  const [mounted, setMounted] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [showParticles, setShowParticles] = useState(false);
 
-            {/* 3D Particle background */}
-            <ParticleField />
+  useEffect(() => {
+    setMounted(true);
+    setIsDesktop(window.innerWidth >= 1024);
 
-            {/* Children */}
-            {children}
-        </>
-    );
+    // Delay particle loading for better initial load
+    const timer = setTimeout(() => {
+      setShowParticles(true);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!mounted) {
+    return <>{children}</>;
+  }
+
+  return (
+    <>
+      {/* Custom cursor - desktop only */}
+      {isDesktop && <CustomCursor />}
+
+      {/* Particles - delayed load, desktop only */}
+      {isDesktop && showParticles && <ParticleField />}
+
+      {children}
+    </>
+  );
 }
