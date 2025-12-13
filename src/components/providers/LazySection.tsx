@@ -1,6 +1,7 @@
+// components/providers/LazySection.tsx
 "use client";
 
-import { useEffect, useRef, useState, ReactNode } from "react";
+import { useEffect, useRef, useState, ReactNode, memo } from "react";
 
 interface LazySectionProps {
     children: ReactNode;
@@ -10,26 +11,30 @@ interface LazySectionProps {
     rootMargin?: string;
 }
 
-export default function LazySection({
+function LazySection({
     children,
     className = "",
-    placeholder = <SectionPlaceholder />,
+    placeholder,
     threshold = 0.1,
-    rootMargin = "100px",
+    rootMargin = "200px", // Increased for earlier loading
 }: LazySectionProps) {
     const [isVisible, setIsVisible] = useState(false);
-    const [hasLoaded, setHasLoaded] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const element = ref.current;
         if (!element) return;
 
+        // Use passive intersection observer
         const observer = new IntersectionObserver(
             ([entry]) => {
                 if (entry.isIntersecting) {
-                    setIsVisible(true);
-                    setHasLoaded(true);
+                    // Use requestIdleCallback for non-blocking load
+                    if ('requestIdleCallback' in window) {
+                        requestIdleCallback(() => setIsVisible(true), { timeout: 300 });
+                    } else {
+                        setTimeout(() => setIsVisible(true), 0);
+                    }
                     observer.disconnect();
                 }
             },
@@ -37,21 +42,23 @@ export default function LazySection({
         );
 
         observer.observe(element);
-
         return () => observer.disconnect();
     }, [threshold, rootMargin]);
 
     return (
         <div ref={ref} className={className}>
-            {hasLoaded ? children : placeholder}
+            {isVisible ? children : (placeholder || <SectionPlaceholder />)}
         </div>
     );
 }
 
+// Memoize to prevent unnecessary re-renders
+export default memo(LazySection);
+
 function SectionPlaceholder() {
     return (
         <div className="min-h-[50vh] flex items-center justify-center">
-            <div className="w-8 h-8 border-2 border-[#00f0ff] border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-[#00f0ff]/50 border-t-transparent rounded-full animate-spin" />
         </div>
     );
 }

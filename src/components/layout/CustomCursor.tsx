@@ -1,74 +1,132 @@
+// components/ui/CustomCursor.tsx
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { motion, useMotionValue, useSpring } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface CursorState {
   isHovering: boolean;
   isClicking: boolean;
-  isHoveringLink: boolean;
-  isHoveringButton: boolean;
-  isHoveringText: boolean;
-  isHoveringImage: boolean;
+  hoverType: 'none' | 'link' | 'button' | 'text' | 'image';
   cursorText: string;
-  cursorIcon: string | null;
 }
 
 export default function CustomCursor() {
-  const cursorRef = useRef<HTMLDivElement>(null);
-  const cursorDotRef = useRef<HTMLDivElement>(null);
+  const dotRef = useRef<HTMLDivElement>(null);
+  const ringRef = useRef<HTMLDivElement>(null);
+  const requestRef = useRef<number>();
+  const previousTimeRef = useRef<number>();
+
+  // Store position in refs to avoid re-renders
+  const mousePos = useRef({ x: -100, y: -100 });
+  const ringPos = useRef({ x: -100, y: -100 });
 
   const [cursorState, setCursorState] = useState<CursorState>({
     isHovering: false,
     isClicking: false,
-    isHoveringLink: false,
-    isHoveringButton: false,
-    isHoveringText: false,
-    isHoveringImage: false,
+    hoverType: 'none',
     cursorText: "",
-    cursorIcon: null,
   });
-
   const [isVisible, setIsVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(true);
 
-  // Motion values for smooth cursor movement
-  const cursorX = useMotionValue(-100);
-  const cursorY = useMotionValue(-100);
-
-  // Spring animation for the outer ring (follows with delay)
-  const springConfig = { damping: 25, stiffness: 700, mass: 0.5 };
-  const cursorXSpring = useSpring(cursorX, springConfig);
-  const cursorYSpring = useSpring(cursorY, springConfig);
-
-  // Glow effect springs (more delayed)
-  const glowSpringConfig = { damping: 30, stiffness: 200, mass: 0.8 };
-  const glowX = useSpring(cursorX, glowSpringConfig);
-  const glowY = useSpring(cursorY, glowSpringConfig);
-
-  // Update cursor position directly for the dot (no lag)
-  const updateCursorPosition = useCallback((e: MouseEvent) => {
-    cursorX.set(e.clientX);
-    cursorY.set(e.clientY);
-
-    // Direct DOM manipulation for instant dot response
-    if (cursorDotRef.current) {
-      cursorDotRef.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
-    }
-  }, [cursorX, cursorY]);
-
+  // Check for mobile/touch device once
   useEffect(() => {
-    // Check if device has touch (hide cursor on touch devices)
-    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    if (isTouchDevice) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      setIsVisible(true);
-      updateCursorPosition(e);
+    const checkDevice = () => {
+      const isTouchDevice =
+        'ontouchstart' in window ||
+        navigator.maxTouchPoints > 0 ||
+        window.innerWidth < 1024;
+      setIsMobile(isTouchDevice);
     };
 
-    const handleMouseEnter = () => setIsVisible(true);
-    const handleMouseLeave = () => setIsVisible(false);
+    checkDevice();
+    window.addEventListener('resize', checkDevice);
+    return () => window.removeEventListener('resize', checkDevice);
+  }, []);
+
+  // Smooth animation loop using RAF - single loop for performance
+  const animate = useCallback((time: number) => {
+    if (previousTimeRef.current !== undefined) {
+      // Lerp the ring position towards mouse (easing factor)
+      const ease = 0.15;
+      ringPos.current.x += (mousePos.current.x - ringPos.current.x) * ease;
+      ringPos.current.y += (mousePos.current.y - ringPos.current.y) * ease;
+
+      // Apply transforms directly - no React re-renders
+      if (dotRef.current) {
+        dotRef.current.style.transform =
+          `translate3d(${mousePos.current.x}px, ${mousePos.current.y}px, 0)`;
+      }
+      if (ringRef.current) {
+        ringRef.current.style.transform =
+          `translate3d(${ringPos.current.x}px, ${ringPos.current.y}px, 0)`;
+      }
+    }
+
+    previousTimeRef.current = time;
+    requestRef.current = requestAnimationFrame(animate);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) return;
+
+    requestRef.current = requestAnimationFrame(animate);
+    return () => {
+      if (requestRef.current) {
+        cancelAnimationFrame(requestRef.current);
+      }
+    };
+  }, [animate, isMobile]);
+
+  // Mouse event handlers
+  useEffect(() => {
+    if (isMobile) return;
+
+    let lastHoverCheck = 0;
+    const HOVER_THROTTLE = 50; // Check hover state every 50ms
+
+    const handleMouseMove = (e: MouseEvent) => {
+      mousePos.current = { x: e.clientX, y: e.clientY };
+
+      if (!isVisible) setIsVisible(true);
+
+      // Throttle hover detection
+      const now = Date.now();
+      if (now - lastHoverCheck < HOVER_THROTTLE) return;
+      lastHoverCheck = now;
+
+      const target = e.target as HTMLElement;
+      detectHoverState(target);
+    };
+
+    const detectHoverState = (target: HTMLElement) => {
+      const isLink = !!target.closest('a');
+      const isButton = !!target.closest('button, [role="button"]');
+      const isInput = !!target.closest('input, textarea');
+      const isImage = !!target.closest('img, [data-cursor="image"]');
+      const customCursor = target.closest('[data-cursor]');
+
+      let hoverType: CursorState['hoverType'] = 'none';
+      let cursorText = '';
+
+      if (customCursor) {
+        cursorText = customCursor.getAttribute('data-cursor-text') || '';
+        hoverType = 'button';
+      } else if (isButton) hoverType = 'button';
+      else if (isLink) hoverType = 'link';
+      else if (isInput) hoverType = 'text';
+      else if (isImage) hoverType = 'image';
+
+      const isHovering = hoverType !== 'none';
+
+      setCursorState(prev => {
+        if (prev.hoverType === hoverType && prev.cursorText === cursorText) {
+          return prev; // Avoid unnecessary updates
+        }
+        return { ...prev, isHovering, hoverType, cursorText };
+      });
+    };
 
     const handleMouseDown = () => {
       setCursorState(prev => ({ ...prev, isClicking: true }));
@@ -78,299 +136,112 @@ export default function CustomCursor() {
       setCursorState(prev => ({ ...prev, isClicking: false }));
     };
 
-    // Interactive element detection
-    const handleElementHover = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
+    const handleMouseLeave = () => setIsVisible(false);
+    const handleMouseEnter = () => setIsVisible(true);
 
-      // Check for various interactive elements
-      const isLink = target.closest('a');
-      const isButton = target.closest('button') || target.closest('[role="button"]');
-      const isInput = target.closest('input') || target.closest('textarea');
-      const isImage = target.closest('img') || target.closest('[data-cursor="image"]');
-      const customCursor = target.closest('[data-cursor]');
-
-      let newState: Partial<CursorState> = {
-        isHovering: false,
-        isHoveringLink: false,
-        isHoveringButton: false,
-        isHoveringText: false,
-        isHoveringImage: false,
-        cursorText: "",
-        cursorIcon: null,
-      };
-
-      if (customCursor) {
-        const cursorType = customCursor.getAttribute('data-cursor');
-        const cursorText = customCursor.getAttribute('data-cursor-text') || '';
-
-        newState = {
-          ...newState,
-          isHovering: true,
-          cursorText,
-          cursorIcon: cursorType,
-        };
-      } else if (isLink) {
-        newState.isHoveringLink = true;
-        newState.isHovering = true;
-      } else if (isButton) {
-        newState.isHoveringButton = true;
-        newState.isHovering = true;
-      } else if (isInput) {
-        newState.isHoveringText = true;
-        newState.isHovering = true;
-      } else if (isImage) {
-        newState.isHoveringImage = true;
-        newState.isHovering = true;
-      }
-
-      setCursorState(prev => ({ ...prev, ...newState }));
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mousemove", handleElementHover);
-    window.addEventListener("mouseenter", handleMouseEnter);
-    window.addEventListener("mouseleave", handleMouseLeave);
-    window.addEventListener("mousedown", handleMouseDown);
-    window.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("mousemove", handleMouseMove, { passive: true });
+    document.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("mouseleave", handleMouseLeave);
+    document.addEventListener("mouseenter", handleMouseEnter);
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mousemove", handleElementHover);
-      window.removeEventListener("mouseenter", handleMouseEnter);
-      window.removeEventListener("mouseleave", handleMouseLeave);
-      window.removeEventListener("mousedown", handleMouseDown);
-      window.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("mouseleave", handleMouseLeave);
+      document.removeEventListener("mouseenter", handleMouseEnter);
     };
-  }, [updateCursorPosition]);
+  }, [isMobile, isVisible]);
 
-  // Hide on mobile/tablet
-  if (typeof window !== 'undefined' && window.innerWidth < 1024) {
-    return null;
-  }
+  // Don't render on mobile
+  if (isMobile) return null;
 
-  const {
-    isHovering,
-    isClicking,
-    isHoveringLink,
-    isHoveringButton,
-    isHoveringText,
-    isHoveringImage,
-    cursorText
-  } = cursorState;
+  const { isHovering, isClicking, hoverType, cursorText } = cursorState;
+
+  // Calculate sizes based on state
+  const dotSize = isClicking ? 6 : isHovering ? 8 : 10;
+  const ringSize = isClicking ? 30 :
+    hoverType === 'button' ? 60 :
+      hoverType === 'link' ? 50 :
+        hoverType === 'image' ? 80 : 40;
+
+  const ringColor =
+    hoverType === 'button' ? '#a855f7' :
+      hoverType === 'link' ? '#00f0ff' :
+        hoverType === 'image' ? '#ec4899' :
+          'rgba(255,255,255,0.5)';
 
   return (
     <>
-      {/* Hide default cursor globally */}
       <style jsx global>{`
-        * {
-          cursor: none !important;
-        }
-        
-        @media (max-width: 1023px) {
-          * {
-            cursor: auto !important;
-          }
+        @media (min-width: 1024px) {
+          * { cursor: none !important; }
         }
       `}</style>
 
-      {/* Main cursor dot - instant response */}
+      {/* Main dot - instant response */}
       <div
-        ref={cursorDotRef}
+        ref={dotRef}
         className={cn(
-          "fixed top-0 left-0 pointer-events-none z-[9999] mix-blend-difference",
+          "fixed top-0 left-0 pointer-events-none z-[9999]",
           !isVisible && "opacity-0"
         )}
-        style={{
-          willChange: "transform",
-        }}
+        style={{ willChange: "transform" }}
       >
-        <motion.div
+        <div
           className={cn(
-            "relative -translate-x-1/2 -translate-y-1/2 rounded-full bg-white",
-            isHoveringText && "w-[2px] h-6 rounded-none"
+            "-translate-x-1/2 -translate-y-1/2 rounded-full bg-white transition-[width,height] duration-150",
+            hoverType === 'text' && "!rounded-none"
           )}
-          animate={{
-            width: isClicking ? 6 : isHovering ? 8 : 10,
-            height: isClicking ? 6 : isHoveringText ? 24 : isHovering ? 8 : 10,
+          style={{
+            width: hoverType === 'text' ? 2 : dotSize,
+            height: hoverType === 'text' ? 24 : dotSize,
           }}
-          transition={{ duration: 0.15 }}
         />
       </div>
 
       {/* Outer ring - smooth follow */}
-      <motion.div
-        ref={cursorRef}
+      <div
+        ref={ringRef}
         className={cn(
           "fixed top-0 left-0 pointer-events-none z-[9998]",
-          !isVisible && "opacity-0"
+          !isVisible && "opacity-0",
+          hoverType === 'text' && "opacity-0"
         )}
-        style={{
-          x: cursorXSpring,
-          y: cursorYSpring,
-          willChange: "transform",
-        }}
+        style={{ willChange: "transform" }}
       >
-        <motion.div
-          className={cn(
-            "relative -translate-x-1/2 -translate-y-1/2 rounded-full border-2 flex items-center justify-center",
-            isHoveringLink && "border-[#00f0ff]",
-            isHoveringButton && "border-[#a855f7]",
-            isHoveringImage && "border-[#ec4899]",
-            !isHovering && "border-white/50"
-          )}
-          animate={{
-            width: isClicking
-              ? 30
-              : isHoveringButton
-                ? 60
-                : isHoveringLink
-                  ? 50
-                  : isHoveringImage
-                    ? 80
-                    : 40,
-            height: isClicking
-              ? 30
-              : isHoveringButton
-                ? 60
-                : isHoveringLink
-                  ? 50
-                  : isHoveringImage
-                    ? 80
-                    : 40,
-            opacity: isHoveringText ? 0 : 1,
+        <div
+          className="-translate-x-1/2 -translate-y-1/2 rounded-full border-2 flex items-center justify-center transition-all duration-200"
+          style={{
+            width: ringSize,
+            height: ringSize,
+            borderColor: ringColor,
             borderWidth: isHovering ? 2 : 1,
           }}
-          transition={{
-            type: "spring",
-            stiffness: 300,
-            damping: 20
-          }}
         >
-          {/* Cursor text */}
           {cursorText && (
-            <motion.span
-              className="text-xs font-medium text-white whitespace-nowrap"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-            >
+            <span className="text-xs font-medium text-white whitespace-nowrap">
               {cursorText}
-            </motion.span>
+            </span>
           )}
 
-          {/* Hover icons */}
-          {isHoveringLink && !cursorText && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="text-[#00f0ff]"
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M7 17L17 7M17 7H7M17 7V17" />
-              </svg>
-            </motion.div>
+          {hoverType === 'link' && !cursorText && (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+              stroke="#00f0ff" strokeWidth="2" className="opacity-80">
+              <path d="M7 17L17 7M17 7H7M17 7V17" />
+            </svg>
           )}
 
-          {isHoveringImage && !cursorText && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="text-[#ec4899]"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 8v8M8 12h8" />
-              </svg>
-            </motion.div>
+          {hoverType === 'image' && !cursorText && (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="#ec4899" strokeWidth="2" className="opacity-80">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 8v8M8 12h8" />
+            </svg>
           )}
-        </motion.div>
-      </motion.div>
-
-      {/* Glow effect - most delayed */}
-      <motion.div
-        className={cn(
-          "fixed top-0 left-0 pointer-events-none z-[9997]",
-          !isVisible && "opacity-0"
-        )}
-        style={{
-          x: glowX,
-          y: glowY,
-          willChange: "transform",
-        }}
-      >
-        <motion.div
-          className="-translate-x-1/2 -translate-y-1/2 rounded-full"
-          animate={{
-            width: isHovering ? 150 : 100,
-            height: isHovering ? 150 : 100,
-            background: isHoveringButton
-              ? "radial-gradient(circle, rgba(168,85,247,0.15) 0%, transparent 70%)"
-              : isHoveringLink
-                ? "radial-gradient(circle, rgba(0,240,255,0.15) 0%, transparent 70%)"
-                : isHoveringImage
-                  ? "radial-gradient(circle, rgba(236,72,153,0.15) 0%, transparent 70%)"
-                  : "radial-gradient(circle, rgba(0,240,255,0.1) 0%, transparent 70%)",
-          }}
-          transition={{ duration: 0.3 }}
-        />
-      </motion.div>
-
-      {/* Trail particles */}
-      <CursorTrail x={cursorX} y={cursorY} isVisible={isVisible} />
-    </>
-  );
-}
-
-// Cursor trail effect
-function CursorTrail({
-  x,
-  y,
-  isVisible
-}: {
-  x: ReturnType<typeof useMotionValue<number>>;
-  y: ReturnType<typeof useMotionValue<number>>;
-  isVisible: boolean;
-}) {
-  const trailCount = 5;
-  const trails = Array.from({ length: trailCount }, (_, i) => {
-    const delay = (i + 1) * 0.05;
-    const springConfig = {
-      damping: 30 + i * 5,
-      stiffness: 300 - i * 30,
-      mass: 0.5 + i * 0.1
-    };
-
-    return {
-      x: useSpring(x, springConfig),
-      y: useSpring(y, springConfig),
-      opacity: 1 - (i / trailCount) * 0.8,
-      scale: 1 - (i / trailCount) * 0.5,
-    };
-  });
-
-  if (!isVisible) return null;
-
-  return (
-    <>
-      {trails.map((trail, i) => (
-        <motion.div
-          key={i}
-          className="fixed top-0 left-0 pointer-events-none z-[9996]"
-          style={{
-            x: trail.x,
-            y: trail.y,
-          }}
-        >
-          <div
-            className="-translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-[#00f0ff]/30 to-[#a855f7]/30"
-            style={{
-              width: 6 * trail.scale,
-              height: 6 * trail.scale,
-              opacity: trail.opacity * 0.3,
-            }}
-          />
-        </motion.div>
-      ))}
+        </div>
+      </div>
     </>
   );
 }
