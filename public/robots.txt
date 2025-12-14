@@ -1,0 +1,9 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://sunilbaghel.dev/sitemap.xml
+
+# Disallow admin/api routes if any
+Disallow: /api/
