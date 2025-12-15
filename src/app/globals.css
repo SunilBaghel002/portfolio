@@ -72,36 +72,50 @@
       background-position: 200% 0;
     }
   }
-
-  @keyframes gradient {
-    0%,
-    100% {
-      background-position: 0% 50%;
-    }
-    50% {
-      background-position: 100% 50%;
-    }
-  }
 }
 
-/* Base styles */
+/* ============================================ */
+/* BASE STYLES - FIXED FOR PARTICLES           */
+/* ============================================ */
+
 * {
   border-color: var(--color-border);
 }
 
+html {
+  scroll-behavior: smooth;
+  background-color: var(--color-background); /* Move background to html */
+}
+
 body {
-  background-color: var(--color-background);
+  /* IMPORTANT: Transparent to allow particles to show through */
+  background: transparent;
   color: var(--color-foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  position: relative;
+  min-height: 100vh;
 }
 
-html {
-  scroll-behavior: smooth;
-}
+/* ============================================ */
+/* Z-INDEX LAYER SYSTEM                        */
+/* ============================================ */
+/*
+  Layer Order (bottom to top):
+  -1: Nothing (blocked by html background)
+   0: Particles & Background Effects
+   1: Noise overlay
+   5: Page content (sections)
+  10: Main content wrapper
+  50: Header/Navigation
+  100: Modals/Overlays
+  9999: Cursor
+*/
 
-/* Custom scrollbar */
+/* ============================================ */
+/* SCROLLBAR                                   */
+/* ============================================ */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -119,7 +133,9 @@ html {
   border-radius: 4px;
 }
 
-/* Noise texture overlay */
+/* ============================================ */
+/* NOISE OVERLAY - Above particles             */
+/* ============================================ */
 .noise {
   position: fixed;
   top: 0;
@@ -127,25 +143,31 @@ html {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  opacity: 0.03;
-  z-index: 1;
+  opacity: 0.02; /* Reduced slightly */
+  z-index: 1; /* Above particles (0), below content (5+) */
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
-/* Glassmorphism */
+/* ============================================ */
+/* GLASSMORPHISM                               */
+/* ============================================ */
 .glass {
   background: oklch(1 0 0 / 0.03);
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid oklch(1 0 0 / 0.1);
 }
 
 .glass-strong {
   background: oklch(1 0 0 / 0.08);
   backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
   border: 1px solid oklch(1 0 0 / 0.15);
 }
 
-/* Neon glow effects */
+/* ============================================ */
+/* NEON EFFECTS                                */
+/* ============================================ */
 .neon-text {
   text-shadow: 0 0 10px oklch(0.85 0.2 195 / 0.5),
     0 0 20px oklch(0.85 0.2 195 / 0.3), 0 0 30px oklch(0.85 0.2 195 / 0.2);
@@ -156,34 +178,34 @@ html {
     inset 0 0 10px oklch(0.85 0.2 195 / 0.1);
 }
 
-/* Gradient text */
+/* ============================================ */
+/* GRADIENT TEXT                               */
+/* ============================================ */
 .gradient-text {
-  background: linear-gradient(
-    135deg,
-    var(--color-accent-neon) 0%,
-    var(--color-accent-purple) 50%,
-    var(--color-accent-pink) 100%
-  );
+  background: linear-gradient(135deg, #00f0ff 0%, #a855f7 50%, #ec4899 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* Animated gradient background */
+/* ============================================ */
+/* ANIMATED BACKGROUNDS                        */
+/* ============================================ */
 .animated-gradient {
   background: linear-gradient(-45deg, #0a0a0a, #1a1a2e, #16213e, #0f3460);
   background-size: 400% 400%;
   animation: var(--animate-gradient);
 }
 
-/* Grid pattern */
 .grid-pattern {
   background-image: linear-gradient(oklch(1 0 0 / 0.03) 1px, transparent 1px),
     linear-gradient(90deg, oklch(1 0 0 / 0.03) 1px, transparent 1px);
   background-size: 50px 50px;
 }
 
-/* Cursor glow */
+/* ============================================ */
+/* CURSOR GLOW                                 */
+/* ============================================ */
 .cursor-glow {
   position: fixed;
   width: 400px;
@@ -199,13 +221,17 @@ html {
   transition: opacity 0.3s ease;
 }
 
-/* 3D Card effect */
+/* ============================================ */
+/* 3D & CARD EFFECTS                           */
+/* ============================================ */
 .card-3d {
   transform-style: preserve-3d;
   perspective: 1000px;
 }
 
-/* Masonry grid */
+/* ============================================ */
+/* MASONRY GRID                                */
+/* ============================================ */
 .masonry-grid {
   column-count: 3;
   column-gap: 1.5rem;
@@ -228,16 +254,17 @@ html {
   margin-bottom: 1.5rem;
 }
 
+/* ============================================ */
+/* ANIMATIONS                                  */
+/* ============================================ */
 .animate-gradient {
   animation: gradient 3s ease infinite;
   background-size: 200% 200%;
 }
 
-/* Add these keyframes and classes */
-
-/* Blob animation - subtle scale/opacity */
 @keyframes blob {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 0.15;
   }
@@ -251,22 +278,9 @@ html {
   animation: blob 8s ease-in-out infinite;
 }
 
-/* Float animation for orbs */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  33% {
-    transform: translateY(-12px) rotate(2deg);
-  }
-  66% {
-    transform: translateY(-6px) rotate(-1deg);
-  }
-}
-
-/* Slow bounce for scroll indicator */
 @keyframes bounce-slow {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0) translateX(-50%);
   }
   50% {
@@ -278,7 +292,6 @@ html {
   animation: bounce-slow 2s ease-in-out infinite;
 }
 
-/* Scroll dot animation */
 @keyframes scroll-dot {
   0% {
     transform: translateY(0);
@@ -294,27 +307,25 @@ html {
   animation: scroll-dot 1.5s ease-in-out infinite;
 }
 
-/* Optimized gradient text */
-.gradient-text {
-  background: linear-gradient(135deg, #00f0ff 0%, #a855f7 50%, #ec4899 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Performance optimizations */
 .gpu-accelerate {
   transform: translateZ(0);
   will-change: transform;
   backface-visibility: hidden;
 }
 
-/* Reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
   .animate-blob,
   .animate-bounce-slow,
-  .animate-scroll-dot,
-  [style*="animation"] {
+  .animate-scroll-dot {
     animation: none !important;
   }
 }

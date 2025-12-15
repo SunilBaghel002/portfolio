@@ -6,28 +6,23 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Points, PointMaterial } from "@react-three/drei";
 import * as THREE from "three";
 
-// Seeded random for SSR consistency
 function seededRandom(seed: number) {
     const x = Math.sin(seed) * 10000;
     return x - Math.floor(x);
 }
 
-// Single combined particle system
 function CombinedParticles() {
     const ref = useRef<THREE.Points>(null);
     const { mouse } = useThree();
 
-    // Particle count based on screen size (calculated once)
     const particleCount = useMemo(() => {
         if (typeof window === "undefined") return 600;
-
         const width = window.innerWidth;
-        if (width < 768) return 300;   // Mobile
-        if (width < 1024) return 500;  // Tablet
-        return 800;                     // Desktop
+        if (width < 768) return 300;
+        if (width < 1024) return 500;
+        return 800;
     }, []);
 
-    // Pre-compute all particle data
     const { positions, colors } = useMemo(() => {
         const positions = new Float32Array(particleCount * 3);
         const colors = new Float32Array(particleCount * 3);
@@ -52,22 +47,17 @@ function CombinedParticles() {
         return { positions, colors };
     }, [particleCount]);
 
-    // Animation with frame skipping
     const frameCount = useRef(0);
 
     useFrame((state) => {
         if (!ref.current) return;
 
-        // Skip every other frame for performance
         frameCount.current++;
         if (frameCount.current % 2 !== 0) return;
 
         const time = state.clock.getElapsedTime();
-
         ref.current.rotation.x = time * 0.02;
         ref.current.rotation.y = time * 0.025;
-
-        // Mouse interaction
         ref.current.rotation.x += mouse.y * 0.03;
         ref.current.rotation.y += mouse.x * 0.03;
     });
@@ -111,36 +101,27 @@ export default function ParticleField() {
     const [hasError, setHasError] = useState(false);
 
     useEffect(() => {
-        // Simple mount check - performance is handled by ClientProviders
         setMounted(true);
+        console.log("🌟 ParticleField: Component mounted");
 
-        // 🔍 DEBUG
-        console.log("🌟 ParticleField mounted");
-    }, []);
-
-    // Error boundary for WebGL issues
-    useEffect(() => {
-        const checkWebGL = () => {
-            try {
-                const canvas = document.createElement("canvas");
-                const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-                if (!gl) {
-                    console.warn("⚠️ WebGL not supported");
-                    setHasError(true);
-                } else {
-                    console.log("✅ WebGL supported");
-                }
-            } catch (e) {
-                console.error("❌ WebGL check failed:", e);
+        // Check WebGL support
+        try {
+            const canvas = document.createElement("canvas");
+            const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+            if (!gl) {
+                console.warn("⚠️ ParticleField: WebGL not supported");
                 setHasError(true);
+            } else {
+                console.log("✅ ParticleField: WebGL supported");
             }
-        };
-
-        checkWebGL();
+        } catch (e) {
+            console.error("❌ ParticleField: WebGL check failed:", e);
+            setHasError(true);
+        }
     }, []);
 
-    // Show fallback if WebGL fails or not mounted
     if (hasError) {
+        console.log("🔄 ParticleField: Showing fallback");
         return <StaticParticleFallback />;
     }
 
@@ -148,32 +129,31 @@ export default function ParticleField() {
         return null;
     }
 
+    console.log("🎨 ParticleField: Rendering canvas");
+
     return (
         <div
-            className="fixed inset-0 opacity-70 pointer-events-none"
-            style={{ zIndex: -1 }}
+            className="fixed inset-0 pointer-events-none"
+            style={{
+                zIndex: 0, // Above body background, below content
+            }}
         >
             <ParticleCanvas />
         </div>
     );
 }
 
-// CSS-only fallback
 function StaticParticleFallback() {
     return (
         <div
-            className="fixed inset-0 opacity-50 overflow-hidden pointer-events-none"
-            style={{ zIndex: -1 }}
+            className="fixed inset-0 overflow-hidden pointer-events-none"
+            style={{ zIndex: 0 }}
         >
             <div className="absolute inset-0 bg-gradient-radial from-[#00f0ff]/10 via-transparent to-transparent" />
             <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#a855f7]/15 rounded-full blur-3xl animate-pulse" />
             <div
                 className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#00f0ff]/15 rounded-full blur-3xl animate-pulse"
                 style={{ animationDelay: "1s" }}
-            />
-            <div
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[#ec4899]/10 rounded-full blur-3xl animate-pulse"
-                style={{ animationDelay: "0.5s" }}
             />
         </div>
     );
