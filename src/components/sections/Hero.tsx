@@ -1,13 +1,12 @@
+// components/sections/Hero.tsx
 "use client";
 
-import { useRef } from "react";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { motion } from "framer-motion";
 import { portfolioData } from "@/lib/data";
 import { AnimatedText, GlitchText } from "../animations/AnimatedText";
 import { Button } from "../ui/button";
 import { FloatingTechOrbs } from "../ui/TechIcon";
 import {
-  ArrowDown,
   Sparkles,
   ArrowRight,
   Download,
@@ -18,27 +17,21 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+// Animation variants for cleaner code
+const fadeInUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+};
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
 export default function Hero() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end start"],
-  });
-
-  // Parallax transforms
-  const y = useTransform(scrollYProgress, [0, 1], [0, 300]);
-  const yBg1 = useTransform(scrollYProgress, [0, 1], [0, 150]);
-  const yBg2 = useTransform(scrollYProgress, [0, 1], [0, 200]);
-  const yOrbs = useTransform(scrollYProgress, [0, 1], [0, 100]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8]);
-  const rotate = useTransform(scrollYProgress, [0, 1], [0, 5]);
-
-  // Spring for smooth animation
-  const springConfig = { stiffness: 100, damping: 30 };
-  const ySpring = useSpring(y, springConfig);
-  const scaleSpring = useSpring(scale, springConfig);
-
   // Get skills with their colors for floating orbs
   const floatingSkills = portfolioData.skills.slice(0, 6).map(skill => ({
     name: skill.name,
@@ -47,29 +40,22 @@ export default function Hero() {
   }));
 
   return (
-    <section
-      ref={containerRef}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
-    >
-      {/* Animated Background Blobs with Parallax */}
-      <div className="absolute inset-0 overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Static Background Blobs - No Parallax, Just Subtle Animation */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
           className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#00f0ff]/20 rounded-full blur-[120px]"
-          style={{ y: yBg1 }}
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.5, 0.3],
-            x: [0, 30, 0],
           }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
           className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-[#a855f7]/20 rounded-full blur-[150px]"
-          style={{ y: yBg2 }}
           animate={{
             scale: [1.2, 1, 1.2],
             opacity: [0.5, 0.3, 0.5],
-            x: [0, -40, 0],
           }}
           transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -84,23 +70,24 @@ export default function Hero() {
       </div>
 
       {/* Grid pattern overlay */}
-      <div className="absolute inset-0 grid-pattern opacity-30" />
+      <div className="absolute inset-0 grid-pattern opacity-30 pointer-events-none" />
 
-      {/* Floating Skill Orbs with Parallax */}
-      <motion.div style={{ y: yOrbs }} className="absolute inset-0">
+      {/* Floating Skill Orbs - Static position */}
+      <div className="absolute inset-0 pointer-events-none">
         <FloatingTechOrbs skills={floatingSkills} className="opacity-70" />
-      </motion.div>
+      </div>
 
-      {/* Main Content with Parallax */}
+      {/* Main Content - No Parallax Transform */}
       <motion.div
         className="relative z-10 text-center px-6 max-w-6xl mx-auto"
-        style={{ y: ySpring, opacity, scale: scaleSpring }}
+        initial="initial"
+        animate="animate"
+        variants={staggerContainer}
       >
         {/* Status Badge */}
         <motion.div
-          initial={{ opacity: 0, y: 30, scale: 0.9 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
+          variants={fadeInUp}
+          transition={{ duration: 0.6, delay: 0.3 }}
           className="mb-8 inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass border border-[#00f0ff]/40 backdrop-blur-xl"
         >
           <motion.span
@@ -109,19 +96,18 @@ export default function Hero() {
             transition={{ duration: 2, repeat: Infinity }}
           />
           <Sparkles className="w-4 h-4 text-[#00f0ff]" />
-          <span className="text-sm text-white/90 font-medium">Available for opportunities</span>
+          <span className="text-sm text-white/90 font-medium">
+            Available for opportunities
+          </span>
         </motion.div>
 
-        {/* Main Heading with Parallax */}
-        <motion.div
-          className="mb-6"
-          style={{ rotate }}
-        >
+        {/* Main Heading */}
+        <motion.div className="mb-6">
           <motion.h1
             className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-bold leading-[0.9] tracking-tight"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
+            transition={{ duration: 1, delay: 0.2 }}
           >
             <AnimatedText
               text="Sunil"
@@ -142,9 +128,8 @@ export default function Hero() {
 
         {/* Role with Glitch Effect */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.2, ease: "easeOut" }}
+          variants={fadeInUp}
+          transition={{ duration: 0.6, delay: 1.2 }}
           className="mb-6"
         >
           <GlitchText
@@ -155,9 +140,8 @@ export default function Hero() {
 
         {/* Achievements highlight */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 1.4, ease: "easeOut" }}
+          variants={fadeInUp}
+          transition={{ duration: 0.5, delay: 1.4 }}
           className="flex flex-wrap justify-center gap-4 mb-8"
         >
           {[
@@ -171,7 +155,11 @@ export default function Hero() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 1.5 + i * 0.1 }}
-              whileHover={{ scale: 1.05, borderColor: "rgba(0,240,255,0.3)" }}
+              whileHover={{
+                scale: 1.05,
+                borderColor: "rgba(0,240,255,0.3)",
+                transition: { duration: 0.2 }
+              }}
             >
               <span>{item.icon}</span>
               {item.label}
@@ -181,9 +169,8 @@ export default function Hero() {
 
         {/* Bio */}
         <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.6, ease: "easeOut" }}
+          variants={fadeInUp}
+          transition={{ duration: 0.6, delay: 1.6 }}
           className="text-base md:text-lg text-white/60 max-w-2xl mx-auto mb-10 leading-relaxed"
         >
           {portfolioData.bio}
@@ -191,9 +178,8 @@ export default function Hero() {
 
         {/* CTA Buttons */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.8, ease: "easeOut" }}
+          variants={fadeInUp}
+          transition={{ duration: 0.6, delay: 1.8 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8"
         >
           <Link href="/projects">
@@ -233,9 +219,8 @@ export default function Hero() {
 
         {/* Social Links */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 2, ease: "easeOut" }}
+          variants={fadeInUp}
+          transition={{ duration: 0.5, delay: 2 }}
           className="flex items-center justify-center gap-4"
         >
           {portfolioData.socials.map((social, i) => (
@@ -256,35 +241,6 @@ export default function Hero() {
               {social.icon === "twitter" && <ExternalLink className="w-5 h-5" />}
             </motion.a>
           ))}
-        </motion.div>
-      </motion.div>
-
-      {/* Scroll Indicator with Enhanced Animation */}
-      <motion.div
-        className="absolute bottom-10 left-1/2 -translate-x-1/2"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 2.5, duration: 0.5 }}
-      >
-        <motion.div
-          className="flex flex-col items-center gap-3 cursor-pointer group"
-          onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
-          whileHover={{ scale: 1.1 }}
-        >
-          <span className="text-xs uppercase tracking-[0.2em] text-white/40 group-hover:text-white/60 transition-colors">
-            Scroll to explore
-          </span>
-          <motion.div
-            className="w-6 h-10 rounded-full border-2 border-white/20 group-hover:border-[#00f0ff]/50 flex justify-center pt-2 transition-colors"
-            animate={{ borderColor: ["rgba(255,255,255,0.2)", "rgba(0,240,255,0.3)", "rgba(255,255,255,0.2)"] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <motion.div
-              className="w-1.5 h-1.5 rounded-full bg-white/60 group-hover:bg-[#00f0ff]"
-              animate={{ y: [0, 12, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-            />
-          </motion.div>
         </motion.div>
       </motion.div>
 
