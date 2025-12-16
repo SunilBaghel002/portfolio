@@ -110,14 +110,14 @@ export default function Hero() {
             transition={{ duration: 1, delay: 0.2 }}
           >
             <AnimatedText
-              text="Sunil"
+              text="{Sunil}"
               className="gradient-text block"
               delay={0.5}
               type="chars"
               animation="reveal"
             />
             <AnimatedText
-              text="Baghel"
+              text="{Baghel}"
               className="gradient-text block"
               delay={0.8}
               type="chars"
