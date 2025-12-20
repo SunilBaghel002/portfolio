@@ -63,7 +63,7 @@ function AnimatedText({
     const gradientTexture = useMemo(() => {
         const canvas = document.createElement('canvas');
         canvas.width = 256;
-        canvas.height = 1;
+        canvas.height = 0.8;
         const ctx = canvas.getContext('2d')!;
 
         const gradient = ctx.createLinearGradient(0, 0, 256, 0);
@@ -217,7 +217,7 @@ export default function Text3D({
     size = 1,
     depth = 0.3,
     className = "",
-    height = 200,
+    height = 80,
     animated = true,
 }: Text3DProps) {
     const [mounted, setMounted] = useState(false);
