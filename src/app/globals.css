@@ -165,6 +165,42 @@ body {
   border: 1px solid oklch(1 0 0 / 0.15);
 }
 
+.header-glass {
+  background: linear-gradient(
+    180deg,
+    rgba(10, 10, 10, 0.9) 0%,
+    rgba(10, 10, 10, 0.8) 100%
+  );
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Header at top (not scrolled) */
+.header-top {
+  background: linear-gradient(
+    180deg,
+    rgba(10, 10, 10, 0.8) 0%,
+    rgba(10, 10, 10, 0.4) 50%,
+    transparent 100%
+  );
+}
+
+/* Glow effect for active nav items */
+.nav-glow {
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.3),
+              0 0 40px rgba(0, 240, 255, 0.1);
+}
+
+/* Mobile menu overlay */
+.menu-overlay {
+  background: linear-gradient(
+    135deg,
+    rgba(10, 10, 10, 0.98) 0%,
+    rgba(15, 15, 25, 0.98) 100%
+  );
+}
+
 /* ============================================ */
 /* NEON EFFECTS                                */
 /* ============================================ */
