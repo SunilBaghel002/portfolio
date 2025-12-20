@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-/* Custom theme configuration for Tailwind v4 */
 @theme {
   --color-background: oklch(0.13 0.02 285);
   --color-foreground: oklch(0.98 0 0);
@@ -74,21 +73,16 @@
   }
 }
 
-/* ============================================ */
-/* BASE STYLES - FIXED FOR PARTICLES           */
-/* ============================================ */
-
 * {
   border-color: var(--color-border);
 }
 
 html {
   scroll-behavior: smooth;
-  background-color: var(--color-background); /* Move background to html */
+  background-color: var(--color-background);
 }
 
 body {
-  /* IMPORTANT: Transparent to allow particles to show through */
   background: transparent;
   color: var(--color-foreground);
   font-family: var(--font-sans);
@@ -98,24 +92,6 @@ body {
   min-height: 100vh;
 }
 
-/* ============================================ */
-/* Z-INDEX LAYER SYSTEM                        */
-/* ============================================ */
-/*
-  Layer Order (bottom to top):
-  -1: Nothing (blocked by html background)
-   0: Particles & Background Effects
-   1: Noise overlay
-   5: Page content (sections)
-  10: Main content wrapper
-  50: Header/Navigation
-  100: Modals/Overlays
-  9999: Cursor
-*/
-
-/* ============================================ */
-/* SCROLLBAR                                   */
-/* ============================================ */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -133,9 +109,6 @@ body {
   border-radius: 4px;
 }
 
-/* ============================================ */
-/* NOISE OVERLAY - Above particles             */
-/* ============================================ */
 .noise {
   position: fixed;
   top: 0;
@@ -143,14 +116,11 @@ body {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  opacity: 0.02; /* Reduced slightly */
-  z-index: 1; /* Above particles (0), below content (5+) */
+  opacity: 0.02;
+  z-index: 1;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
-/* ============================================ */
-/* GLASSMORPHISM                               */
-/* ============================================ */
 .glass {
   background: oklch(1 0 0 / 0.03);
   backdrop-filter: blur(20px);
@@ -176,7 +146,6 @@ body {
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Header at top (not scrolled) */
 .header-top {
   background: linear-gradient(
     180deg,
@@ -186,13 +155,10 @@ body {
   );
 }
 
-/* Glow effect for active nav items */
 .nav-glow {
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.3),
-              0 0 40px rgba(0, 240, 255, 0.1);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.3), 0 0 40px rgba(0, 240, 255, 0.1);
 }
 
-/* Mobile menu overlay */
 .menu-overlay {
   background: linear-gradient(
     135deg,
@@ -201,9 +167,6 @@ body {
   );
 }
 
-/* ============================================ */
-/* NEON EFFECTS                                */
-/* ============================================ */
 .neon-text {
   text-shadow: 0 0 10px oklch(0.85 0.2 195 / 0.5),
     0 0 20px oklch(0.85 0.2 195 / 0.3), 0 0 30px oklch(0.85 0.2 195 / 0.2);
@@ -214,9 +177,6 @@ body {
     inset 0 0 10px oklch(0.85 0.2 195 / 0.1);
 }
 
-/* ============================================ */
-/* GRADIENT TEXT                               */
-/* ============================================ */
 .gradient-text {
   background: linear-gradient(135deg, #00f0ff 0%, #a855f7 50%, #ec4899 100%);
   -webkit-background-clip: text;
@@ -224,9 +184,6 @@ body {
   background-clip: text;
 }
 
-/* ============================================ */
-/* ANIMATED BACKGROUNDS                        */
-/* ============================================ */
 .animated-gradient {
   background: linear-gradient(-45deg, #0a0a0a, #1a1a2e, #16213e, #0f3460);
   background-size: 400% 400%;
@@ -239,9 +196,6 @@ body {
   background-size: 50px 50px;
 }
 
-/* ============================================ */
-/* CURSOR GLOW                                 */
-/* ============================================ */
 .cursor-glow {
   position: fixed;
   width: 400px;
@@ -257,17 +211,11 @@ body {
   transition: opacity 0.3s ease;
 }
 
-/* ============================================ */
-/* 3D & CARD EFFECTS                           */
-/* ============================================ */
 .card-3d {
   transform-style: preserve-3d;
   perspective: 1000px;
 }
 
-/* ============================================ */
-/* MASONRY GRID                                */
-/* ============================================ */
 .masonry-grid {
   column-count: 3;
   column-gap: 1.5rem;
@@ -290,9 +238,6 @@ body {
   margin-bottom: 1.5rem;
 }
 
-/* ============================================ */
-/* ANIMATIONS                                  */
-/* ============================================ */
 .animate-gradient {
   animation: gradient 3s ease infinite;
   background-size: 200% 200%;
@@ -349,24 +294,6 @@ body {
   backface-visibility: hidden;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-
-  .animate-blob,
-  .animate-bounce-slow,
-  .animate-scroll-dot {
-    animation: none !important;
-  }
-}
-
-
 @keyframes orbit-spin {
   from {
     transform: rotate(0deg);
@@ -385,7 +312,6 @@ body {
   }
 }
 
-/* Counter-rotation to keep icons upright */
 @keyframes counter-spin {
   from {
     transform: rotate(0deg);
@@ -404,17 +330,27 @@ body {
   }
 }
 
-/* Reduce animations when reduced motion is preferred */
-@media (prefers-reduced-motion: reduce) {
-  .orbit-container,
-  .counter-rotate {
-    animation: none !important;
-  }
-}
-
-/* GPU acceleration for orbit elements */
 .orbit-container,
 .counter-rotate {
   will-change: transform;
   backface-visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-blob,
+  .animate-bounce-slow,
+  .animate-scroll-dot,
+  .orbit-container,
+  .counter-rotate {
+    animation: none !important;
+  }
 }
