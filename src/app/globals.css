@@ -365,3 +365,56 @@ body {
     animation: none !important;
   }
 }
+
+
+@keyframes orbit-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes orbit-spin-reverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+/* Counter-rotation to keep icons upright */
+@keyframes counter-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes counter-spin-reverse {
+  from {
+    transform: rotate(-360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+/* Reduce animations when reduced motion is preferred */
+@media (prefers-reduced-motion: reduce) {
+  .orbit-container,
+  .counter-rotate {
+    animation: none !important;
+  }
+}
+
+/* GPU acceleration for orbit elements */
+.orbit-container,
+.counter-rotate {
+  will-change: transform;
+  backface-visibility: hidden;
+}
