@@ -261,7 +261,7 @@ export default function Hero() {
         <motion.div className="mb-4" variants={fadeInUp}>
           {use3D ? (
             <Text3D
-              text="SUNIL"
+              text="<SUNIL/>"
               color="#00f0ff"
               secondaryColor="#a855f7"
               size={1.2}
