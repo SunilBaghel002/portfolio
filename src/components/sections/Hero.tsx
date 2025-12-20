@@ -16,6 +16,14 @@ import {
   ExternalLink
 } from "lucide-react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+
+const Text3D = dynamic(() => import("@/components/three/Text3D"), {
+  ssr: false,
+  loading: () => <div className="h-[200px] flex items-center justify-center">
+    <span className="text-4xl font-bold gradient-text">Loading...</span>
+  </div>
+});
 
 // Animation variants for cleaner code
 const fadeInUp = {
@@ -91,7 +99,7 @@ export default function Hero() {
           className="mb-8 inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass border border-[#00f0ff]/40 backdrop-blur-xl"
         >
           <motion.span
-            className="w-2 h-2 rounded-full bg-green-400"
+            className="w-2 h-2 rounded-full bg-green-400 m-3.5"
             animate={{ scale: [1, 1.2, 1], opacity: [1, 0.7, 1] }}
             transition={{ duration: 2, repeat: Infinity }}
           />
@@ -109,12 +117,12 @@ export default function Hero() {
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.2 }}
           >
-            <AnimatedText
-              text="{Sunil}"
-              className="gradient-text block"
-              delay={0.5}
-              type="chars"
-              animation="reveal"
+            <Text3D
+              text="SUNIL"
+              color="#00f0ff"
+              size={1.5}
+              height={300}
+              className="w-full"
             />
             <AnimatedText
               text="{Baghel}"
