@@ -1,24 +1,46 @@
+// app/skills/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, lazy, Suspense, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { portfolioData, CategorySkill } from "@/lib/data";
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { AnimatedHeading } from "@/components/animations/AnimatedText";
-import {
-  ConcentricOrbits,
-  TechCard,
-  TechIcon,
-} from "@/components/ui/TechIcon";
+import { TechCard, TechIcon } from "@/components/ui/TechIcon";
 import { X, ExternalLink, Folder } from "lucide-react";
+import dynamic from "next/dynamic";
 
-interface SkillModalProps {
+// Lazy load heavy components
+const ConcentricOrbits = dynamic(
+  () => import("@/components/ui/TechIcon").then(mod => ({ default: mod.ConcentricOrbits })),
+  {
+    ssr: false,
+    loading: () => <ConcentricOrbitsLoader />,
+  }
+);
+
+// Loading placeholder
+function ConcentricOrbitsLoader() {
+  return (
+    <div className="w-[700px] h-[700px] mx-auto flex items-center justify-center">
+      <div className="text-center">
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-[#00f0ff]/30 border-t-[#00f0ff] animate-spin" />
+        <p className="text-white/40">Loading Skills Visualization...</p>
+      </div>
+    </div>
+  );
+}
+
+// Memoized Skill Modal
+const SkillModal = memo(function SkillModal({
+  skill,
+  category,
+  onClose,
+}: {
   skill: CategorySkill;
   category: string;
   onClose: () => void;
-}
-
-function SkillModal({ skill, category, onClose }: SkillModalProps) {
+}) {
   const color = skill.color || "#00f0ff";
 
   const relatedProjects = portfolioData.projects.filter((p) =>
@@ -93,7 +115,8 @@ function SkillModal({ skill, category, onClose }: SkillModalProps) {
 
           <p className="text-white/70 mb-6">
             I&apos;ve been working with {skill.name} extensively, building
-            production-ready applications. This skill is essential in my {category.toLowerCase()} workflow.
+            production-ready applications. This skill is essential in my{" "}
+            {category.toLowerCase()} workflow.
           </p>
 
           {relatedProjects.length > 0 && (
@@ -110,7 +133,11 @@ function SkillModal({ skill, category, onClose }: SkillModalProps) {
                     <Folder className="w-4 h-4" style={{ color }} />
                     <span className="text-white/80 flex-1">{project.title}</span>
                     {project.github && (
-                      <a href={project.github} target="_blank" rel="noopener noreferrer">
+                      <a
+                        href={project.github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <ExternalLink className="w-4 h-4 text-white/40 hover:text-white" />
                       </a>
                     )}
@@ -123,13 +150,72 @@ function SkillModal({ skill, category, onClose }: SkillModalProps) {
       </motion.div>
     </motion.div>
   );
-}
+});
+
+// Memoized category section
+const CategorySection = memo(function CategorySection({
+  category,
+  catIndex,
+  onSkillClick,
+}: {
+  category: typeof portfolioData.skillCategories[0];
+  catIndex: number;
+  onSkillClick: (skill: CategorySkill, category: string) => void;
+}) {
+  return (
+    <div>
+      <ScrollReveal delay={catIndex * 0.1}>
+        <div className="flex items-center gap-4 mb-8">
+          <div
+            className="w-4 h-4 rounded-full"
+            style={{
+              backgroundColor: category.color,
+              boxShadow: `0 0 15px ${category.color}60`,
+            }}
+          />
+          <h3 className="text-2xl font-bold text-white">{category.name}</h3>
+          <div
+            className="flex-1 h-px"
+            style={{
+              background: `linear-gradient(to right, ${category.color}40, transparent)`,
+            }}
+          />
+          <span className="text-white/30 text-sm">
+            {category.skills.length} skills
+          </span>
+        </div>
+      </ScrollReveal>
+
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {category.skills.map((skill, skillIndex) => (
+          <ScrollReveal
+            key={skill.name}
+            delay={Math.min(catIndex * 0.05 + skillIndex * 0.02, 0.5)}
+            direction="scale"
+          >
+            <TechCard
+              name={skill.name}
+              color={skill.color || category.color}
+              level={skill.level}
+              category={category.name}
+              onClick={() => onSkillClick(skill, category.name)}
+            />
+          </ScrollReveal>
+        ))}
+      </div>
+    </div>
+  );
+});
 
 export default function SkillsPage() {
   const [selectedSkill, setSelectedSkill] = useState<{
     skill: CategorySkill;
     category: string;
   } | null>(null);
+
+  const handleSkillClick = (skill: CategorySkill, category: string) => {
+    setSelectedSkill({ skill, category });
+  };
 
   return (
     <div className="min-h-screen pt-32 pb-48">
@@ -144,17 +230,19 @@ export default function SkillsPage() {
           <AnimatedHeading>Skills Universe</AnimatedHeading>
           <ScrollReveal delay={0.2}>
             <p className="text-white/60 max-w-2xl mx-auto mt-6">
-              Explore my technical skills organized in concentric orbits.
-              Each ring represents a different domain of expertise.
-              Hover over skills to see details, click categories to filter.
+              Explore my technical skills organized in concentric orbits. Each
+              ring represents a different domain of expertise. Hover over skills
+              to see details, click categories to filter.
             </p>
           </ScrollReveal>
         </div>
 
-        {/* Concentric Orbits Visualization */}
+        {/* Concentric Orbits Visualization - Lazy Loaded */}
         <ScrollReveal delay={0.3}>
           <div className="mb-48 flex justify-center">
-            <ConcentricOrbits categories={portfolioData.skillCategories} />
+            <Suspense fallback={<ConcentricOrbitsLoader />}>
+              <ConcentricOrbits categories={portfolioData.skillCategories} />
+            </Suspense>
           </div>
         </ScrollReveal>
 
@@ -166,52 +254,12 @@ export default function SkillsPage() {
           </div>
 
           {portfolioData.skillCategories.map((category, catIndex) => (
-            <div key={category.name}>
-              <ScrollReveal delay={catIndex * 0.1}>
-                <div className="flex items-center gap-4 mb-8">
-                  <div
-                    className="w-4 h-4 rounded-full"
-                    style={{
-                      backgroundColor: category.color,
-                      boxShadow: `0 0 15px ${category.color}60`
-                    }}
-                  />
-                  <h3 className="text-2xl font-bold text-white">{category.name}</h3>
-                  <div
-                    className="flex-1 h-px"
-                    style={{
-                      background: `linear-gradient(to right, ${category.color}40, transparent)`
-                    }}
-                  />
-                  <span className="text-white/30 text-sm">
-                    {category.skills.length} skills
-                  </span>
-                </div>
-              </ScrollReveal>
-
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {category.skills.map((skill, skillIndex) => (
-                  <ScrollReveal
-                    key={skill.name}
-                    delay={catIndex * 0.05 + skillIndex * 0.02}
-                    direction="scale"
-                  >
-                    <TechCard
-                      name={skill.name}
-                      color={skill.color || category.color}
-                      level={skill.level}
-                      category={category.name}
-                      onClick={() =>
-                        setSelectedSkill({
-                          skill,
-                          category: category.name,
-                        })
-                      }
-                    />
-                  </ScrollReveal>
-                ))}
-              </div>
-            </div>
+            <CategorySection
+              key={category.name}
+              category={category}
+              catIndex={catIndex}
+              onSkillClick={handleSkillClick}
+            />
           ))}
         </div>
       </div>
@@ -227,7 +275,7 @@ export default function SkillsPage() {
         )}
       </AnimatePresence>
 
-      {/* Background */}
+      {/* Background - Static, no animations */}
       <div className="fixed inset-0 pointer-events-none -z-10">
         <div className="absolute top-1/4 left-0 w-96 h-96 bg-[#00f0ff]/5 rounded-full blur-[128px]" />
         <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-[#a855f7]/5 rounded-full blur-[128px]" />
