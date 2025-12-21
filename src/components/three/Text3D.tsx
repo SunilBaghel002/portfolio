@@ -1,283 +1,354 @@
 // components/three/Text3D.tsx
 "use client";
 
-import { useRef, useState, useEffect, Suspense, useMemo } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Center, Float, Environment } from "@react-three/drei";
+import { useRef, useState, useEffect, Suspense, useMemo, memo } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Center, Text3D as DreiText3D, useFont } from "@react-three/drei";
 import * as THREE from "three";
-import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js";
-import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js";
 
-interface AnimatedText3DProps {
-    text: string;
-    color?: string;
+interface NameTextProps {
+    firstName: string;
+    lastName: string;
+    primaryColor?: string;
     secondaryColor?: string;
     size?: number;
-    depth?: number;
-    animated?: boolean;
 }
 
-function AnimatedText({
-    text,
-    color = "#00f0ff",
+const NameText = memo(function NameText({
+    firstName,
+    lastName,
+    primaryColor = "#00f0ff",
     secondaryColor = "#a855f7",
-    size = 1,
-    depth = 0.3,
-    animated = true
-}: AnimatedText3DProps) {
-    const meshRef = useRef<THREE.Mesh>(null);
-    const materialRef = useRef<THREE.MeshStandardMaterial>(null);
-    const [font, setFont] = useState<any>(null);
-    const [geometry, setGeometry] = useState<TextGeometry | null>(null);
-    const [hovered, setHovered] = useState(false);
-    const { mouse, viewport } = useThree();
+    size = 0.8,
+}: NameTextProps) {
+    const groupRef = useRef<THREE.Group>(null);
+    const frameCount = useRef(0);
 
-    useEffect(() => {
-        const loader = new FontLoader();
-        loader.load("/fonts/helvetiker_bold.typeface.json", (loadedFont) => {
-            setFont(loadedFont);
-        }, undefined, () => {
-            console.warn("Failed to load custom font, using fallback");
-        });
-    }, []);
+    const font = useFont("/fonts/helvetiker_bold.typeface.json");
 
-    useEffect(() => {
-        if (font) {
-            const geo = new TextGeometry(text, {
-                font: font,
-                size: size,
-                depth: depth,
-                curveSegments: 16,
-                bevelEnabled: true,
-                bevelThickness: 0.03,
-                bevelSize: 0.02,
-                bevelOffset: 0,
-                bevelSegments: 8,
-            });
-            geo.center();
-            geo.computeBoundingBox();
-            setGeometry(geo);
-        }
-    }, [font, text, size, depth]);
-
-    const gradientTexture = useMemo(() => {
-        const canvas = document.createElement('canvas');
-        canvas.width = 256;
-        canvas.height = 0.8;
-        const ctx = canvas.getContext('2d')!;
-
-        const gradient = ctx.createLinearGradient(0, 0, 256, 0);
-        gradient.addColorStop(0, color);
-        gradient.addColorStop(0.5, secondaryColor);
-        gradient.addColorStop(1, "#ec4899");
-
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, 256, 1);
-
-        const texture = new THREE.CanvasTexture(canvas);
-        texture.needsUpdate = true;
-        return texture;
-    }, [color, secondaryColor]);
+    const materials = useMemo(() => ({
+        primary: new THREE.MeshStandardMaterial({
+            color: primaryColor,
+            metalness: 0.8,
+            roughness: 0.2,
+            emissive: primaryColor,
+            emissiveIntensity: 0.2,
+        }),
+        secondary: new THREE.MeshStandardMaterial({
+            color: secondaryColor,
+            metalness: 0.8,
+            roughness: 0.2,
+            emissive: secondaryColor,
+            emissiveIntensity: 0.2,
+        }),
+        shadow: new THREE.MeshStandardMaterial({
+            color: "#ec4899",
+            metalness: 0.8,
+            roughness: 0.2,
+            transparent: true,
+            opacity: 0.3,
+        }),
+    }), [primaryColor, secondaryColor]);
 
     useFrame((state) => {
-        if (!meshRef.current || !animated) return;
+        if (!groupRef.current) return;
+
+        frameCount.current++;
+        if (frameCount.current % 2 !== 0) return;
 
         const time = state.clock.getElapsedTime();
+        groupRef.current.rotation.y = Math.sin(time * 0.2) * 0.05;
+        groupRef.current.rotation.x = Math.sin(time * 0.15) * 0.02;
 
-        meshRef.current.rotation.y = Math.sin(time * 0.3) * 0.08;
-        meshRef.current.rotation.x = Math.sin(time * 0.2) * 0.03;
-
-        const targetX = (mouse.x * viewport.width) / 20;
-        const targetY = (mouse.y * viewport.height) / 20;
-        meshRef.current.rotation.y += targetX * 0.02;
-        meshRef.current.rotation.x += -targetY * 0.01;
-
-        if (materialRef.current) {
-            materialRef.current.emissiveIntensity = 0.3 + Math.sin(time * 2) * 0.1;
-        }
+        materials.primary.emissiveIntensity = 0.2 + Math.sin(time * 1.5) * 0.1;
+        materials.secondary.emissiveIntensity = 0.2 + Math.cos(time * 1.5) * 0.1;
     });
 
-    if (!geometry) {
-        return (
-            <mesh>
-                <boxGeometry args={[4, 1, 0.5]} />
-                <meshStandardMaterial color={color} opacity={0.3} transparent />
-            </mesh>
-        );
-    }
+    if (!font) return null;
+
+    const textConfig = {
+        font: font,
+        size: size,
+        height: 0.15,
+        curveSegments: 8,
+        bevelEnabled: true,
+        bevelThickness: 0.02,
+        bevelSize: 0.015,
+        bevelSegments: 3,
+    };
+
+    const spacing = 0.3;
 
     return (
-        <Float
-            speed={animated ? 2 : 0}
-            rotationIntensity={animated ? 0.1 : 0}
-            floatIntensity={animated ? 0.3 : 0}
-        >
-            <group>
-                <mesh
-                    ref={meshRef}
-                    geometry={geometry}
-                    onPointerOver={() => setHovered(true)}
-                    onPointerOut={() => setHovered(false)}
-                    scale={hovered ? 1.02 : 1}
-                >
-                    <meshStandardMaterial
-                        ref={materialRef}
-                        color={color}
-                        metalness={0.9}
-                        roughness={0.1}
-                        emissive={color}
-                        emissiveIntensity={0.3}
-                        envMapIntensity={1.5}
-                    />
-                </mesh>
-
-                <mesh geometry={geometry} position={[0.05, -0.05, -0.1]}>
-                    <meshStandardMaterial
-                        color={secondaryColor}
-                        metalness={0.9}
-                        roughness={0.1}
-                        transparent
-                        opacity={0.5}
-                    />
-                </mesh>
-
-                <mesh geometry={geometry} position={[0.1, -0.1, -0.2]}>
-                    <meshStandardMaterial
-                        color="#ec4899"
-                        metalness={0.9}
-                        roughness={0.1}
-                        transparent
-                        opacity={0.3}
-                    />
-                </mesh>
+        <group ref={groupRef}>
+            <group position={[-2.5, 0, -0.15]}>
+                <Center>
+                    <DreiText3D {...textConfig} material={materials.shadow}>
+                        {firstName} {lastName}
+                    </DreiText3D>
+                </Center>
             </group>
-        </Float>
-    );
-}
 
-function Scene({
-    text,
-    color,
-    secondaryColor,
-    size,
-    depth,
-    animated
-}: AnimatedText3DProps) {
-    return (
-        <>
-            <ambientLight intensity={0.4} />
-            <spotLight
-                position={[10, 10, 10]}
-                angle={0.15}
-                penumbra={1}
-                intensity={1}
-                color="#00f0ff"
-                castShadow
-            />
-            <spotLight
-                position={[-10, -10, -10]}
-                angle={0.15}
-                penumbra={1}
-                intensity={0.5}
-                color="#a855f7"
-            />
-            <pointLight position={[0, 0, 10]} intensity={0.5} color="#ffffff" />
+            <group position={[-2.55, 0.05, -0.08]}>
+                <Center>
+                    <DreiText3D {...textConfig}>
+                        {firstName}
+                        <primitive object={materials.secondary} attach="material" />
+                    </DreiText3D>
+                </Center>
+            </group>
 
             <Center>
-                <AnimatedText
-                    text={text}
-                    color={color}
-                    secondaryColor={secondaryColor}
-                    size={size}
-                    depth={depth}
-                    animated={animated}
-                />
-            </Center>
+                <group>
+                    <DreiText3D {...textConfig} position={[-(firstName.length * size * 0.35 + spacing), 0, 0]}>
+                        {firstName}
+                        <primitive object={materials.primary} attach="material" />
+                    </DreiText3D>
 
-            <Environment preset="night" />
+                    <DreiText3D {...textConfig} position={[(lastName.length * size * 0.2), 0, 0]}>
+                        {lastName}
+                        <primitive object={materials.secondary} attach="material" />
+                    </DreiText3D>
+                </group>
+            </Center>
+        </group>
+    );
+});
+
+function SimpleLighting() {
+    return (
+        <>
+            <ambientLight intensity={0.5} />
+            <directionalLight position={[5, 5, 5]} intensity={0.8} color="#00f0ff" />
+            <directionalLight position={[-5, -5, 5]} intensity={0.4} color="#a855f7" />
+            <pointLight position={[0, 0, 8]} intensity={0.3} color="#ffffff" />
         </>
     );
 }
 
-interface Text3DProps {
-    text: string;
-    color?: string;
+interface Text3DCanvasProps {
+    firstName: string;
+    lastName: string;
+    primaryColor?: string;
     secondaryColor?: string;
     size?: number;
-    depth?: number;
-    className?: string;
+}
+
+function Text3DCanvas({
+    firstName,
+    lastName,
+    primaryColor,
+    secondaryColor,
+    size,
+}: Text3DCanvasProps) {
+    return (
+        <Canvas
+            camera={{ position: [0, 0, 5], fov: 50 }}
+            dpr={[1, 1.5]}
+            gl={{
+                antialias: false,
+                alpha: true,
+                powerPreference: "high-performance",
+                stencil: false,
+                depth: true,
+            }}
+            frameloop="demand"
+            style={{ background: "transparent" }}
+            onCreated={({ gl }) => {
+                gl.setClearColor(0x000000, 0);
+            }}
+        >
+            <SimpleLighting />
+            <Suspense fallback={null}>
+                <NameText
+                    firstName={firstName}
+                    lastName={lastName}
+                    primaryColor={primaryColor}
+                    secondaryColor={secondaryColor}
+                    size={size}
+                />
+            </Suspense>
+        </Canvas>
+    );
+}
+
+interface Text3DProps {
+    firstName?: string;
+    lastName?: string;
+    text?: string;
+    primaryColor?: string;
+    secondaryColor?: string;
+    size?: number;
     height?: number;
-    animated?: boolean;
+    className?: string;
 }
 
 export default function Text3D({
+    firstName = "SUNIL",
+    lastName = "BAGHEL",
     text,
-    color = "#00f0ff",
+    primaryColor = "#00f0ff",
     secondaryColor = "#a855f7",
-    size = 1,
-    depth = 0.3,
+    size = 0.8,
+    height = 150,
     className = "",
-    height = 10,
-    animated = true,
 }: Text3DProps) {
-    const [mounted, setMounted] = useState(false);
+    const [shouldRender, setShouldRender] = useState(false);
+    const [isVisible, setIsVisible] = useState(false);
     const [hasError, setHasError] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        setMounted(true);
+        const element = containerRef.current;
+        if (!element) return;
 
-        try {
-            const canvas = document.createElement("canvas");
-            const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-            if (!gl) setHasError(true);
-        } catch {
-            setHasError(true);
-        }
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
+                    observer.disconnect();
+                }
+            },
+            { threshold: 0.1, rootMargin: "100px" }
+        );
+
+        observer.observe(element);
+        return () => observer.disconnect();
     }, []);
 
-    if (!mounted || hasError) {
-        return (
-            <div className={className} style={{ height }}>
-                <div className="w-full h-full flex items-center justify-center">
-                    <span
-                        className="text-6xl md:text-8xl font-black tracking-tighter"
-                        style={{
-                            background: `linear-gradient(135deg, ${color}, ${secondaryColor}, #ec4899)`,
-                            WebkitBackgroundClip: "text",
-                            WebkitTextFillColor: "transparent",
-                            filter: "drop-shadow(0 0 30px rgba(0,240,255,0.5))",
-                        }}
-                    >
-                        {text}
-                    </span>
-                </div>
-            </div>
-        );
+    useEffect(() => {
+        if (!isVisible) return;
+
+        const checkCapabilities = () => {
+            try {
+                const canvas = document.createElement("canvas");
+                const gl = canvas.getContext("webgl2") ||
+                    canvas.getContext("webgl") ||
+                    canvas.getContext("experimental-webgl");
+
+                if (!gl) {
+                    setHasError(true);
+                    return;
+                }
+
+                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                const cores = navigator.hardwareConcurrency || 4;
+                const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+                if (prefersReducedMotion || (isMobile && cores <= 4)) {
+                    setHasError(true);
+                    return;
+                }
+
+                setShouldRender(true);
+            } catch {
+                setHasError(true);
+            }
+        };
+
+        const timer = setTimeout(checkCapabilities, 50);
+        return () => clearTimeout(timer);
+    }, [isVisible]);
+
+    if (text) {
+        const parts = text.split(" ");
+        firstName = parts[0] || "SUNIL";
+        lastName = parts.slice(1).join(" ") || "BAGHEL";
     }
 
     return (
-        <div className={className} style={{ height }}>
-            <Canvas
-                camera={{ position: [0, 0, 5], fov: 50 }}
-                dpr={[1, 2]}
-                gl={{
-                    antialias: true,
-                    alpha: true,
-                    powerPreference: "high-performance",
-                }}
-                style={{ background: "transparent" }}
-            >
-                <Suspense fallback={null}>
-                    <Scene
-                        text={text}
-                        color={color}
-                        secondaryColor={secondaryColor}
-                        size={size}
-                        depth={depth}
-                        animated={animated}
-                    />
-                </Suspense>
-            </Canvas>
+        <div ref={containerRef} className={className} style={{ height }}>
+            {!isVisible && (
+                <CSSFallback
+                    firstName={firstName}
+                    lastName={lastName}
+                    primaryColor={primaryColor}
+                    secondaryColor={secondaryColor}
+                    loading
+                />
+            )}
+
+            {isVisible && hasError && (
+                <CSSFallback
+                    firstName={firstName}
+                    lastName={lastName}
+                    primaryColor={primaryColor}
+                    secondaryColor={secondaryColor}
+                />
+            )}
+
+            {isVisible && shouldRender && (
+                <Text3DCanvas
+                    firstName={firstName}
+                    lastName={lastName}
+                    primaryColor={primaryColor}
+                    secondaryColor={secondaryColor}
+                    size={size}
+                />
+            )}
+        </div>
+    );
+}
+
+function CSSFallback({
+    firstName,
+    lastName,
+    primaryColor = "#00f0ff",
+    secondaryColor = "#a855f7",
+    loading = false,
+}: {
+    firstName: string;
+    lastName: string;
+    primaryColor?: string;
+    secondaryColor?: string;
+    loading?: boolean;
+}) {
+    return (
+        <div className="w-full h-full flex items-center justify-center">
+            <div className="relative">
+                <span
+                    className="absolute inset-0 blur-2xl"
+                    style={{
+                        background: `linear-gradient(135deg, ${primaryColor}60, ${secondaryColor}60, #ec489960)`,
+                        opacity: loading ? 0.3 : 0.5,
+                    }}
+                />
+
+                <span
+                    className="absolute text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight"
+                    style={{
+                        color: "#ec4899",
+                        transform: "translate(4px, 4px)",
+                        opacity: 0.3,
+                    }}
+                >
+                    {firstName} {lastName}
+                </span>
+
+                <span
+                    className="absolute text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight"
+                    style={{
+                        color: secondaryColor,
+                        transform: "translate(2px, 2px)",
+                        opacity: 0.5,
+                    }}
+                >
+                    {firstName} {lastName}
+                </span>
+
+                <span
+                    className={`relative text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight ${loading ? "animate-pulse" : ""}`}
+                    style={{
+                        background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 50%, #ec4899 100%)`,
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                        backgroundClip: "text",
+                        filter: `drop-shadow(0 0 30px ${primaryColor}50)`,
+                    }}
+                >
+                    {firstName} {lastName}
+                </span>
+            </div>
         </div>
     );
 }
