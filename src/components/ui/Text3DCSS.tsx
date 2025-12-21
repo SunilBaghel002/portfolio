@@ -2,136 +2,166 @@
 "use client";
 
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect, memo } from "react";
 
 interface Text3DCSSProps {
-  text: string;
+  firstName?: string;
+  lastName?: string;
+  primaryColor?: string;
+  secondaryColor?: string;
   className?: string;
 }
 
-export function Text3DCSS({ text, className = "" }: Text3DCSSProps) {
-  const ref = useRef<HTMLDivElement>(null);
+export const Text3DCSS = memo(function Text3DCSS({
+  firstName = "SUNIL",
+  lastName = "BAGHEL",
+  primaryColor = "#00f0ff",
+  secondaryColor = "#a855f7",
+  className = "",
+}: Text3DCSSProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
-  
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  
-  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [10, -10]), {
-    stiffness: 150,
+  const [isMounted, setIsMounted] = useState(false);
+
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [8, -8]), {
+    stiffness: 100,
     damping: 20,
   });
-  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-10, 10]), {
-    stiffness: 150,
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-8, 8]), {
+    stiffness: 100,
     damping: 20,
   });
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    x.set((e.clientX - centerX) / rect.width);
-    y.set((e.clientY - centerY) / rect.height);
+    mouseX.set((e.clientX - centerX) / rect.width);
+    mouseY.set((e.clientY - centerY) / rect.height);
   };
 
   const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
+    mouseX.set(0);
+    mouseY.set(0);
     setIsHovered(false);
   };
 
+  const layers = [
+    { offset: 6, color: "#ec4899", opacity: 0.2, blur: 0 },
+    { offset: 4, color: secondaryColor, opacity: 0.4, blur: 0 },
+    { offset: 2, color: secondaryColor, opacity: 0.6, blur: 0 },
+  ];
+
   return (
-    <motion.div
-      ref={ref}
-      className={`relative perspective-1000 ${className}`}
+    <div
+      ref={containerRef}
+      className={`relative select-none ${className}`}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={handleMouseLeave}
-      style={{
-        perspective: "1000px",
-        transformStyle: "preserve-3d",
-      }}
+      style={{ perspective: "1000px" }}
     >
-      <motion.h1
-        className="relative text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tighter select-none"
+      <motion.div
+        className="relative"
         style={{
-          rotateX,
-          rotateY,
+          rotateX: isMounted ? rotateX : 0,
+          rotateY: isMounted ? rotateY : 0,
           transformStyle: "preserve-3d",
         }}
       >
-        <span
-          className="absolute inset-0 blur-3xl opacity-60"
+        <div
+          className="absolute inset-0 blur-3xl transition-opacity duration-500"
           style={{
-            background: "linear-gradient(135deg, #00f0ff, #a855f7, #ec4899)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            transform: "translateZ(-20px)",
+            background: `linear-gradient(135deg, ${primaryColor}40, ${secondaryColor}40, #ec489940)`,
+            opacity: isHovered ? 0.8 : 0.5,
+            transform: "translateZ(-50px) scale(1.2)",
           }}
-        >
-          {text}
-        </span>
-        
-        <span
-          className="absolute"
-          style={{
-            background: "#ec4899",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            transform: "translateZ(-15px) translate(4px, 4px)",
-            opacity: 0.4,
-          }}
-        >
-          {text}
-        </span>
-        
-        <span
-          className="absolute"
-          style={{
-            background: "#a855f7",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            transform: "translateZ(-10px) translate(2px, 2px)",
-            opacity: 0.6,
-          }}
-        >
-          {text}
-        </span>
-        
-        <span
-          className="relative"
-          style={{
-            background: "linear-gradient(135deg, #00f0ff 0%, #a855f7 50%, #ec4899 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            filter: isHovered 
-              ? "drop-shadow(0 0 40px rgba(0,240,255,0.8))" 
-              : "drop-shadow(0 0 20px rgba(0,240,255,0.4))",
-            transform: "translateZ(0)",
-          }}
-        >
-          {text}
-        </span>
-        
+        />
+
+        {layers.map((layer, i) => (
+          <span
+            key={i}
+            className="absolute whitespace-nowrap text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight"
+            style={{
+              color: layer.color,
+              opacity: layer.opacity,
+              transform: `translateZ(${-20 - i * 10}px) translate(${layer.offset}px, ${layer.offset}px)`,
+              filter: layer.blur ? `blur(${layer.blur}px)` : undefined,
+            }}
+          >
+            {firstName}{" "}
+            <span style={{ color: layer.color }}>{lastName}</span>
+          </span>
+        ))}
+
         <motion.span
-          className="absolute inset-0 pointer-events-none"
+          className="relative whitespace-nowrap text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight inline-block"
           style={{
-            background: "linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.3) 50%, transparent 60%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundSize: "200% 100%",
+            transformStyle: "preserve-3d",
+            transform: "translateZ(0px)",
           }}
           animate={{
-            backgroundPosition: isHovered ? ["200% 0%", "-200% 0%"] : "200% 0%",
+            textShadow: isHovered
+              ? `0 0 60px ${primaryColor}80, 0 0 120px ${primaryColor}40`
+              : `0 0 30px ${primaryColor}50, 0 0 60px ${primaryColor}20`,
+          }}
+          transition={{ duration: 0.3 }}
+        >
+          <span
+            style={{
+              background: `linear-gradient(135deg, ${primaryColor} 0%, ${primaryColor} 45%, ${secondaryColor} 55%, ${secondaryColor} 100%)`,
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
+            {firstName}
+          </span>
+          {" "}
+          <span
+            style={{
+              background: `linear-gradient(135deg, ${secondaryColor} 0%, #ec4899 100%)`,
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
+            {lastName}
+          </span>
+        </motion.span>
+
+        <motion.span
+          className="absolute inset-0 whitespace-nowrap text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight pointer-events-none"
+          style={{
+            background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)",
+            backgroundSize: "200% 100%",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+          }}
+          animate={{
+            backgroundPosition: isHovered ? ["-200% 0%", "200% 0%"] : "-200% 0%",
           }}
           transition={{
             duration: 1.5,
             ease: "easeInOut",
+            repeat: isHovered ? Infinity : 0,
+            repeatDelay: 1,
           }}
         >
-          {text}
+          {firstName} {lastName}
         </motion.span>
-      </motion.h1>
-    </motion.div>
+      </motion.div>
+    </div>
   );
-}
+});
+
+export default Text3DCSS;
