@@ -217,7 +217,7 @@ export default function Text3D({
     size = 1,
     depth = 0.3,
     className = "",
-    height = 80,
+    height = 10,
     animated = true,
 }: Text3DProps) {
     const [mounted, setMounted] = useState(false);

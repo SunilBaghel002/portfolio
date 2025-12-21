@@ -265,7 +265,7 @@ export default function Hero() {
               color="#00f0ff"
               secondaryColor="#a855f7"
               size={1.2}
-              height={180}
+              height={200}
               className="w-full"
               animated
             />
