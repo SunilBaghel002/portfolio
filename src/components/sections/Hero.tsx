@@ -22,6 +22,7 @@ import {
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useRef } from "react";
+import GradientName from "@/components/ui/GradientName";
 
 // Lazy load Text3D
 const Text3D = dynamic(() => import("@/components/three/Text3D"), {
@@ -233,15 +234,12 @@ export default function Hero() {
         </motion.div>
 
         {/* 3D Name */}
-        <motion.div className="mb-4" variants={fadeInUp}>
-          <Text3D
+        <motion.div className="mb-6" variants={fadeInUp}>
+          <GradientName
             firstName="SUNIL"
             lastName="BAGHEL"
             primaryColor="#00f0ff"
             secondaryColor="#a855f7"
-            size={0.55}
-            height={130}
-            className="w-full"
           />
         </motion.div>
 
