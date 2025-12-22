@@ -2,7 +2,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useRef, useState } from "react";
 
 interface GradientNameProps {
     firstName?: string;
@@ -19,109 +18,96 @@ export default function GradientName({
     secondaryColor = "#a855f7",
     className = "",
 }: GradientNameProps) {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const [isHovered, setIsHovered] = useState(false);
+    // Letter animation variants
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.05,
+                delayChildren: 0.2,
+            },
+        },
+    };
+
+    const letterVariants = {
+        hidden: {
+            opacity: 0,
+            y: 50,
+            rotateX: -90,
+        },
+        visible: {
+            opacity: 1,
+            y: 0,
+            rotateX: 0,
+            transition: {
+                type: "spring",
+                damping: 12,
+                stiffness: 100,
+            },
+        },
+    };
+
+    const firstNameLetters = firstName.split("");
+    const lastNameLetters = lastName.split("");
 
     return (
-        <motion.div
-            ref={containerRef}
-            className={`relative select-none ${className}`}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-        >
-            {/* Glow effect */}
-            <motion.div
-                className="absolute inset-0 blur-3xl"
+        <div className={`relative ${className}`}>
+            {/* Subtle glow background */}
+            <div
+                className="absolute inset-0 blur-3xl opacity-30 -z-10"
                 style={{
-                    background: `linear-gradient(135deg, ${primaryColor}30, ${secondaryColor}30, #ec489930)`,
+                    background: `radial-gradient(ellipse at center, ${primaryColor}40 0%, ${secondaryColor}20 50%, transparent 70%)`,
                 }}
-                animate={{
-                    opacity: isHovered ? 0.8 : 0.4,
-                    scale: isHovered ? 1.1 : 1,
-                }}
-                transition={{ duration: 0.3 }}
             />
 
-            {/* Shadow layer 1 */}
-            <span
-                className="absolute text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tight whitespace-nowrap"
-                style={{
-                    color: "#ec4899",
-                    transform: "translate(6px, 6px)",
-                    opacity: 0.15,
-                }}
+            {/* Main text container */}
+            <motion.div
+                className="flex items-center justify-center gap-3 sm:gap-4 md:gap-6"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
             >
-                {firstName} {lastName}
-            </span>
+                {/* First Name */}
+                <div className="flex">
+                    {firstNameLetters.map((letter, index) => (
+                        <motion.span
+                            key={`first-${index}`}
+                            variants={letterVariants}
+                            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tight inline-block"
+                            style={{
+                                background: `linear-gradient(180deg, ${primaryColor} 0%, ${primaryColor}cc 100%)`,
+                                WebkitBackgroundClip: "text",
+                                WebkitTextFillColor: "transparent",
+                                backgroundClip: "text",
+                                textShadow: `0 0 40px ${primaryColor}30`,
+                            }}
+                        >
+                            {letter}
+                        </motion.span>
+                    ))}
+                </div>
 
-            {/* Shadow layer 2 */}
-            <span
-                className="absolute text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tight whitespace-nowrap"
-                style={{
-                    color: secondaryColor,
-                    transform: "translate(3px, 3px)",
-                    opacity: 0.3,
-                }}
-            >
-                {firstName} {lastName}
-            </span>
-
-            {/* Main text */}
-            <motion.span
-                className="relative text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tight whitespace-nowrap inline-flex"
-                animate={{
-                    textShadow: isHovered
-                        ? `0 0 60px ${primaryColor}60, 0 0 120px ${secondaryColor}40`
-                        : `0 0 30px ${primaryColor}40, 0 0 60px ${secondaryColor}20`,
-                }}
-                transition={{ duration: 0.3 }}
-            >
-                <span
-                    style={{
-                        background: `linear-gradient(135deg, ${primaryColor} 0%, ${primaryColor} 100%)`,
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                        backgroundClip: "text",
-                    }}
-                >
-                    {firstName}
-                </span>
-                <span className="mx-2 sm:mx-3 md:mx-4" />
-                <span
-                    style={{
-                        background: `linear-gradient(135deg, ${secondaryColor} 0%, #ec4899 100%)`,
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                        backgroundClip: "text",
-                    }}
-                >
-                    {lastName}
-                </span>
-            </motion.span>
-
-            {/* Shine effect */}
-            <motion.span
-                className="absolute inset-0 text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tight whitespace-nowrap pointer-events-none overflow-hidden"
-                style={{
-                    background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%)",
-                    backgroundSize: "200% 100%",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text",
-                }}
-                animate={{
-                    backgroundPosition: isHovered ? ["200% 0%", "-200% 0%"] : "200% 0%",
-                }}
-                transition={{
-                    duration: 1,
-                    ease: "easeInOut",
-                }}
-            >
-                {firstName} {lastName}
-            </motion.span>
-        </motion.div>
+                {/* Last Name */}
+                <div className="flex">
+                    {lastNameLetters.map((letter, index) => (
+                        <motion.span
+                            key={`last-${index}`}
+                            variants={letterVariants}
+                            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tight inline-block"
+                            style={{
+                                background: `linear-gradient(180deg, ${secondaryColor} 0%, #ec4899 100%)`,
+                                WebkitBackgroundClip: "text",
+                                WebkitTextFillColor: "transparent",
+                                backgroundClip: "text",
+                                textShadow: `0 0 40px ${secondaryColor}30`,
+                            }}
+                        >
+                            {letter}
+                        </motion.span>
+                    ))}
+                </div>
+            </motion.div>
+        </div>
     );
 }
