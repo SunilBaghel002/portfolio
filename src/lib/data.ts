@@ -133,12 +133,15 @@ export const portfolioData = {
       description:
         "A real-time blood donor–hospital coordination platform powered by MERN stack.",
       longDescription:
-        "A full-stack system enabling real-time donor discovery, emergency alerts, automated email notifications, JWT authentication, Leaflet maps, and hospital–donor request workflows. Designed for reliability, quick access, and large-scale medical use.",
-      image: "/projects/blood-donation.jpg",
+        "A full-stack system enabling real-time donor discovery, emergency alerts, automated email notifications, JWT authentication, Leaflet maps, and hospital–donor request workflows.",
+      // Use placeholder image service
+      image:
+        "https://images.unsplash.com/photo-1615461066841-6116e61058f4?w=800&h=600&fit=crop",
       tags: ["React", "Node.js", "MongoDB", "JWT", "Leaflet"],
       github: "https://github.com/SunilBaghel002/Blood-Donation",
       featured: true,
       year: 2024,
+      color: "#DC2626", // Red for blood donation
     },
     {
       id: 2,
@@ -146,12 +149,14 @@ export const portfolioData = {
       description:
         "Donation and welfare management system with Razorpay and cloud media storage.",
       longDescription:
-        "A scalable MERN-based platform for welfare campaigns featuring secure Razorpay payments, admin dashboards, financial logs, cloud storage, and media uploads. Optimized backend ensures smooth donation flows and reliable performance under load.",
-      image: "/projects/sankalp.jpg",
+        "A scalable MERN-based platform for welfare campaigns featuring secure Razorpay payments, admin dashboards, financial logs, cloud storage, and media uploads.",
+      image:
+        "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=800&h=600&fit=crop",
       tags: ["MERN", "Razorpay", "Cloud Storage", "Node.js"],
       github: "https://github.com/SunilBaghel002/Sankalp",
       featured: true,
       year: 2024,
+      color: "#059669", // Green for welfare
     },
     {
       id: 3,
@@ -159,12 +164,14 @@ export const portfolioData = {
       description:
         "A learning and skill-building platform built with modern full-stack architecture.",
       longDescription:
-        "A structured skill development platform offering categorized learning modules, progress tracking, intuitive UI, and modern frontend interactions. Built with clean code and reusable components for scalability.",
-      image: "/projects/skill-shastra.jpg",
+        "A structured skill development platform offering categorized learning modules, progress tracking, intuitive UI, and modern frontend interactions.",
+      image:
+        "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=600&fit=crop",
       tags: ["React", "Node.js", "MongoDB", "Tailwind"],
       github: "https://github.com/SunilBaghel002/Skill-Shastra",
       featured: false,
       year: 2024,
+      color: "#7C3AED", // Purple for learning
     },
     {
       id: 4,
@@ -172,12 +179,14 @@ export const portfolioData = {
       description:
         "A hardware + software IoT system for harvesting energy using piezoelectric sensors.",
       longDescription:
-        "An innovative hybrid system that captures footstep energy through piezoelectric sensors and visualizes real-time power generation through a full-stack web dashboard. Included microcontroller programming, energy storage logic, and live monitoring UI.",
-      image: "/projects/smart-power.jpg",
+        "An innovative hybrid system that captures footstep energy through piezoelectric sensors and visualizes real-time power generation through a full-stack web dashboard.",
+      image:
+        "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=800&h=600&fit=crop",
       tags: ["IoT", "Hardware", "JavaScript", "Web Dashboard"],
       github: "https://github.com/SunilBaghel002/Smart_Power_Frontend",
       featured: true,
       year: 2024,
+      color: "#F59E0B", // Yellow for energy
     },
     {
       id: 5,
@@ -185,13 +194,15 @@ export const portfolioData = {
       description:
         "A real-time pandemic dashboard with analytics, maps, and predictive systems.",
       longDescription:
-        "A multi-module pandemic management system featuring real-time stats using APIs, resource allocation tools, volunteer systems, hospital locators, mapping with Leaflet, and predictive dashboards. Built using Node.js, Express, and MongoDB.",
-      image: "/projects/piph.jpg",
+        "A multi-module pandemic management system featuring real-time stats using APIs, resource allocation tools, volunteer systems, hospital locators, mapping with Leaflet, and predictive dashboards.",
+      image:
+        "https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=800&h=600&fit=crop",
       tags: ["Node.js", "Express", "MongoDB", "Leaflet", "OpenWeather"],
       github:
         "https://github.com/SunilBaghel002/PIPH_Pandemic-Insights-and-Preparedness-Hub",
       featured: true,
       year: 2025,
+      color: "#0EA5E9", // Blue for health/data
     },
   ],
 

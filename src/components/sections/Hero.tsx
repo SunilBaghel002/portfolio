@@ -236,8 +236,8 @@ export default function Hero() {
         {/* 3D Name */}
         <motion.div className="mb-6" variants={fadeInUp}>
           <GradientName
-            firstName="SUNIL"
-            lastName="BAGHEL"
+            firstName="{SUNIL"
+            lastName="BAGHEL}"
             primaryColor="#00f0ff"
             secondaryColor="#a855f7"
           />
