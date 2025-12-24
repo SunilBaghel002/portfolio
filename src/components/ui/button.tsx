@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useSpring } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 
@@ -234,6 +234,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
         const isDisabled = disabled || loading;
 
+        // Extract animation event handlers to avoid conflicts with Framer Motion
+        const {
+            onAnimationStart,
+            onAnimationEnd,
+            onAnimationIteration,
+            ...restProps
+        } = props;
+
         const buttonContent = (
             <>
                 {/* Shimmer background for shimmer variant */}
@@ -294,7 +302,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                         onMouseMove={handleMouseMove}
                         onMouseLeave={handleMouseLeave}
                         whileTap={!isDisabled ? { scale: 0.98 } : undefined}
-                        {...props}
+                        {...(restProps as any)}
                     >
                         {buttonContent}
                     </motion.button>
@@ -310,7 +318,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                 disabled={isDisabled}
                 onClick={handleClick}
                 whileTap={!isDisabled ? { scale: 0.98 } : undefined}
-                {...props}
+                {...(restProps as any)}
             >
                 {buttonContent}
             </motion.button>
