@@ -1,3 +1,19 @@
+// Define Project interface
+export interface Project {
+  id: number;
+  title: string;
+  description: string;
+  longDescription: string;
+  image: string;
+  video?: string; // Optional
+  link?: string; // Optional
+  tags: string[];
+  github: string;
+  featured: boolean;
+  year: number;
+  color: string;
+}
+
 export const portfolioData = {
   name: "{Sunil Baghel}",
   role: "<Full Stack Developer/>",
@@ -97,7 +113,6 @@ export const portfolioData = {
     },
   ],
 
-  // Flat skills array for other components
   skills: [
     { name: "JavaScript", level: 95, category: "languages", color: "#F7DF1E" },
     { name: "TypeScript", level: 90, category: "languages", color: "#3178C6" },
@@ -134,14 +149,13 @@ export const portfolioData = {
         "A real-time blood donor–hospital coordination platform powered by MERN stack.",
       longDescription:
         "A full-stack system enabling real-time donor discovery, emergency alerts, automated email notifications, JWT authentication, Leaflet maps, and hospital–donor request workflows.",
-      // Use placeholder image service
       image:
         "https://images.unsplash.com/photo-1615461066841-6116e61058f4?w=800&h=600&fit=crop",
       tags: ["React", "Node.js", "MongoDB", "JWT", "Leaflet"],
       github: "https://github.com/SunilBaghel002/Blood-Donation",
       featured: true,
       year: 2024,
-      color: "#DC2626", // Red for blood donation
+      color: "#DC2626",
     },
     {
       id: 2,
@@ -156,7 +170,7 @@ export const portfolioData = {
       github: "https://github.com/SunilBaghel002/Sankalp",
       featured: true,
       year: 2024,
-      color: "#059669", // Green for welfare
+      color: "#059669",
     },
     {
       id: 3,
@@ -171,7 +185,7 @@ export const portfolioData = {
       github: "https://github.com/SunilBaghel002/Skill-Shastra",
       featured: false,
       year: 2024,
-      color: "#7C3AED", // Purple for learning
+      color: "#7C3AED",
     },
     {
       id: 4,
@@ -186,7 +200,7 @@ export const portfolioData = {
       github: "https://github.com/SunilBaghel002/Smart_Power_Frontend",
       featured: true,
       year: 2024,
-      color: "#F59E0B", // Yellow for energy
+      color: "#F59E0B",
     },
     {
       id: 5,
@@ -202,9 +216,9 @@ export const portfolioData = {
         "https://github.com/SunilBaghel002/PIPH_Pandemic-Insights-and-Preparedness-Hub",
       featured: true,
       year: 2025,
-      color: "#0EA5E9", // Blue for health/data
+      color: "#0EA5E9",
     },
-  ],
+  ] as Project[],
 
   achievements: [
     {
