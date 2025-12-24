@@ -1,7 +1,7 @@
 // components/ui/GradientName.tsx
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 
 interface GradientNameProps {
   firstName?: string;
@@ -19,7 +19,7 @@ export default function GradientName({
   className = "",
 }: GradientNameProps) {
   // Letter animation variants
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -30,18 +30,18 @@ export default function GradientName({
     },
   };
 
-  const letterVariants = {
-    hidden: { 
-      opacity: 0, 
+  const letterVariants: Variants = {
+    hidden: {
+      opacity: 0,
       y: 50,
       rotateX: -90,
     },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       rotateX: 0,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         damping: 12,
         stiffness: 100,
       },

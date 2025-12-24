@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { motion, useMotionValue, useSpring, useTransform, MotionProps } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 // ============================================
@@ -72,6 +72,14 @@ export function Card3D({
     setIsHovered(true);
   };
 
+  // Extract animation event handlers to avoid conflicts with Framer Motion
+  const {
+    onAnimationStart,
+    onAnimationEnd,
+    onAnimationIteration,
+    ...restProps
+  } = props;
+
   return (
     <motion.div
       ref={ref}
@@ -93,7 +101,7 @@ export function Card3D({
       whileHover={{ scale: 1.02 }}
       data-cursor="view"
       data-cursor-text="View"
-      {...props}
+      {...(restProps as any)}
     >
       <div className="relative h-full w-full rounded-2xl bg-[#0a0a0a]/90 backdrop-blur-xl overflow-hidden">
         {/* Shine effect */}
@@ -157,6 +165,14 @@ export function GlassCard({
     subtle: "bg-white/[0.02] backdrop-blur-lg border border-white/5",
   };
 
+  // Extract animation event handlers to avoid conflicts with Framer Motion
+  const {
+    onAnimationStart,
+    onAnimationEnd,
+    onAnimationIteration,
+    ...restProps
+  } = props;
+
   return (
     <motion.div
       className={cn(
@@ -174,7 +190,7 @@ export function GlassCard({
           : undefined
       }
       transition={{ duration: 0.3 }}
-      {...props}
+      {...(restProps as any)}
     >
       {children}
     </motion.div>
@@ -198,6 +214,14 @@ export function HoverCard({
 }: HoverCardProps) {
   const [isHovered, setIsHovered] = React.useState(false);
 
+  // Extract animation event handlers to avoid conflicts with Framer Motion
+  const {
+    onAnimationStart,
+    onAnimationEnd,
+    onAnimationIteration,
+    ...restProps
+  } = props;
+
   return (
     <motion.div
       className={cn(
@@ -210,7 +234,7 @@ export function HoverCard({
         height: isHovered && expandedContent ? "auto" : undefined,
       }}
       transition={{ duration: 0.3 }}
-      {...props}
+      {...(restProps as any)}
     >
       {children}
 
@@ -307,6 +331,14 @@ export function SpotlightCard({
     mouseY.set(e.clientY - rect.top);
   };
 
+  // Extract animation event handlers to avoid conflicts with Framer Motion
+  const {
+    onAnimationStart,
+    onAnimationEnd,
+    onAnimationIteration,
+    ...restProps
+  } = props;
+
   return (
     <motion.div
       ref={ref}
@@ -315,7 +347,7 @@ export function SpotlightCard({
         className
       )}
       onMouseMove={handleMouseMove}
-      {...props}
+      {...(restProps as any)}
     >
       {/* Spotlight effect */}
       <motion.div
