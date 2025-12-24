@@ -14,8 +14,10 @@ interface CursorState {
 export default function CustomCursor() {
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
-  const requestRef = useRef<number>();
-  const previousTimeRef = useRef<number>();
+
+  // Fixed: Provide initial value for useRef
+  const requestRef = useRef<number | null>(null);
+  const previousTimeRef = useRef<number | null>(null);
 
   // Store position in refs to avoid re-renders
   const mousePos = useRef({ x: -100, y: -100 });
@@ -47,7 +49,7 @@ export default function CustomCursor() {
 
   // Smooth animation loop using RAF - single loop for performance
   const animate = useCallback((time: number) => {
-    if (previousTimeRef.current !== undefined) {
+    if (previousTimeRef.current !== null) {
       // Lerp the ring position towards mouse (easing factor)
       const ease = 0.15;
       ringPos.current.x += (mousePos.current.x - ringPos.current.x) * ease;
@@ -73,7 +75,7 @@ export default function CustomCursor() {
 
     requestRef.current = requestAnimationFrame(animate);
     return () => {
-      if (requestRef.current) {
+      if (requestRef.current !== null) {
         cancelAnimationFrame(requestRef.current);
       }
     };
@@ -84,14 +86,13 @@ export default function CustomCursor() {
     if (isMobile) return;
 
     let lastHoverCheck = 0;
-    const HOVER_THROTTLE = 50; // Check hover state every 50ms
+    const HOVER_THROTTLE = 50;
 
     const handleMouseMove = (e: MouseEvent) => {
       mousePos.current = { x: e.clientX, y: e.clientY };
 
       if (!isVisible) setIsVisible(true);
 
-      // Throttle hover detection
       const now = Date.now();
       if (now - lastHoverCheck < HOVER_THROTTLE) return;
       lastHoverCheck = now;
@@ -122,7 +123,7 @@ export default function CustomCursor() {
 
       setCursorState(prev => {
         if (prev.hoverType === hoverType && prev.cursorText === cursorText) {
-          return prev; // Avoid unnecessary updates
+          return prev;
         }
         return { ...prev, isHovering, hoverType, cursorText };
       });
@@ -154,12 +155,10 @@ export default function CustomCursor() {
     };
   }, [isMobile, isVisible]);
 
-  // Don't render on mobile
   if (isMobile) return null;
 
   const { isHovering, isClicking, hoverType, cursorText } = cursorState;
 
-  // Calculate sizes based on state
   const dotSize = isClicking ? 6 : isHovering ? 8 : 10;
   const ringSize = isClicking ? 30 :
     hoverType === 'button' ? 60 :
@@ -180,7 +179,6 @@ export default function CustomCursor() {
         }
       `}</style>
 
-      {/* Main dot - instant response */}
       <div
         ref={dotRef}
         className={cn(
@@ -201,7 +199,6 @@ export default function CustomCursor() {
         />
       </div>
 
-      {/* Outer ring - smooth follow */}
       <div
         ref={ringRef}
         className={cn(
