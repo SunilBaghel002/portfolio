@@ -1,3 +1,4 @@
+// components/animations/ScrollReveal.tsx
 "use client";
 
 import { motion, useInView, Variants } from "framer-motion";
@@ -14,6 +15,13 @@ interface ScrollRevealProps {
     amount?: number;
 }
 
+// Define the direction config type
+interface DirectionConfig {
+    x: number;
+    y: number;
+    scale: number;
+}
+
 export function ScrollReveal({
     children,
     className,
@@ -27,23 +35,24 @@ export function ScrollReveal({
     const isInView = useInView(ref, { once, amount });
 
     const getVariants = (): Variants => {
-        const directions = {
-            up: { y: 60, x: 0 },
-            down: { y: -60, x: 0 },
-            left: { x: 60, y: 0 },
-            right: { x: -60, y: 0 },
+        // All directions now have x, y, and scale
+        const directions: Record<string, DirectionConfig> = {
+            up: { y: 60, x: 0, scale: 1 },
+            down: { y: -60, x: 0, scale: 1 },
+            left: { x: 60, y: 0, scale: 1 },
+            right: { x: -60, y: 0, scale: 1 },
             scale: { scale: 0.8, y: 0, x: 0 },
-            fade: { y: 0, x: 0 },
+            fade: { y: 0, x: 0, scale: 1 },
         };
 
-        const { x, y, scale } = directions[direction];
+        const config = directions[direction];
 
         return {
             hidden: {
                 opacity: 0,
-                y,
-                x,
-                scale: direction === "scale" ? scale : 1,
+                y: config.y,
+                x: config.x,
+                scale: config.scale,
             },
             visible: {
                 opacity: 1,
@@ -109,7 +118,13 @@ export function StaggerContainer({
     );
 }
 
-export function StaggerItem({ children, className }: { children: ReactNode; className?: string }) {
+export function StaggerItem({
+    children,
+    className
+}: {
+    children: ReactNode;
+    className?: string;
+}) {
     return (
         <motion.div
             className={className}
