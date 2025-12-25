@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { motion, useInView, AnimatePresence } from "framer-motion";
+import { motion, useInView, AnimatePresence, Variants } from "framer-motion";
 import { portfolioData } from "@/lib/data";
 import { Trophy, Star, Award, X, Sparkles, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -24,7 +24,7 @@ function AchievementCard({ achievement, index, onClick }: AchievementCardProps) 
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const Icon = iconMap[achievement.icon as keyof typeof iconMap] || Trophy;
 
-  const cardVariants = {
+  const cardVariants: Variants = {
     hidden: { opacity: 0, y: 60, rotateX: -15 },
     visible: {
       opacity: 1,
@@ -33,7 +33,7 @@ function AchievementCard({ achievement, index, onClick }: AchievementCardProps) 
       transition: {
         duration: 0.6,
         delay: index * 0.15,
-        ease: [0.25, 0.4, 0.25, 1],
+        ease: [0.25, 0.4, 0.25, 1] as const,
       },
     },
   };
