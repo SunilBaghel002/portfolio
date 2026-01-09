@@ -30,22 +30,6 @@ export default function CustomCursor() {
     cursorText: "",
   });
   const [isVisible, setIsVisible] = useState(false);
-  const [isMobile, setIsMobile] = useState(true);
-
-  // Check for mobile/touch device once
-  useEffect(() => {
-    const checkDevice = () => {
-      const isTouchDevice =
-        'ontouchstart' in window ||
-        navigator.maxTouchPoints > 0 ||
-        window.innerWidth < 1024;
-      setIsMobile(isTouchDevice);
-    };
-
-    checkDevice();
-    window.addEventListener('resize', checkDevice);
-    return () => window.removeEventListener('resize', checkDevice);
-  }, []);
 
   // Smooth animation loop using RAF - single loop for performance
   const animate = useCallback((time: number) => {

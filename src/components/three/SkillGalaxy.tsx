@@ -313,6 +313,44 @@ export default function SkillGalaxy({ onSkillClick }: SkillGalaxyProps) {
     return () => clearTimeout(timer);
   }, [isVisible]);
 
+  // Enhanced capability check
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const checkCapability = () => {
+      try {
+        // Check WebGL
+        const canvas = document.createElement("canvas");
+        const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+
+        if (!gl) {
+          setHasError(true);
+          return;
+        }
+
+        // Check for low-end device
+        const cores = navigator.hardwareConcurrency || 4;
+        // @ts-ignore
+        const memory = navigator.deviceMemory || 8; // Default to 8 if not supported
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        // Aggressive fallback for better performance
+        // If < 4GB RAM, or mobile with <= 4 cores, or reduced motion
+        if (prefersReducedMotion || (isMobile && cores <= 6) || cores <= 4 || memory < 4) {
+          setHasError(true); // Use static fallback
+          return;
+        }
+
+        setShouldRender3D(true);
+      } catch (e) {
+        setHasError(true);
+      }
+    };
+
+    checkCapability();
+  }, [isVisible]);
+
   return (
     <div ref={containerRef} className="w-full h-[600px]">
       {!isVisible && <LoadingFallback />}

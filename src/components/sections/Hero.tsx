@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { portfolioData } from "@/lib/data";
 import { GlitchText } from "../animations/AnimatedText";
 import { Button } from "../ui/button";
-import { FloatingTechOrbs } from "../ui/TechIcon";
+
 import {
   Sparkles,
   ArrowRight,
@@ -24,7 +24,10 @@ import dynamic from "next/dynamic";
 import { useRef } from "react";
 import GradientName from "@/components/ui/GradientName";
 
-// Lazy load Text3D
+// Lazy load heavy components
+const FloatingTechOrbs = dynamic(() => import("../ui/TechIcon").then((mod) => mod.FloatingTechOrbs), {
+  ssr: false
+});
 const Text3D = dynamic(() => import("@/components/three/Text3D"), {
   ssr: false,
   loading: () => <NamePlaceholder />,

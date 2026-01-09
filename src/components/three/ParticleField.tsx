@@ -7,20 +7,7 @@ import * as THREE from "three";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, SparklesIcon, X, Eye, EyeOff } from "lucide-react";
 
-// ============================================
-// CONTEXT FOR PARTICLE TOGGLE
-// ============================================
-interface ParticleContextType {
-    isEnabled: boolean;
-    toggle: () => void;
-}
-
-const ParticleContext = createContext<ParticleContextType>({
-    isEnabled: true,
-    toggle: () => { },
-});
-
-export const useParticles = () => useContext(ParticleContext);
+import { usePerformance } from "@/components/providers/ClientProviders";
 
 // ============================================
 // SEEDED RANDOM
@@ -314,72 +301,19 @@ function StaticFallback() {
 // MAIN COMPONENT
 // ============================================
 export default function ParticleField() {
-    const [state, setState] = useState<"loading" | "ready" | "error">("loading");
-    const [isEnabled, setIsEnabled] = useState(true);
+    const { isLowPerformance } = usePerformance();
+    const [isEnabled, setIsEnabled] = useState(!isLowPerformance);
 
-    // Load preference from localStorage
     useEffect(() => {
-        const saved = localStorage.getItem("particles-enabled");
-        if (saved !== null) {
-            setIsEnabled(saved === "true");
-        }
-    }, []);
+        setIsEnabled(!isLowPerformance);
+    }, [isLowPerformance]);
 
-    // Check WebGL support
-    useEffect(() => {
-        const checkWebGL = () => {
-            try {
-                const canvas = document.createElement("canvas");
-                const gl =
-                    canvas.getContext("webgl2") ||
-                    canvas.getContext("webgl") ||
-                    canvas.getContext("experimental-webgl");
-
-                if (!gl) {
-                    setState("error");
-                    return;
-                }
-
-                // Check for low-end devices
-                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-                const cores = navigator.hardwareConcurrency || 4;
-                const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-                if (prefersReducedMotion) {
-                    setIsEnabled(false);
-                }
-
-                setState("ready");
-            } catch {
-                setState("error");
-            }
-        };
-
-        const timer = setTimeout(checkWebGL, 100);
-        return () => clearTimeout(timer);
-    }, []);
-
-    // Toggle handler with localStorage persistence
     const toggleParticles = () => {
-        setIsEnabled((prev) => {
-            const newValue = !prev;
-            localStorage.setItem("particles-enabled", String(newValue));
-            return newValue;
-        });
-    };
-
-    // Loading state
-    if (state === "loading") {
-        return null;
-    }
-
-    // Error fallback (no toggle button needed)
-    if (state === "error") {
-        return <StaticFallback />;
+        setIsEnabled(prev => !prev);
     }
 
     return (
-        <ParticleContext.Provider value={{ isEnabled, toggle: toggleParticles }}>
+        <>
             {/* Particle Canvas */}
             <AnimatePresence>
                 {isEnabled && (
@@ -420,11 +354,7 @@ export default function ParticleField() {
 
             {/* Toggle Button - Use ParticleToggleButton or MinimalToggleButton */}
             <ParticleToggleButton isEnabled={isEnabled} onToggle={toggleParticles} />
-        </ParticleContext.Provider>
+        </>
     );
 }
 
-// ============================================
-// EXPORT HOOK FOR EXTERNAL CONTROL
-// ============================================
-export { ParticleContext };
