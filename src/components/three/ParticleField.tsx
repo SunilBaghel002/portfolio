@@ -46,13 +46,13 @@ function Particles() {
         return () => window.removeEventListener("mousemove", handleMouseMove);
     }, []);
 
-    // Particle count based on screen size
+    // Particle count based on screen size - Optimized for low-end devices
     const count = useMemo(() => {
-        if (typeof window === "undefined") return 400;
+        if (typeof window === "undefined") return 200;
         const width = window.innerWidth;
-        if (width < 640) return 150;
-        if (width < 1024) return 300;
-        return 500;
+        if (width < 640) return 60; // Significantly reduced for mobile
+        if (width < 1024) return 150;
+        return 300; // Reduced from 500
     }, []);
 
     // Create geometry with SMALLER, uniform particles
@@ -113,8 +113,8 @@ function Particles() {
     useFrame((state) => {
         if (!pointsRef.current) return;
 
-        frameCount.current++;
-        if (frameCount.current % 2 !== 0) return;
+        // Throttle animation on low-end devices/high refresh rate screens if needed
+        // But for now, just standard rotation
 
         const time = state.clock.getElapsedTime();
 
@@ -135,7 +135,7 @@ function ParticleCanvas() {
     return (
         <Canvas
             camera={{ position: [0, 0, 12], fov: 60 }}
-            dpr={[1, 1.5]}
+            dpr={[0.8, 1.5]} // Allow slightly lower res on very weak devices
             gl={{
                 antialias: false,
                 alpha: true,
