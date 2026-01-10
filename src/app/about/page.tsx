@@ -13,7 +13,17 @@ import {
   AnimatedHeading,
 } from "@/components/animations/AnimatedText";
 import { SkillConstellation, TechBadge } from "@/components/ui/TechIcon";
-import { Calendar, MapPin, Briefcase, GraduationCap } from "lucide-react";
+import {
+  FaBriefcase,
+  FaGraduationCap,
+  FaCode,
+  FaCamera,
+  FaMusic,
+  FaPlane,
+  FaGamepad,
+  FaMugHot
+} from "react-icons/fa6";
+import { MapPin, Calendar } from "lucide-react";
 
 const timeline = [
   {
@@ -21,7 +31,7 @@ const timeline = [
     title: "Senior Developer",
     company: "Tech Corp",
     description: "Leading frontend architecture and mentoring junior developers.",
-    icon: Briefcase,
+    icon: FaBriefcase,
     technologies: ["React", "TypeScript", "AWS"],
   },
   {
@@ -29,7 +39,7 @@ const timeline = [
     title: "Full Stack Developer",
     company: "Startup Inc",
     description: "Built core product features driving 300% user growth.",
-    icon: Briefcase,
+    icon: FaBriefcase,
     technologies: ["Next.js", "Node.js", "PostgreSQL"],
   },
   {
@@ -37,7 +47,7 @@ const timeline = [
     title: "Frontend Developer",
     company: "Agency Co",
     description: "Crafted award-winning websites for Fortune 500 clients.",
-    icon: Briefcase,
+    icon: FaBriefcase,
     technologies: ["React", "Tailwind CSS", "Framer Motion"],
   },
   {
@@ -45,18 +55,18 @@ const timeline = [
     title: "Computer Science Degree",
     company: "University",
     description: "Graduated with honors, specializing in web technologies.",
-    icon: GraduationCap,
+    icon: FaGraduationCap,
     technologies: ["Python", "JavaScript", "Git"],
   },
 ];
 
 const interests = [
-  { name: "Open Source", icon: "💻" },
-  { name: "Photography", icon: "📷" },
-  { name: "Music Production", icon: "🎵" },
-  { name: "Travel", icon: "✈️" },
-  { name: "Gaming", icon: "🎮" },
-  { name: "Coffee", icon: "☕" },
+  { name: "Open Source", icon: FaCode, color: "#00f0ff" },
+  { name: "Photography", icon: FaCamera, color: "#a855f7" },
+  { name: "Music Production", icon: FaMusic, color: "#ec4899" },
+  { name: "Travel", icon: FaPlane, color: "#3b82f6" },
+  { name: "Gaming", icon: FaGamepad, color: "#10b981" },
+  { name: "Coffee", icon: FaMugHot, color: "#f59e0b" },
 ];
 
 function TimelineItem({
@@ -312,15 +322,34 @@ export default function AboutPage() {
             <AnimatedHeading>Interests & Hobbies</AnimatedHeading>
           </div>
 
-          <StaggerContainer className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <StaggerContainer className="grid grid-cols-2 md:grid-cols-3 gap-6">
             {interests.map((interest) => (
               <StaggerItem key={interest.name}>
                 <motion.div
-                  className="glass p-6 rounded-2xl text-center"
-                  whileHover={{ scale: 1.05, y: -5 }}
+                  className="group relative p-6 rounded-2xl glass overflow-hidden cursor-none"
+                  whileHover={{ y: -10, rotateX: 10, rotateY: 10 }}
+                  style={{ perspective: 1000 }}
                 >
-                  <span className="text-4xl mb-3 block">{interest.icon}</span>
-                  <span className="text-white/80">{interest.name}</span>
+                  <div
+                    className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300"
+                    style={{ background: `radial-gradient(circle at center, ${interest.color}, transparent 70%)` }}
+                  />
+
+                  <div className="relative z-10 flex flex-col items-center gap-4">
+                    <div
+                      className="w-16 h-16 rounded-full flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12"
+                      style={{
+                        background: `linear-gradient(135deg, ${interest.color}20, ${interest.color}05)`,
+                        border: `1px solid ${interest.color}40`,
+                        boxShadow: `0 0 20px ${interest.color}20`
+                      }}
+                    >
+                      <interest.icon className="w-8 h-8" style={{ color: interest.color }} />
+                    </div>
+                    <span className="text-white/80 font-medium group-hover:text-white transition-colors">
+                      {interest.name}
+                    </span>
+                  </div>
                 </motion.div>
               </StaggerItem>
             ))}

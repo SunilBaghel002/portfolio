@@ -3,7 +3,7 @@
 
 import { useRef, useMemo, useEffect, useState, memo, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import { portfolioData } from "@/lib/data";
 
@@ -131,6 +131,69 @@ const Connections = memo(function Connections({
 });
 
 // ============================================
+// STAR DUST - Background Particles
+// ============================================
+function StarDust() {
+  const points = useMemo(() => {
+    const p = new Float32Array(1500 * 3);
+    for (let i = 0; i < 1500 * 3; i++) {
+      const r = 10 + Math.random() * 20;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      p[i] = r * Math.sin(phi) * Math.cos(theta);
+      p[i + 1] = r * Math.sin(phi) * Math.sin(theta);
+      p[i + 2] = r * Math.cos(phi);
+    }
+    return p;
+  }, []);
+
+  return (
+    <points>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[points, 3]} />
+      </bufferGeometry>
+      <pointsMaterial size={0.03} color="#fff" transparent opacity={0.3} sizeAttenuation />
+    </points>
+  );
+}
+
+// ============================================
+// CORE - Glowing Center
+// ============================================
+function Core() {
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime();
+  });
+
+  return (
+    <group>
+      {/* Inner Core */}
+      <mesh>
+        <sphereGeometry args={[0.8, 32, 32]} />
+        <meshStandardMaterial
+          color="#000"
+          emissive="#a855f7"
+          emissiveIntensity={2}
+          toneMapped={false}
+        />
+        <pointLight distance={15} intensity={5} color="#a855f7" />
+      </mesh>
+
+      {/* Outer Glow */}
+      <mesh>
+        <sphereGeometry args={[1.4, 32, 32]} />
+        <meshBasicMaterial
+          color="#00f0ff"
+          transparent
+          opacity={0.1}
+          wireframe
+        />
+      </mesh>
+    </group>
+  )
+}
+
+// ============================================
 // SCENE - Main 3D Scene
 // ============================================
 interface SceneProps {
@@ -143,16 +206,17 @@ function Scene({ onSkillClick }: SceneProps) {
   // Pre-calculate all positions once
   const skillsWithPositions = useMemo(() => {
     return portfolioData.skills.map((skill, i) => {
-      const angle = (i / portfolioData.skills.length) * Math.PI * 2;
-      const radius = 3 + (i % 3) * 0.8; // Deterministic radius
-      const height = ((i % 5) - 2) * 0.8; // Deterministic height
+      // Golden Spiral distribution
+      const phi = Math.acos(-1 + (2 * i) / portfolioData.skills.length);
+      const theta = Math.sqrt(portfolioData.skills.length * Math.PI) * phi;
+      const radius = 6;
 
       return {
         ...skill,
         position: [
-          Math.cos(angle) * radius,
-          height,
-          Math.sin(angle) * radius,
+          radius * Math.cos(theta) * Math.sin(phi),
+          radius * Math.sin(theta) * Math.sin(phi),
+          radius * Math.cos(phi),
         ] as [number, number, number],
       };
     });
@@ -168,12 +232,20 @@ function Scene({ onSkillClick }: SceneProps) {
     onSkillClick(skill);
   };
 
+  useFrame(({ clock }) => {
+    // Slow rotation of entire scene container handled by orbit controls usually, 
+    // but here we might want manual rotation if no controls
+  });
+
   return (
     <>
-      {/* Optimized lighting - fewer lights */}
-      <ambientLight intensity={0.4} />
-      <pointLight position={[10, 10, 10]} intensity={0.8} color="#00f0ff" />
-      <pointLight position={[-10, -10, -10]} intensity={0.4} color="#a855f7" />
+      <StarDust />
+      <Core />
+
+      {/* Optimized lighting */}
+      <ambientLight intensity={0.2} />
+      <pointLight position={[10, 10, 10]} intensity={1} color="#00f0ff" />
+      <pointLight position={[-10, -10, -10]} intensity={0.5} color="#ec4899" />
 
       {/* Static connections */}
       <Connections positions={positions} />
@@ -371,6 +443,7 @@ export default function SkillGalaxy({ onSkillClick }: SkillGalaxyProps) {
             }}
             frameloop="demand" // Only render when needed
           >
+            <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={0.5} />
             <Scene onSkillClick={onSkillClick} />
           </Canvas>
         </Suspense>

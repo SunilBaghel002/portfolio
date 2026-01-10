@@ -47,25 +47,28 @@ function AchievementCard({ achievement, index, onClick }: AchievementCardProps) 
       animate={isInView ? "visible" : "hidden"}
       onClick={onClick}
       whileHover={{
-        scale: 1.03,
-        rotateY: 2,
-        transition: { duration: 0.3 }
+        scale: 1.02,
+        y: -5,
+        transition: { duration: 0.2 }
       }}
     >
-      <div className="relative h-full p-8 rounded-2xl bg-gradient-to-br from-[#0a0a0a] to-[#1a1a1a] border border-white/10 overflow-hidden group-hover:border-[#00f0ff]/50 transition-colors duration-500">
+      <div className="relative h-full p-8 rounded-2xl bg-[#0a0a0a] border border-white/10 overflow-hidden group-hover:border-[#00f0ff]/50 transition-colors duration-500">
+        {/* Holographic Shine */}
+        <div
+          className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500 pointer-events-none"
+          style={{
+            background: "linear-gradient(105deg, transparent 20%, rgba(0, 240, 255, 0.4) 25%, transparent 30%, transparent 45%, rgba(168, 85, 247, 0.4) 50%, transparent 55%)",
+            backgroundSize: "200% 200%",
+            backgroundPosition: "0% 0%",
+            filter: "blur(5px)"
+          }}
+        />
+
         {/* Animated background gradient */}
         <motion.div
           className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
           style={{
-            background: "radial-gradient(circle at center, rgba(0,240,255,0.1) 0%, transparent 70%)",
-          }}
-          animate={{
-            scale: [1, 1.2, 1],
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: "easeInOut",
+            background: "radial-gradient(circle at center, rgba(0,240,255,0.05) 0%, transparent 70%)",
           }}
         />
 
@@ -82,7 +85,7 @@ function AchievementCard({ achievement, index, onClick }: AchievementCardProps) 
           }}
         >
           <motion.div
-            className="relative p-4 rounded-xl bg-gradient-to-br from-[#00f0ff]/20 to-[#a855f7]/20 border border-[#00f0ff]/30"
+            className="relative p-4 rounded-xl bg-gradient-to-br from-[#00f0ff]/10 to-[#a855f7]/10 border border-[#00f0ff]/20 group-hover:border-[#00f0ff] transition-colors"
             whileHover={{ rotate: 360, scale: 1.1 }}
             transition={{ duration: 0.6 }}
           >
@@ -108,7 +111,7 @@ function AchievementCard({ achievement, index, onClick }: AchievementCardProps) 
 
         {/* Year badge */}
         <motion.div
-          className="inline-block px-4 py-1.5 rounded-full bg-gradient-to-r from-[#00f0ff]/10 to-[#a855f7]/10 border border-[#00f0ff]/20 text-[#00f0ff] text-xs font-mono font-semibold mb-4"
+          className="inline-block px-4 py-1.5 rounded-full bg-[#00f0ff]/10 border border-[#00f0ff]/20 text-[#00f0ff] text-xs font-mono font-semibold mb-4"
           initial={{ opacity: 0, x: -20 }}
           animate={isInView ? { opacity: 1, x: 0 } : {}}
           transition={{ delay: index * 0.15 + 0.4 }}
@@ -129,17 +132,10 @@ function AchievementCard({ achievement, index, onClick }: AchievementCardProps) 
             <Award className="w-4 h-4" />
             {achievement.organization}
           </p>
-          <p className="text-white/60 text-sm leading-relaxed">
+          <p className="text-white/60 text-sm leading-relaxed group-hover:text-white/80 transition-colors">
             {achievement.description}
           </p>
         </motion.div>
-
-        {/* Bottom shine effect */}
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#00f0ff]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-        {/* Corner accents */}
-        <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-[#00f0ff]/5 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        <div className="absolute bottom-0 left-0 w-20 h-20 bg-gradient-to-tr from-[#a855f7]/5 to-transparent rounded-tr-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       </div>
     </motion.div>
   );
