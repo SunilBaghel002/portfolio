@@ -1,34 +1,14 @@
 // app/layout.tsx
 import type { Metadata, Viewport } from "next";
-import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+// Google Fonts removed for performance and to fix build errors
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ClientProviders from "@/components/providers/ClientProviders";
 
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-sans",
-  preload: true,
-  fallback: ["system-ui", "arial"],
-});
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-display",
-  preload: true,
-  fallback: ["system-ui", "arial"],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-mono",
-  preload: false,
-  fallback: ["Consolas", "Monaco", "monospace"],
-});
+const inter = { variable: "font-sans" };
+const spaceGrotesk = { variable: "font-display" };
+const jetbrainsMono = { variable: "font-mono" };
 
 const siteConfig = {
   name: "Sunil Baghel",
