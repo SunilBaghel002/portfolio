@@ -55,20 +55,16 @@ export default function CustomCursor() {
   }, []);
 
   useEffect(() => {
-    if (isMobile) return;
-
     requestRef.current = requestAnimationFrame(animate);
     return () => {
       if (requestRef.current !== null) {
         cancelAnimationFrame(requestRef.current);
       }
     };
-  }, [animate, isMobile]);
+  }, [animate]);
 
   // Mouse event handlers
   useEffect(() => {
-    if (isMobile) return;
-
     let lastHoverCheck = 0;
     const HOVER_THROTTLE = 50;
 
@@ -137,9 +133,7 @@ export default function CustomCursor() {
       document.removeEventListener("mouseleave", handleMouseLeave);
       document.removeEventListener("mouseenter", handleMouseEnter);
     };
-  }, [isMobile, isVisible]);
-
-  if (isMobile) return null;
+  }, [isVisible]);
 
   const { isHovering, isClicking, hoverType, cursorText } = cursorState;
 
