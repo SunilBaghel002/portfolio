@@ -1,222 +1,145 @@
-// components/ui/CustomCursor.tsx
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
-import { cn } from "@/lib/utils";
-
-interface CursorState {
-  isHovering: boolean;
-  isClicking: boolean;
-  hoverType: 'none' | 'link' | 'button' | 'text' | 'image';
-  cursorText: string;
-}
+import { useEffect, useState } from "react";
+import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
 
 export default function CustomCursor() {
-  const dotRef = useRef<HTMLDivElement>(null);
-  const ringRef = useRef<HTMLDivElement>(null);
-
-  // Fixed: Provide initial value for useRef
-  const requestRef = useRef<number | null>(null);
-  const previousTimeRef = useRef<number | null>(null);
-
-  // Store position in refs to avoid re-renders
-  const mousePos = useRef({ x: -100, y: -100 });
-  const ringPos = useRef({ x: -100, y: -100 });
-
-  const [cursorState, setCursorState] = useState<CursorState>({
-    isHovering: false,
-    isClicking: false,
-    hoverType: 'none',
-    cursorText: "",
-  });
+  const [hoverState, setHoverState] = useState<"none" | "link" | "project" | "text">("none");
+  const [isClicking, setIsClicking] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(true);
 
-  // Smooth animation loop using RAF - single loop for performance
-  const animate = useCallback((time: number) => {
-    if (previousTimeRef.current !== null) {
-      // Lerp the ring position towards mouse (easing factor)
-      const ease = 0.15;
-      ringPos.current.x += (mousePos.current.x - ringPos.current.x) * ease;
-      ringPos.current.y += (mousePos.current.y - ringPos.current.y) * ease;
+  // Motion values for instant tracking
+  const mouseX = useMotionValue(-100);
+  const mouseY = useMotionValue(-100);
 
-      // Apply transforms directly - no React re-renders
-      if (dotRef.current) {
-        dotRef.current.style.transform =
-          `translate3d(${mousePos.current.x}px, ${mousePos.current.y}px, 0)`;
-      }
-      if (ringRef.current) {
-        ringRef.current.style.transform =
-          `translate3d(${ringPos.current.x}px, ${ringPos.current.y}px, 0)`;
-      }
+  // Smooth springs for outer ring follow lag
+  const springConfig = { damping: 30, stiffness: 350, mass: 0.8 };
+  const ringX = useSpring(mouseX, springConfig);
+  const ringY = useSpring(mouseY, springConfig);
+
+  useEffect(() => {
+    // Detect touch device
+    const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+    setIsMobile(isTouch);
+    
+    if (isTouch) {
+      document.body.style.cursor = "auto";
+      return;
     }
 
-    previousTimeRef.current = time;
-    requestRef.current = requestAnimationFrame(animate);
-  }, []);
-
-  useEffect(() => {
-    requestRef.current = requestAnimationFrame(animate);
-    return () => {
-      if (requestRef.current !== null) {
-        cancelAnimationFrame(requestRef.current);
-      }
-    };
-  }, [animate]);
-
-  // Mouse event handlers
-  useEffect(() => {
-    let lastHoverCheck = 0;
-    const HOVER_THROTTLE = 50;
+    // Hide default cursor
+    document.body.style.cursor = "none";
 
     const handleMouseMove = (e: MouseEvent) => {
-      mousePos.current = { x: e.clientX, y: e.clientY };
-
+      mouseX.set(e.clientX);
+      mouseY.set(e.clientY);
+      
       if (!isVisible) setIsVisible(true);
 
-      const now = Date.now();
-      if (now - lastHoverCheck < HOVER_THROTTLE) return;
-      lastHoverCheck = now;
-
       const target = e.target as HTMLElement;
-      detectHoverState(target);
+      if (!target) return;
+
+      const isLink = !!target.closest("a");
+      const isButton = !!target.closest("button, [role='button']");
+      const isProject = !!target.closest("[data-cursor='project']");
+      const isTextInput = !!target.closest("input, textarea, [contenteditable='true']");
+
+      if (isProject) {
+        setHoverState("project");
+      } else if (isLink || isButton) {
+        setHoverState("link");
+      } else if (isTextInput) {
+        setHoverState("text");
+      } else {
+        setHoverState("none");
+      }
     };
 
-    const detectHoverState = (target: HTMLElement) => {
-      const isLink = !!target.closest('a');
-      const isButton = !!target.closest('button, [role="button"]');
-      const isInput = !!target.closest('input, textarea');
-      const isImage = !!target.closest('img, [data-cursor="image"]');
-      const customCursor = target.closest('[data-cursor]');
-
-      let hoverType: CursorState['hoverType'] = 'none';
-      let cursorText = '';
-
-      if (customCursor) {
-        cursorText = customCursor.getAttribute('data-cursor-text') || '';
-        hoverType = 'button';
-      } else if (isButton) hoverType = 'button';
-      else if (isLink) hoverType = 'link';
-      else if (isInput) hoverType = 'text';
-      else if (isImage) hoverType = 'image';
-
-      const isHovering = hoverType !== 'none';
-
-      setCursorState(prev => {
-        if (prev.hoverType === hoverType && prev.cursorText === cursorText) {
-          return prev;
-        }
-        return { ...prev, isHovering, hoverType, cursorText };
-      });
-    };
-
-    const handleMouseDown = () => {
-      setCursorState(prev => ({ ...prev, isClicking: true }));
-    };
-
-    const handleMouseUp = () => {
-      setCursorState(prev => ({ ...prev, isClicking: false }));
-    };
-
+    const handleMouseDown = () => setIsClicking(true);
+    const handleMouseUp = () => setIsClicking(false);
     const handleMouseLeave = () => setIsVisible(false);
     const handleMouseEnter = () => setIsVisible(true);
 
-    document.addEventListener("mousemove", handleMouseMove, { passive: true });
-    document.addEventListener("mousedown", handleMouseDown);
-    document.addEventListener("mouseup", handleMouseUp);
-    document.addEventListener("mouseleave", handleMouseLeave);
-    document.addEventListener("mouseenter", handleMouseEnter);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    window.addEventListener("mousedown", handleMouseDown, { passive: true });
+    window.addEventListener("mouseup", handleMouseUp, { passive: true });
+    document.addEventListener("mouseleave", handleMouseLeave, { passive: true });
+    document.addEventListener("mouseenter", handleMouseEnter, { passive: true });
 
     return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mousedown", handleMouseDown);
-      document.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mousedown", handleMouseDown);
+      window.removeEventListener("mouseup", handleMouseUp);
       document.removeEventListener("mouseleave", handleMouseLeave);
       document.removeEventListener("mouseenter", handleMouseEnter);
+      document.body.style.cursor = "auto";
     };
-  }, [isVisible]);
+  }, [mouseX, mouseY, isVisible]);
 
-  const { isHovering, isClicking, hoverType, cursorText } = cursorState;
-
-  const dotSize = isClicking ? 6 : isHovering ? 8 : 10;
-  const ringSize = isClicking ? 30 :
-    hoverType === 'button' ? 60 :
-      hoverType === 'link' ? 50 :
-        hoverType === 'image' ? 80 : 40;
-
-  const ringColor =
-    hoverType === 'button' ? '#a855f7' :
-      hoverType === 'link' ? '#00f0ff' :
-        hoverType === 'image' ? '#ec4899' :
-          'rgba(255,255,255,0.5)';
+  if (isMobile) return null;
 
   return (
     <>
+      {/* Suppress default cursor for desktop */}
       <style jsx global>{`
         @media (min-width: 1024px) {
-          * { cursor: none !important; }
+          *, *::before, *::after {
+            cursor: none !important;
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .custom-cursor-element {
+            display: none !important;
+          }
+          *, *::before, *::after {
+            cursor: auto !important;
+          }
         }
       `}</style>
 
-      <div
-        ref={dotRef}
-        className={cn(
-          "fixed top-0 left-0 pointer-events-none z-[9999]",
-          !isVisible && "opacity-0"
-        )}
-        style={{ willChange: "transform" }}
+      {/* Inner Dot */}
+      <motion.div
+        className="custom-cursor-element fixed top-0 left-0 w-2 h-2 rounded-full bg-white pointer-events-none z-[9999] -translate-x-1/2 -translate-y-1/2 shadow-[0_0_8px_rgba(255,255,255,0.4)]"
+        style={{
+          x: mouseX,
+          y: mouseY,
+          scale: isClicking ? 0.6 : hoverState === "link" ? 1.5 : hoverState === "project" ? 0 : 1,
+          opacity: isVisible && hoverState !== "text" ? 1 : 0,
+        }}
+        transition={{ type: "spring", stiffness: 600, damping: 30 }}
+      />
+
+      {/* Outer Ring */}
+      <motion.div
+        className="custom-cursor-element fixed top-0 left-0 rounded-full border border-white/40 pointer-events-none z-[9998] -translate-x-1/2 -translate-y-1/2 flex items-center justify-center overflow-hidden"
+        style={{
+          x: ringX,
+          y: ringY,
+          width: hoverState === "project" ? 80 : hoverState === "link" ? 48 : hoverState === "text" ? 2 : 32,
+          height: hoverState === "project" ? 80 : hoverState === "link" ? 48 : hoverState === "text" ? 24 : 32,
+          borderRadius: hoverState === "text" ? "1px" : "9999px",
+          backgroundColor: hoverState === "link" ? "rgba(249, 115, 22, 0.08)" : "rgba(255, 255, 255, 0)",
+          borderColor: hoverState === "link" ? "#F97316" : hoverState === "project" ? "#F97316" : hoverState === "text" ? "rgba(255,255,255,0.8)" : "rgba(255, 255, 255, 0.4)",
+          scale: isClicking ? 0.9 : 1,
+          opacity: isVisible ? 1 : 0,
+        }}
+        transition={{ type: "spring", stiffness: 350, damping: 25 }}
       >
-        <div
-          className={cn(
-            "-translate-x-1/2 -translate-y-1/2 rounded-full bg-white transition-[width,height] duration-150",
-            hoverType === 'text' && "!rounded-none"
+        <AnimatePresence>
+          {hoverState === "project" && (
+            <motion.span
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.15 }}
+              className="text-[10px] font-mono font-bold text-[#F97316] whitespace-nowrap"
+            >
+              VIEW →
+            </motion.span>
           )}
-          style={{
-            width: hoverType === 'text' ? 2 : dotSize,
-            height: hoverType === 'text' ? 24 : dotSize,
-          }}
-        />
-      </div>
-
-      <div
-        ref={ringRef}
-        className={cn(
-          "fixed top-0 left-0 pointer-events-none z-[9998]",
-          !isVisible && "opacity-0",
-          hoverType === 'text' && "opacity-0"
-        )}
-        style={{ willChange: "transform" }}
-      >
-        <div
-          className="-translate-x-1/2 -translate-y-1/2 rounded-full border-2 flex items-center justify-center transition-all duration-200"
-          style={{
-            width: ringSize,
-            height: ringSize,
-            borderColor: ringColor,
-            borderWidth: isHovering ? 2 : 1,
-          }}
-        >
-          {cursorText && (
-            <span className="text-xs font-medium text-white whitespace-nowrap">
-              {cursorText}
-            </span>
-          )}
-
-          {hoverType === 'link' && !cursorText && (
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-              stroke="#00f0ff" strokeWidth="2" className="opacity-80">
-              <path d="M7 17L17 7M17 7H7M17 7V17" />
-            </svg>
-          )}
-
-          {hoverType === 'image' && !cursorText && (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="#ec4899" strokeWidth="2" className="opacity-80">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 8v8M8 12h8" />
-            </svg>
-          )}
-        </div>
-      </div>
+        </AnimatePresence>
+      </motion.div>
     </>
   );
 }

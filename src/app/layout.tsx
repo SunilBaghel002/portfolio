@@ -1,14 +1,8 @@
-// app/layout.tsx
 import type { Metadata, Viewport } from "next";
-// Google Fonts removed for performance and to fix build errors
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ClientProviders from "@/components/providers/ClientProviders";
-
-const inter = { variable: "font-sans" };
-const spaceGrotesk = { variable: "font-display" };
-const jetbrainsMono = { variable: "font-mono" };
 
 const siteConfig = {
   name: "Sunil Baghel",
@@ -18,7 +12,7 @@ const siteConfig = {
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://sunilbaghel.dev",
   ogImage: "/og-image.jpg",
   twitterHandle: "@sunilbaghel",
-  email: "contact@sunilbaghel.dev",
+  email: "sunilbaghel93100@gmail.com",
   links: {
     github: "https://github.com/SunilBaghel002",
     linkedin: "https://linkedin.com/in/sunilbaghel",
@@ -156,10 +150,11 @@ export default function RootLayout({
         <JsonLd />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital,wght@0,400;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
         <link rel="dns-prefetch" href="https://github.com" />
       </head>
       <body
-        className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} font-sans antialiased bg-black text-white min-h-screen selection:bg-[#00f0ff]/30 selection:text-white`}
+        className="font-sans antialiased bg-black text-white min-h-screen selection:bg-[#F97316]/30 selection:text-white"
         suppressHydrationWarning
       >
         <SkipToContent />

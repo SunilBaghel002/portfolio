@@ -1,534 +1,294 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { motion, useMotionValue, useSpring, useTransform, useScroll, AnimatePresence } from "framer-motion";
+import { useRef, useState } from "react";
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+  useTransform,
+  AnimatePresence,
+} from "framer-motion";
 import Image from "next/image";
-import { portfolioData } from "@/lib/data";
+import { projects } from "@/data/projects";
 import { ScrollReveal } from "../animations/ScrollReveal";
-import { AnimatedHeading } from "../animations/AnimatedText";
-import { TechBadge } from "../ui/TechIcon";
-import { Button } from "../ui/button";
-import { Card3D, SpotlightCard, GradientBorderCard } from "../ui/card";
-import { ParallaxWrapper, ZoomOnScroll } from "../animations/ParallaxWrapper";
-import { ExternalLink, Github, Play, ArrowRight, X, Maximize2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { ArrowUpRight, Github } from "lucide-react";
 
-const categories = ["All", "React", "Node.js", "MongoDB", "Full Stack"];
-
-interface ProjectCardProps {
-  project: (typeof portfolioData.projects)[0];
-  index: number;
-  onSelect: () => void;
+/* ── Word reveal ── */
+function WordReveal({ text }: { text: string }) {
+  return (
+    <span>
+      {text.split(" ").map((word, i) => (
+        <motion.span
+          key={i}
+          className="inline-block mr-1.5"
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.3, delay: i * 0.01, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {word}
+        </motion.span>
+      ))}
+    </span>
+  );
 }
 
-function ProjectCard({ project, index, onSelect }: ProjectCardProps) {
-  const [isHovered, setIsHovered] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  // 3D tilt effect
+/* ── 3-D tilt image ── */
+function ProjectImage({
+  src,
+  title,
+  link,
+}: {
+  src: string;
+  title: string;
+  link?: string | null;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
+  const xSpring = useSpring(x, { stiffness: 120, damping: 20 });
+  const ySpring = useSpring(y, { stiffness: 120, damping: 20 });
+  const rotateX = useTransform(ySpring, [-0.5, 0.5], [8, -8]);
+  const rotateY = useTransform(xSpring, [-0.5, 0.5], [-8, 8]);
 
-  const xSpring = useSpring(x, { stiffness: 150, damping: 20 });
-  const ySpring = useSpring(y, { stiffness: 150, damping: 20 });
-
-  const rotateX = useTransform(ySpring, [-0.5, 0.5], [12, -12]);
-  const rotateY = useTransform(xSpring, [-0.5, 0.5], [-12, 12]);
-  const brightness = useTransform(
-    [xSpring, ySpring],
-    ([x, y]: number[]) => 1 + (x + y) * 0.1
-  );
-
-  // Shine effect position
-  const shineX = useTransform(xSpring, [-0.5, 0.5], [0, 100]);
-  const shineY = useTransform(ySpring, [-0.5, 0.5], [0, 100]);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const xPos = (e.clientX - rect.left) / rect.width - 0.5;
-    const yPos = (e.clientY - rect.top) / rect.height - 0.5;
-    x.set(xPos);
-    y.set(yPos);
+  const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!containerRef.current) return;
+    const r = containerRef.current.getBoundingClientRect();
+    x.set((e.clientX - r.left) / r.width - 0.5);
+    y.set((e.clientY - r.top) / r.height - 0.5);
   };
-
-  const handleMouseLeave = () => {
+  const onLeave = () => {
     x.set(0);
     y.set(0);
-    setIsHovered(false);
   };
 
-  const getHeight = () => {
-    const heights = ["h-[420px]", "h-[380px]", "h-[450px]", "h-[400px]", "h-[430px]"];
-    return heights[index % heights.length];
-  };
-
-  const getTagColor = (tagName: string) => {
-    const skill = portfolioData.skills.find(
-      (s) => s.name.toLowerCase() === tagName.toLowerCase()
-    );
-    return skill?.color || "#00f0ff";
-  };
-
-  return (
-    <ParallaxWrapper
-      speed={0.1 * ((index % 3) + 1)}
-      direction={index % 2 === 0 ? "up" : "down"}
-      className="masonry-item"
-    >
-      <motion.div
-        ref={cardRef}
-        className={cn("relative group", getHeight())}
-        onMouseMove={handleMouseMove}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={handleMouseLeave}
-        style={{
-          transformStyle: "preserve-3d",
-          perspective: 1000,
-          rotateX,
-          rotateY,
-        }}
-        whileHover={{ z: 50 }}
-        data-cursor="view"
-        data-cursor-text="View"
-      >
-        {/* Card with gradient border on hover */}
-        <motion.div
-          className="absolute inset-0 rounded-2xl p-[1px] overflow-hidden"
-          style={{
-            background: isHovered
-              ? `linear-gradient(135deg, ${getTagColor(project.tags[0])}60, transparent, ${getTagColor(project.tags[1] || project.tags[0])}60)`
-              : "linear-gradient(135deg, rgba(255,255,255,0.1), transparent, rgba(255,255,255,0.05))",
-          }}
-          animate={{
-            opacity: isHovered ? 1 : 0.5,
-          }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className="h-full w-full rounded-2xl bg-[#0a0a0a]/95 backdrop-blur-xl overflow-hidden">
-            {/* Shine effect */}
-            <motion.div
-              className="pointer-events-none absolute inset-0 transition-opacity duration-500"
-              style={{
-                background: useTransform(
-                  [shineX, shineY],
-                  ([x, y]: number[]) =>
-                    `radial-gradient(circle at ${x}% ${y}%, rgba(255,255,255,0.15), transparent 50%)`
-                ),
-                opacity: isHovered ? 1 : 0,
-              }}
-            />
-
-            {/* Background Image/Gradient */}
-            <div className="absolute inset-0">
-              <div
-                className="absolute inset-0 opacity-30"
-                style={{
-                  background: `linear-gradient(135deg, ${getTagColor(project.tags[0])}20, transparent, ${getTagColor(project.tags[1] || project.tags[0])}15)`,
-                }}
-              />
-              {project.image && (
-                <Image
-                  src={project.image}
-                  alt={project.title}
-                  fill
-                  className="object-cover opacity-40 group-hover:opacity-60 transition-all duration-700 group-hover:scale-105"
-                />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent" />
-            </div>
-
-            {/* Content */}
-            <div className="relative h-full p-6 flex flex-col justify-between">
-              {/* Top Section */}
-              <div className="flex items-start justify-between">
-                {/* Year */}
-                <motion.span
-                  className="text-sm font-mono px-3 py-1 rounded-full bg-white/5 text-white/50 border border-white/10"
-                  animate={{ borderColor: isHovered ? "rgba(0,240,255,0.3)" : "rgba(255,255,255,0.1)" }}
-                >
-                  {project.year}
-                </motion.span>
-
-                {/* Featured Badge */}
-                {project.featured && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#00f0ff]/20 to-[#a855f7]/20 border border-[#00f0ff]/30"
-                  >
-                    <motion.span
-                      className="w-1.5 h-1.5 rounded-full bg-[#00f0ff]"
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    />
-                    <span className="text-xs font-medium text-[#00f0ff]">Featured</span>
-                  </motion.div>
-                )}
-              </div>
-
-              {/* Bottom Section */}
-              <div className="space-y-4">
-                {/* Tags */}
-                <motion.div
-                  className="flex flex-wrap gap-2"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: isHovered ? 1 : 0.7, y: isHovered ? 0 : 10 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {project.tags.slice(0, 4).map((tag) => (
-                    <TechBadge
-                      key={tag}
-                      name={tag}
-                      color={getTagColor(tag)}
-                      variant={isHovered ? "glow" : "default"}
-                    />
-                  ))}
-                </motion.div>
-
-                {/* Title */}
-                <motion.h3
-                  className="text-2xl font-bold text-white transition-colors duration-300"
-                  animate={{ color: isHovered ? "#00f0ff" : "#ffffff" }}
-                >
-                  {project.title}
-                </motion.h3>
-
-                {/* Description */}
-                <p className="text-white/60 text-sm line-clamp-2 leading-relaxed">
-                  {project.description}
-                </p>
-
-                {/* Actions */}
-                <motion.div
-                  className="flex items-center gap-3 pt-2"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 20 }}
-                  transition={{ duration: 0.3, delay: 0.1 }}
-                >
-                  {project.github && (
-                    <Button
-                      variant="glass"
-                      size="sm"
-                      leftIcon={<Github className="w-4 h-4" />}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.open(project.github, '_blank');
-                      }}
-                      magnetic
-                    >
-                      Code
-                    </Button>
-                  )}
-                  {project.link && (
-                    <Button
-                      variant="neon"
-                      size="sm"
-                      leftIcon={<ExternalLink className="w-4 h-4" />}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.open(project.link, '_blank');
-                      }}
-                      magnetic
-                    >
-                      Live
-                    </Button>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="iconSm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSelect();
-                    }}
-                    magnetic
-                  >
-                    <Maximize2 className="w-4 h-4" />
-                  </Button>
-                </motion.div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      </motion.div>
-    </ParallaxWrapper>
-  );
-}
-
-// Project Modal
-function ProjectModal({
-  project,
-  onClose
-}: {
-  project: (typeof portfolioData.projects)[0];
-  onClose: () => void;
-}) {
-  const getTagColor = (tagName: string) => {
-    const skill = portfolioData.skills.find(
-      (s) => s.name.toLowerCase() === tagName.toLowerCase()
-    );
-    return skill?.color || "#00f0ff";
-  };
-
-  return (
+  const inner = (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      ref={containerRef}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      data-cursor="project"
+      style={{ rotateX, rotateY, transformStyle: "preserve-3d", perspective: 1000 }}
+      className="relative aspect-[4/3] w-full rounded-2xl overflow-hidden shadow-2xl bg-zinc-950 border border-white/10 group cursor-pointer"
     >
-      {/* Backdrop */}
-      <motion.div
-        className="absolute inset-0 bg-[#0a0a0a]/95 backdrop-blur-xl"
-        onClick={onClose}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#F97316]/10 to-transparent z-10 pointer-events-none transition-opacity duration-500 group-hover:opacity-0" />
+      <Image
+        src={src}
+        alt={title}
+        fill
+        className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+        sizes="(max-width:1024px) 100vw, 45vw"
+        loading="lazy"
       />
-
-      {/* Modal Content */}
-      <motion.div
-        className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl glass-strong"
-        initial={{ scale: 0.9, opacity: 0, y: 50 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.9, opacity: 0, y: 50 }}
-        transition={{ type: "spring", damping: 25 }}
-      >
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 rounded-full glass hover:bg-white/10 transition-colors"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        {/* Image Section */}
-        <div className="relative h-64 md:h-80 overflow-hidden rounded-t-3xl">
-          <div
-            className="absolute inset-0"
-            style={{
-              background: `linear-gradient(135deg, ${getTagColor(project.tags[0])}30, transparent, ${getTagColor(project.tags[1] || project.tags[0])}20)`,
-            }}
-          />
-          {project.image && (
-            <Image
-              src={project.image}
-              alt={project.title}
-              fill
-              className="object-cover opacity-60"
-            />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] to-transparent" />
-
-          {/* Project Title Overlay */}
-          <div className="absolute bottom-6 left-6 right-6">
-            <div className="flex flex-wrap gap-2 mb-3">
-              {project.tags.map((tag) => (
-                <TechBadge
-                  key={tag}
-                  name={tag}
-                  color={getTagColor(tag)}
-                  variant="glow"
-                />
-              ))}
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold gradient-text">{project.title}</h2>
-          </div>
-        </div>
-
-        {/* Content Section */}
-        <div className="p-6 md:p-8 space-y-6">
-          {/* Year and Featured */}
-          <div className="flex items-center gap-4">
-            <span className="px-3 py-1 rounded-full bg-white/5 text-white/60 text-sm font-mono border border-white/10">
-              {project.year}
-            </span>
-            {project.featured && (
-              <span className="px-3 py-1 rounded-full bg-[#00f0ff]/10 text-[#00f0ff] text-sm border border-[#00f0ff]/30">
-                ⭐ Featured Project
-              </span>
-            )}
-          </div>
-
-          {/* Description */}
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-2">About this project</h3>
-            <p className="text-white/70 leading-relaxed">
-              {project.longDescription || project.description}
-            </p>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-wrap gap-4 pt-4">
-            {project.github && (
-              <Button
-                variant="outline"
-                size="lg"
-                leftIcon={<Github className="w-5 h-5" />}
-                rightIcon={<ArrowRight className="w-4 h-4" />}
-                onClick={() => window.open(project.github, '_blank')}
-                magnetic
-                shine
-              >
-                View Source Code
-              </Button>
-            )}
-            {project.link && (
-              <Button
-                variant="gradient"
-                size="lg"
-                leftIcon={<ExternalLink className="w-5 h-5" />}
-                rightIcon={<ArrowRight className="w-4 h-4" />}
-                onClick={() => window.open(project.link, '_blank')}
-                magnetic
-                glowOnHover
-              >
-                Visit Live Site
-              </Button>
-            )}
-          </div>
-        </div>
-      </motion.div>
+      <div className="absolute inset-0 shadow-[inset_0_0_80px_rgba(0,0,0,0.6)] pointer-events-none" />
     </motion.div>
   );
+
+  return link ? (
+    <a href={link} target="_blank" rel="noopener noreferrer" className="block w-full">
+      {inner}
+    </a>
+  ) : (
+    inner
+  );
 }
 
+/* ── Main component ── */
 export default function Projects() {
-  const [activeCategory, setActiveCategory] = useState("All");
-  const [filteredProjects, setFilteredProjects] = useState(portfolioData.projects);
-  const [selectedProject, setSelectedProject] = useState<typeof portfolioData.projects[0] | null>(null);
+  const [filter, setFilter] = useState<"all" | "client" | "hardware">("all");
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"],
-  });
+  const clientCount = projects.filter((p) => p.category === "client").length;
+  const hwCount = projects.filter((p) => p.category === "hardware").length;
 
-  const bgY = useTransform(scrollYProgress, [0, 1], [0, -100]);
+  const filtered = projects.filter(
+    (p) => filter === "all" || p.category === filter
+  );
 
-  const handleFilter = (category: string) => {
-    setActiveCategory(category);
-    if (category === "All") {
-      setFilteredProjects(portfolioData.projects);
-    } else {
-      setFilteredProjects(
-        portfolioData.projects.filter((p) =>
-          p.tags.some((t) => t.toLowerCase().includes(category.toLowerCase()))
-        )
-      );
-    }
-  };
+  const tabs: { key: "all" | "client" | "hardware"; label: string; count: number }[] = [
+    { key: "all", label: "All", count: projects.length },
+    { key: "client", label: "Client Work", count: clientCount },
+    { key: "hardware", label: "Hardware / Innovation", count: hwCount },
+  ];
 
   return (
-    <section ref={containerRef} className="py-32 relative overflow-hidden">
-      {/* Animated background */}
-      <motion.div
-        className="absolute inset-0 pointer-events-none"
-        style={{ y: bgY }}
-      >
-        <div className="absolute top-1/4 left-0 w-[500px] h-[500px] bg-[#a855f7]/10 rounded-full blur-[150px]" />
-        <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] bg-[#00f0ff]/10 rounded-full blur-[120px]" />
-      </motion.div>
-
-      <div className="max-w-7xl mx-auto px-6 relative">
-        {/* Header with Parallax */}
-        <ZoomOnScroll startScale={0.9} endScale={1}>
-          <div className="text-center mb-20">
+    <section className="py-16 md:py-24 relative overflow-hidden bg-black text-white">
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        {/* ── Header ── */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-24">
+          <div className="md:max-w-2xl">
             <ScrollReveal>
-              <motion.span
-                className="inline-block text-[#00f0ff] text-sm font-medium uppercase tracking-[0.2em] mb-4 px-4 py-2 rounded-full border border-[#00f0ff]/20 bg-[#00f0ff]/5"
-                whileHover={{ scale: 1.05 }}
-              >
-                Portfolio
-              </motion.span>
+              <span className="text-[#F97316] text-xs font-mono font-bold uppercase tracking-[0.2em] mb-4 block">
+                Case Studies
+              </span>
             </ScrollReveal>
-            <AnimatedHeading>Selected Works</AnimatedHeading>
+            <ScrollReveal delay={0.1}>
+              <h1 className="text-5xl md:text-7xl font-serif font-medium tracking-tight text-white mb-6">
+                Selected Works
+              </h1>
+            </ScrollReveal>
             <ScrollReveal delay={0.2}>
-              <p className="text-white/60 max-w-2xl mx-auto mt-6 text-lg leading-relaxed">
-                A curated collection of projects that showcase my expertise in building
-                modern, performant, and visually stunning applications.
+              <p className="text-lg md:text-xl text-white/50 leading-relaxed">
+                Production systems shipped for real clients through Forgeweb, plus hardware innovation that won national hackathons.
               </p>
             </ScrollReveal>
           </div>
-        </ZoomOnScroll>
 
-        {/* Filter Buttons */}
-        <ScrollReveal delay={0.3}>
-          <div className="flex flex-wrap justify-center gap-3 mb-16">
-            {categories.map((category, i) => (
-              <motion.div
-                key={category}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 + i * 0.05 }}
-              >
-                <Button
-                  variant={activeCategory === category ? "gradient" : "glass"}
-                  size="default"
-                  onClick={() => handleFilter(category)}
-                  magnetic
-                  magneticStrength={0.2}
-                  className="rounded-full"
+          <ScrollReveal delay={0.3}>
+            <div className="flex flex-wrap gap-2 bg-white/[0.02] p-1.5 rounded-full border border-white/10 w-fit">
+              {tabs.map((t) => (
+                <button
+                  key={t.key}
+                  onClick={() => setFilter(t.key)}
+                  className={`px-5 py-2 text-xs font-mono rounded-full transition-all duration-300 ${
+                    filter === t.key
+                      ? "bg-[#F97316] text-black font-bold"
+                      : "text-white/60 hover:text-white"
+                  }`}
                 >
-                  {category}
-                </Button>
-              </motion.div>
-            ))}
-          </div>
-        </ScrollReveal>
+                  {t.label} ({t.count})
+                </button>
+              ))}
+            </div>
+          </ScrollReveal>
+        </div>
 
-        {/* Projects Grid */}
-        <motion.div
-          className="masonry-grid"
-          layout
-          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
-        >
+        {/* ── Project rows ── */}
+        <motion.div layout className="space-y-24 md:space-y-32">
           <AnimatePresence mode="popLayout">
-            {filteredProjects.map((project, index) => (
-              <motion.div
-                key={project.id}
-                layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.4, delay: index * 0.05 }}
-              >
-                <ProjectCard
-                  project={project}
-                  index={index}
-                  onSelect={() => setSelectedProject(project)}
-                />
-              </motion.div>
-            ))}
+            {filtered.map((project, index) => {
+              const isEven = index % 2 === 0;
+              return (
+                <motion.div
+                  key={project.id}
+                  layout
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -30 }}
+                  transition={{ duration: 0.5, ease: "easeInOut" }}
+                >
+                  {index > 0 && <div className="w-full h-px bg-white/10 mb-20 md:mb-32" />}
+
+                  <div
+                    className={`flex flex-col gap-12 lg:gap-20 items-center ${
+                      isEven ? "lg:flex-row" : "lg:flex-row-reverse"
+                    }`}
+                  >
+                    <div className="w-full lg:w-[55%] flex flex-col justify-center">
+                      <div className="flex items-center gap-4 mb-4 flex-wrap">
+                        <span
+                          className="font-serif text-7xl md:text-8xl font-light leading-none select-none"
+                          style={{
+                            WebkitTextStroke: "1px rgba(255,255,255,0.15)",
+                            color: "transparent",
+                          }}
+                        >
+                          {project.number}
+                        </span>
+                        <div className="flex flex-wrap gap-2 items-center">
+                          <span className="text-[10px] font-mono tracking-widest text-[#F97316] font-bold uppercase">
+                            / {project.type}
+                          </span>
+                          {project.category === "client" && (
+                            <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-[#F97316]/10 text-[#F97316] border border-[#F97316]/30 uppercase font-bold">
+                              Client Work
+                            </span>
+                          )}
+                          {project.category === "hardware" && (
+                            <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/30 uppercase font-bold">
+                              Innovation
+                            </span>
+                          )}
+                          {project.isFlagship && (
+                            <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-gradient-to-r from-[#F97316] to-[#FEF3C7] text-black uppercase font-bold">
+                              ⭐ Flagship
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-medium text-white mb-2">
+                        {project.name}
+                      </h2>
+                      <p className="text-[#FEF3C7] text-sm md:text-base font-mono font-medium mb-4 italic">
+                        &ldquo;{project.tagline}&rdquo;
+                      </p>
+                      <p className="text-base md:text-lg text-white/70 leading-relaxed mb-6">
+                        <WordReveal text={project.description} />
+                      </p>
+
+                      <div className="mb-6 space-y-1.5">
+                        {project.highlights.map((h) => (
+                          <div key={h.text} className="flex items-center gap-2 text-sm text-white/80">
+                            <span>{h.icon}</span>
+                            <span>{h.text}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="flex flex-wrap gap-2.5 mb-8">
+                        {project.tech.map((tag) => (
+                          <span
+                            key={tag}
+                            className="font-mono text-xs text-white/50 bg-white/[0.04] border border-white/[0.06] px-3.5 py-1.5 rounded-full"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="flex items-center gap-6">
+                        {project.links.live && (
+                          <a
+                            href={project.links.live}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group text-sm font-semibold flex items-center gap-1.5 text-[#F97316] hover:text-[#FEF3C7] transition-colors"
+                          >
+                            View Live
+                            <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                          </a>
+                        )}
+                        {project.links.github && (
+                          <a
+                            href={project.links.github}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group text-sm font-semibold flex items-center gap-1.5 text-white/50 hover:text-white transition-colors"
+                          >
+                            <Github className="w-4 h-4" />
+                            View Code
+                          </a>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="w-full lg:w-[45%]">
+                      <ProjectImage
+                        src={project.image}
+                        title={project.name}
+                        link={project.links.live || project.links.github}
+                      />
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
         </motion.div>
 
-        {/* View All Button */}
-        <ScrollReveal delay={0.4}>
-          <div className="text-center mt-16">
-            <Button
-              variant="outline"
-              size="lg"
-              rightIcon={<ArrowRight className="w-5 h-5" />}
-              magnetic
-              shine
-              onClick={() => window.open('https://github.com/SunilBaghel002', '_blank')}
-            >
-              View All on GitHub
-            </Button>
-          </div>
-        </ScrollReveal>
+        <div className="mt-32 pt-16 border-t border-white/10 text-center">
+          <p className="text-white/40 mb-4 text-sm">
+            Interested in working together?
+          </p>
+          <a
+            href="mailto:sunilbaghel93100@gmail.com"
+            className="inline-flex items-center gap-2 group text-xl font-serif italic text-[#F97316] hover:text-[#FEF3C7] transition-colors"
+          >
+            Reach out via email
+            <ArrowUpRight className="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          </a>
+        </div>
       </div>
-
-      {/* Project Modal */}
-      <AnimatePresence>
-        {selectedProject && (
-          <ProjectModal
-            project={selectedProject}
-            onClose={() => setSelectedProject(null)}
-          />
-        )}
-      </AnimatePresence>
     </section>
   );
 }

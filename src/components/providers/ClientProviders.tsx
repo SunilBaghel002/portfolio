@@ -27,11 +27,6 @@ const CustomCursor = dynamic(
   { ssr: false }
 );
 
-const ParticleField = dynamic(
-  () => import("@/components/three/ParticleField"),
-  { ssr: false }
-);
-
 export default function ClientProviders({ children }: { children: ReactNode }) {
   const [performanceState, setPerformanceState] = useState<PerformanceContextType>({
     isLowPerformance: false,
@@ -53,16 +48,6 @@ export default function ClientProviders({ children }: { children: ReactNode }) {
       const cores = navigator.hardwareConcurrency || 4;
       const memory = (navigator as any).deviceMemory || 8;
 
-      // 🔍 DEBUG: Log device capabilities
-      console.log("🖥️ Device Performance Check:", {
-        cores,
-        memory,
-        isMobile,
-        prefersReducedMotion,
-        windowWidth: window.innerWidth,
-        userAgent: navigator.userAgent.substring(0, 50) + "...",
-      });
-
       // Determine device tier
       let deviceTier: 'low' | 'medium' | 'high' = 'high';
       if (cores <= 2 || memory <= 2) {
@@ -71,14 +56,7 @@ export default function ClientProviders({ children }: { children: ReactNode }) {
         deviceTier = 'medium';
       }
 
-      // 🔧 FIXED: Less aggressive detection
       const isLowPerformance = prefersReducedMotion || deviceTier === 'low';
-
-      console.log("📊 Performance Result:", {
-        deviceTier,
-        isLowPerformance,
-        willShowParticles: !isLowPerformance,
-      });
 
       setPerformanceState({
         isLowPerformance,
@@ -89,7 +67,6 @@ export default function ClientProviders({ children }: { children: ReactNode }) {
       });
     };
 
-    // Small delay to ensure DOM is ready
     const timer = setTimeout(detectPerformance, 50);
 
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -101,32 +78,19 @@ export default function ClientProviders({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const { isLowPerformance, isMobile, isLoaded, deviceTier } = performanceState;
-
-  // 🔍 DEBUG: Log render decisions
-  useEffect(() => {
-    if (isLoaded) {
-      console.log("🎨 Render Decisions:", {
-        showParticles: !isLowPerformance,
-        showCursor: !isMobile,
-        deviceTier,
-      });
-    }
-  }, [isLoaded, isLowPerformance, isMobile, deviceTier]);
+  const { isMobile, isLoaded } = performanceState;
 
   return (
     <PerformanceContext.Provider value={performanceState}>
-      {/* Particles - Show for medium and high performance */}
-      {isLoaded && !isLowPerformance && <ParticleField />}
+      {/* Static premium background - Zero JS, zero performance hit */}
+      <div className="fixed inset-0 -z-10 overflow-hidden bg-black">
+        {/* Simple Grid (Option 1) */}
+        <div className="absolute inset-0 grid-pattern opacity-10 pointer-events-none" />
 
-      {/* Fallback background for low performance */}
-      {isLoaded && isLowPerformance && (
-        <div className="fixed inset-0 -z-10">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#00f0ff]/5 via-transparent to-[#a855f7]/5" />
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#a855f7]/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#00f0ff]/10 rounded-full blur-3xl" />
-        </div>
-      )}
+        {/* Static soft gradients (Option 2 spotlight replacement) */}
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-[#F97316]/5 rounded-full blur-[140px] pointer-events-none" />
+        <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-[#3B82F6]/5 rounded-full blur-[160px] pointer-events-none" />
+      </div>
 
       {/* Cursor - Desktop only */}
       {isLoaded && !isMobile && <CustomCursor />}

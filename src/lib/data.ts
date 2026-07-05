@@ -2,6 +2,7 @@
 export interface Project {
   id: number;
   title: string;
+  category: string;
   description: string;
   longDescription: string;
   image: string;
@@ -17,7 +18,7 @@ export interface Project {
 export const portfolioData = {
   name: "{Sunil Baghel}",
   role: "<Full Stack Developer/>",
-  bio: "Full-stack developer passionate about building impactful, scalable systems. 8× hackathon winner with strong skills in Next.js, Node.js, TypeScript, and cloud-native development. I love turning ideas into real-world products through clean architecture, fast execution, and modern UI/UX.",
+  bio: "I'm a full stack developer and CS student who co-founded Forgeweb. I build fast, clean web systems and design interfaces that make sense. 8× hackathon winner, focused on Next.js, Node.js, and shipping products that work.",
   email: "sunilbaghel93100@gmail.com",
   location: "Faridabad, Haryana, India",
 
@@ -144,79 +145,87 @@ export const portfolioData = {
   projects: [
     {
       id: 1,
-      title: "Blood Donation Platform",
-      description:
-        "A real-time blood donor–hospital coordination platform powered by MERN stack.",
-      longDescription:
-        "A full-stack system enabling real-time donor discovery, emergency alerts, automated email notifications, JWT authentication, Leaflet maps, and hospital–donor request workflows.",
-      image:
-        "https://images.unsplash.com/photo-1615461066841-6116e61058f4?w=800&h=600&fit=crop",
-      tags: ["React", "Node.js", "MongoDB", "JWT", "Leaflet"],
-      github: "https://github.com/SunilBaghel002/Blood-Donation",
+      title: "PayDeskNow",
+      category: "Client Work · B2B Fintech",
+      description: "A production B2B fintech platform enabling rural CSC retailers to offer AEPS, BBPS, DMT, and recharge services.",
+      longDescription: "A production B2B fintech platform enabling rural CSC retailers to offer AEPS, BBPS, DMT, and recharge services to their communities. Real money, real transactions, real impact.",
+      image: "/projects/paydesk.png",
+      tags: ["Next.js", "Node.js", "MongoDB", "Payment Gateway APIs"],
+      github: "",
+      link: "",
       featured: true,
-      year: 2024,
-      color: "#DC2626",
+      year: 2025,
+      color: "#F97316",
     },
     {
       id: 2,
-      title: "Sankalp Welfare Platform",
-      description:
-        "Donation and welfare management system with Razorpay and cloud media storage.",
-      longDescription:
-        "A scalable MERN-based platform for welfare campaigns featuring secure Razorpay payments, admin dashboards, financial logs, cloud storage, and media uploads.",
-      image:
-        "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=800&h=600&fit=crop",
-      tags: ["MERN", "Razorpay", "Cloud Storage", "Node.js"],
-      github: "https://github.com/SunilBaghel002/Sankalp",
+      title: "FlashBill",
+      category: "Client Work · POS System",
+      description: "An offline-first billing software for restaurants and cafés.",
+      longDescription: "An offline-first billing software for restaurants and cafés. Handles complete restaurant operations — billing, expense tracking, staff management, QR ordering, and website integration. Works flawlessly without internet.",
+      image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=600&fit=crop",
+      tags: ["Electron.js", "Next.js", "SQLite", "Node.js"],
+      github: "https://github.com/SunilBaghel002/ZapBill_offline-software",
+      link: "",
       featured: true,
-      year: 2024,
-      color: "#059669",
+      year: 2025,
+      color: "#FEF3C7",
     },
     {
       id: 3,
-      title: "Skill Shastra",
-      description:
-        "A learning and skill-building platform built with modern full-stack architecture.",
-      longDescription:
-        "A structured skill development platform offering categorized learning modules, progress tracking, intuitive UI, and modern frontend interactions.",
-      image:
-        "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=600&fit=crop",
-      tags: ["React", "Node.js", "MongoDB", "Tailwind"],
-      github: "https://github.com/SunilBaghel002/Skill-Shastra",
-      featured: false,
-      year: 2024,
-      color: "#7C3AED",
+      title: "Hello Pizza Cafe",
+      category: "Client Work · WhatsApp Automation",
+      description: "A pizza website with WhatsApp bulk marketing and POS integration.",
+      longDescription: "A pizza website with WhatsApp bulk marketing and POS integration. Broadcasts messages to 10,000+ customers via WhatsApp, handles orders through an interactive bot, tracks loyalty points, and connects directly to FlashBill POS.",
+      image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&h=600&fit=crop",
+      tags: ["Next.js", "Node.js", "WhatsApp Business API", "MongoDB"],
+      github: "https://github.com/official-forgeweb/Hello_Pizza_Cafe",
+      link: "https://hello-pizza-cafe.vercel.app/",
+      featured: true,
+      year: 2025,
+      color: "#F97316",
     },
     {
       id: 4,
-      title: "Smart Power – Energy Harvesting System",
-      description:
-        "A hardware + software IoT system for harvesting energy using piezoelectric sensors.",
-      longDescription:
-        "An innovative hybrid system that captures footstep energy through piezoelectric sensors and visualizes real-time power generation through a full-stack web dashboard.",
-      image:
-        "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=800&h=600&fit=crop",
-      tags: ["IoT", "Hardware", "JavaScript", "Web Dashboard"],
-      github: "https://github.com/SunilBaghel002/Smart_Power_Frontend",
+      title: "Mobitel",
+      category: "Client Work · Quick Commerce",
+      description: "On-demand doorstep mobile repair booking platform with Razorpay.",
+      longDescription: "A doorstep mobile repair booking platform. Customers book from home, technicians arrive at their location, payments happen via Razorpay. Think Urban Company, but laser-focused on mobile repair.",
+      image: "/projects/mobitel.png",
+      tags: ["Next.js", "Node.js", "MongoDB", "Razorpay"],
+      github: "https://github.com/official-forgeweb/Mobitel",
+      link: "https://www.mobitel.in/",
       featured: true,
-      year: 2024,
-      color: "#F59E0B",
+      year: 2025,
+      color: "#FEF3C7",
     },
     {
       id: 5,
-      title: "Pandemic Insights & Preparedness Hub (PIPH)",
-      description:
-        "A real-time pandemic dashboard with analytics, maps, and predictive systems.",
-      longDescription:
-        "A multi-module pandemic management system featuring real-time stats using APIs, resource allocation tools, volunteer systems, hospital locators, mapping with Leaflet, and predictive dashboards.",
-      image:
-        "https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=800&h=600&fit=crop",
-      tags: ["Node.js", "Express", "MongoDB", "Leaflet", "OpenWeather"],
-      github:
-        "https://github.com/SunilBaghel002/PIPH_Pandemic-Insights-and-Preparedness-Hub",
+      title: "Proton SMS",
+      category: "Client Work · Institute ERP",
+      description: "Institute management SaaS system with automated WhatsApp notifications.",
+      longDescription: "A comprehensive institute management platform handling students, teachers, attendance, fees, exams, and communications — all in one place. Integrated WhatsApp system for instant parent-teacher-student communication.",
+      image: "/projects/proton.png",
+      tags: ["Next.js", "Node.js", "MongoDB", "WhatsApp API"],
+      github: "https://github.com/official-forgeweb/Proton_SMS",
+      link: "https://proton-sms.vercel.app/",
+      featured: false,
+      year: 2025,
+      color: "#F97316",
+    },
+    {
+      id: 6,
+      title: "Smart Power",
+      category: "Hardware · Innovation",
+      description: "Generating electricity from footsteps using recycled plastic bricks.",
+      longDescription: "An affordable Indian alternative to Japan's expensive piezoelectric floor tiles. Recycled plastic bricks embedded with piezoelectric sensors generate electricity from footsteps. Custom power conversion, battery storage, mobile charging, IoT monitoring dashboard.",
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&h=600&fit=crop",
+      tags: ["Piezoelectric Sensors", "Arduino Uno", "ESP8266", "TP4056", "Custom PCB", "Next.js"],
+      github: "",
+      link: "",
       featured: true,
       year: 2025,
-      color: "#0EA5E9",
+      color: "#FFD700",
     },
   ] as Project[],
 

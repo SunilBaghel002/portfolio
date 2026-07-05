@@ -9,12 +9,12 @@ import { cn } from "@/lib/utils";
 import { MagneticButton } from "../animations/MagneticButton";
 
 const navItems = [
-  { name: "Home", href: "/" },
-  { name: "About", href: "/about" },
-  { name: "Projects", href: "/projects" },
-  { name: "Skills", href: "/skills" },
-  { name: "Achievements", href: "/achievements" },
-  { name: "Contact", href: "/contact" },
+  { name: "Home", href: "/#home" },
+  { name: "Work", href: "/#work" },
+  { name: "Services", href: "/#services" },
+  { name: "Process", href: "/#process" },
+  { name: "About", href: "/#about" },
+  { name: "Contact", href: "/#contact" },
 ];
 
 export default function Header() {
@@ -88,7 +88,7 @@ export default function Header() {
               className="group flex items-center gap-2"
             >
               {/* Logo Icon */}
-              <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-[#00f0ff] to-[#a855f7] p-[1px]">
+              <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-[#F97316] to-[#FEF3C7] p-[1px]">
                 <div className="w-full h-full rounded-xl bg-[#0a0a0a] flex items-center justify-center">
                   <span className="text-lg font-bold gradient-text">S</span>
                 </div>
@@ -96,7 +96,7 @@ export default function Header() {
 
               {/* Logo Text - Hidden on small mobile */}
               <div className="hidden sm:block">
-                <span className="text-xl font-bold text-white group-hover:text-[#00f0ff] transition-colors">
+                <span className="text-xl font-bold text-white group-hover:text-[#F97316] transition-colors">
                   Sunil
                 </span>
                 <span className="text-xl font-bold gradient-text ml-1">
@@ -115,14 +115,14 @@ export default function Header() {
                   className={cn(
                     "relative px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg",
                     pathname === item.href
-                      ? "text-[#00f0ff]"
+                      ? "text-[#F97316]"
                       : "text-white/70 hover:text-white hover:bg-white/5"
                   )}
                 >
                   {item.name}
                   {pathname === item.href && (
                     <motion.span
-                      className="absolute bottom-1 left-3 right-3 h-0.5 bg-gradient-to-r from-[#00f0ff] to-[#a855f7] rounded-full"
+                      className="absolute bottom-1 left-3 right-3 h-0.5 bg-gradient-to-r from-[#F97316] to-[#FEF3C7] rounded-full"
                       layoutId="activeNav"
                       transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     />
@@ -136,11 +136,11 @@ export default function Header() {
           <div className="hidden lg:block">
             <MagneticButton strength={0.2}>
               <Link
-                href="/contact"
+                href="/#contact"
                 className="group relative px-5 py-2.5 rounded-xl overflow-hidden"
               >
                 {/* Gradient background */}
-                <div className="absolute inset-0 bg-gradient-to-r from-[#00f0ff] to-[#a855f7] opacity-90 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#F97316] to-[#FEF3C7] opacity-90 group-hover:opacity-100 transition-opacity" />
 
                 {/* Shine effect */}
                 {/* <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" /> */}
@@ -267,7 +267,7 @@ export default function Header() {
                           className={cn(
                             "flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200",
                             pathname === item.href
-                              ? "bg-gradient-to-r from-[#00f0ff]/10 to-[#a855f7]/10 border border-[#00f0ff]/20"
+                              ? "bg-gradient-to-r from-[#F97316]/10 to-[#FEF3C7]/10 border border-[#F97316]/20"
                               : "hover:bg-white/5"
                           )}
                         >
@@ -276,7 +276,7 @@ export default function Header() {
                             className={cn(
                               "text-xs font-mono",
                               pathname === item.href
-                                ? "text-[#00f0ff]"
+                                ? "text-[#F97316]"
                                 : "text-white/30"
                             )}
                           >
@@ -296,7 +296,7 @@ export default function Header() {
 
                           {pathname === item.href && (
                             <motion.div
-                              className="ml-auto w-2 h-2 rounded-full bg-[#00f0ff]"
+                              className="ml-auto w-2 h-2 rounded-full bg-[#F97316]"
                               layoutId="mobileActiveNav"
                             />
                           )}
@@ -309,9 +309,9 @@ export default function Header() {
                 {/* Menu Footer */}
                 <div className="p-4 border-t border-white/10">
                   <Link
-                    href="/contact"
+                    href="/#contact"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="block w-full py-4 px-6 rounded-xl bg-gradient-to-r from-[#00f0ff] to-[#a855f7] text-center text-black font-semibold hover:opacity-90 transition-opacity"
+                    className="block w-full py-4 px-6 rounded-xl bg-gradient-to-r from-[#F97316] to-[#FEF3C7] text-center text-black font-semibold hover:opacity-90 transition-opacity"
                   >
                     Let's Work Together
                   </Link>

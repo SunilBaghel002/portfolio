@@ -70,3 +70,43 @@ export const DynamicSkillGalaxy = dynamic(
         ssr: false,
     }
 );
+
+export const DynamicServices = dynamic(
+    () => import("@/components/sections/Services"),
+    {
+        loading: SectionLoader,
+        ssr: true,
+    }
+);
+
+export const DynamicProcess = dynamic(
+    () => import("@/components/sections/Process"),
+    {
+        loading: SectionLoader,
+        ssr: true,
+    }
+);
+
+export const DynamicAboutSection = dynamic(
+    () => import("@/components/sections/AboutSection"),
+    {
+        loading: SectionLoader,
+        ssr: true,
+    }
+);
+
+export const DynamicTestimonials = dynamic(
+    () => import("@/components/sections/Testimonials"),
+    {
+        loading: SectionLoader,
+        ssr: true,
+    }
+);
+
+export const DynamicContactSection = dynamic(
+    () => import("@/components/sections/ContactSection"),
+    {
+        loading: SectionLoader,
+        ssr: true,
+    }
+);
