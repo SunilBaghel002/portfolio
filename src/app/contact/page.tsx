@@ -1,5 +1,4 @@
-"use client";
-
+import dynamic from "next/dynamic";
 import { useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { portfolioData } from "@/lib/data";
@@ -20,6 +19,11 @@ import {
     Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const CyberGlobe = dynamic(() => import("@/components/three/CyberGlobe"), {
+    ssr: false,
+    loading: () => null,
+});
 
 const socialIcons = {
     github: Github,
@@ -63,10 +67,10 @@ function AnimatedInput({
         >
             <motion.label
                 className={cn(
-                    "absolute left-4 transition-all duration-300 pointer-events-none",
+                    "absolute left-4 transition-all duration-300 pointer-events-none z-10",
                     isFocused || hasValue
-                        ? "top-2 text-xs text-accent-neon"
-                        : "top-4 text-white/40"
+                        ? "top-0 -translate-y-1/2 bg-[#0a0a0a] px-2 text-xs text-[#00f0ff]"
+                        : "top-6 -translate-y-1/2 text-white/40"
                 )}
             >
                 {label}
@@ -82,9 +86,9 @@ function AnimatedInput({
                     placeholder={isFocused ? placeholder : ""}
                     rows={5}
                     className={cn(
-                        "w-full pt-7 pb-4 px-4 rounded-xl bg-white/5 border transition-all duration-300 resize-none",
+                        "w-full pt-4 pb-4 px-4 rounded-xl bg-white/[0.03] border transition-all duration-300 resize-none outline-none",
                         isFocused
-                            ? "border-accent-neon shadow-[0_0_20px_rgba(0,240,255,0.1)]"
+                            ? "border-[#00f0ff] shadow-[0_0_20px_rgba(0,240,255,0.1)] bg-white/[0.05]"
                             : "border-white/10 hover:border-white/20"
                     )}
                 />
@@ -98,22 +102,13 @@ function AnimatedInput({
                     onBlur={() => setIsFocused(false)}
                     placeholder={isFocused ? placeholder : ""}
                     className={cn(
-                        "w-full pt-7 pb-4 px-4 rounded-xl bg-white/5 border transition-all duration-300",
+                        "w-full pt-4 pb-4 px-4 rounded-xl bg-white/[0.03] border transition-all duration-300 outline-none",
                         isFocused
-                            ? "border-accent-neon shadow-[0_0_20px_rgba(0,240,255,0.1)]"
+                            ? "border-[#00f0ff] shadow-[0_0_20px_rgba(0,240,255,0.1)] bg-white/[0.05]"
                             : "border-white/10 hover:border-white/20"
                     )}
                 />
             )}
-
-            {/* Focus line animation */}
-            <motion.div
-                className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-accent-neon to-accent-purple"
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: isFocused ? 1 : 0 }}
-                style={{ originX: 0 }}
-                transition={{ duration: 0.3 }}
-            />
         </motion.div>
     );
 }
@@ -130,15 +125,15 @@ function ContactInfo() {
             {info.map((item, index) => (
                 <ScrollReveal key={item.label} delay={index * 0.1} direction="left">
                     <motion.div
-                        className="flex items-center gap-4 p-4 rounded-xl glass group"
-                        whileHover={{ x: 10 }}
+                        className="flex items-center gap-4 p-4 rounded-xl glass-subtle group border border-white/5 hover:border-[#00f0ff]/30 transition-colors"
+                        whileHover={{ x: 10, backgroundColor: "rgba(255,255,255,0.05)" }}
                     >
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-neon/20 to-accent-purple/20 flex items-center justify-center group-hover:from-accent-neon/30 group-hover:to-accent-purple/30 transition-all">
-                            <item.icon className="w-5 h-5 text-accent-neon" />
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#00f0ff]/10 to-[#a855f7]/10 flex items-center justify-center group-hover:from-[#00f0ff]/20 group-hover:to-[#a855f7]/20 transition-all border border-white/5">
+                            <item.icon className="w-5 h-5 text-[#00f0ff] group-hover:scale-110 transition-transform" />
                         </div>
                         <div>
                             <p className="text-sm text-white/40">{item.label}</p>
-                            <p className="text-white font-medium">{item.value}</p>
+                            <p className="text-white font-medium tracking-wide">{item.value}</p>
                         </div>
                     </motion.div>
                 </ScrollReveal>
@@ -182,32 +177,40 @@ export default function ContactPage() {
     };
 
     return (
-        <div className="min-h-screen pt-32 pb-20">
-            <div className="max-w-6xl mx-auto px-6">
+        <div className="min-h-screen pt-32 pb-20 relative overflow-hidden">
+            {/* 3D Background */}
+            <div className="absolute top-0 right-0 w-full h-[80vh] pointer-events-none">
+                <CyberGlobe />
+            </div>
+
+            <div className="max-w-6xl mx-auto px-6 relative z-10">
                 {/* Header */}
                 <div className="text-center mb-16">
                     <ScrollReveal>
-                        <span className="text-accent-neon text-sm font-medium uppercase tracking-wider mb-4 block">
+                        <span className="text-[#00f0ff] text-sm font-medium uppercase tracking-wider mb-4 block">
                             Get In Touch
                         </span>
                     </ScrollReveal>
                     <AnimatedHeading>Let&apos;s Work Together</AnimatedHeading>
                     <ScrollReveal delay={0.2}>
-                        <p className="text-white/60 max-w-2xl mx-auto mt-6">
+                        <p className="text-white/60 max-w-2xl mx-auto mt-6 text-lg">
                             Have a project in mind or want to collaborate? I&apos;d love to hear from you.
                             Send me a message and I&apos;ll get back to you as soon as possible.
                         </p>
                     </ScrollReveal>
                 </div>
 
-                <div className="grid lg:grid-cols-2 gap-16">
+                <div className="grid lg:grid-cols-2 gap-16 items-start">
                     {/* Contact Form */}
                     <ScrollReveal direction="up">
                         <motion.form
                             onSubmit={handleSubmit}
-                            className="glass p-8 rounded-3xl space-y-6"
+                            className="glass-strong p-8 md:p-10 rounded-[2rem] space-y-8 border border-white/10 shadow-2xl shadow-black/50 relative overflow-hidden"
                             layout
                         >
+                            {/* Form decorative glow */}
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-[#00f0ff]/5 rounded-full blur-[80px] -z-10" />
+
                             <AnimatedInput
                                 label="Your Name"
                                 name="name"
@@ -242,8 +245,11 @@ export default function ContactPage() {
                             <Button
                                 type="submit"
                                 size="lg"
-                                className="w-full"
+                                className="w-full h-14 text-lg"
+                                variant="neon"
                                 disabled={isSubmitting || isSubmitted}
+                                magnetic
+                                glowOnHover
                             >
                                 {isSubmitting ? (
                                     <>
@@ -266,13 +272,14 @@ export default function ContactPage() {
                     </ScrollReveal>
 
                     {/* Contact Info & Socials */}
-                    <div className="space-y-12">
+                    <div className="space-y-12 pt-8">
                         <ContactInfo />
 
                         {/* Social Links */}
-                        <div>
+                        <div className="relative">
                             <ScrollReveal>
-                                <h3 className="text-lg font-semibold text-white mb-6">
+                                <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-3">
+                                    <span className="w-8 h-[1px] bg-[#00f0ff]" />
                                     Connect With Me
                                 </h3>
                             </ScrollReveal>
@@ -286,11 +293,11 @@ export default function ContactPage() {
                                                     href={social.url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="w-14 h-14 rounded-xl glass flex items-center justify-center text-white/60 hover:text-accent-neon hover:border-accent-neon/50 transition-all group"
+                                                    className="w-16 h-16 rounded-2xl glass-subtle flex items-center justify-center text-white/60 hover:text-[#00f0ff] hover:bg-[#00f0ff]/10 hover:border-[#00f0ff]/30 border border-white/5 transition-all group"
                                                     whileHover={{ scale: 1.1, rotate: 5 }}
                                                     whileTap={{ scale: 0.95 }}
                                                 >
-                                                    <Icon className="w-6 h-6" />
+                                                    <Icon className="w-7 h-7" />
                                                 </motion.a>
                                             </MagneticButton>
                                         </StaggerItem>
@@ -299,38 +306,31 @@ export default function ContactPage() {
                             </StaggerContainer>
                         </div>
 
-                        {/* Decorative */}
+                        {/* Decorative Quote or Element */}
                         <ScrollReveal delay={0.4}>
-                            <div className="relative p-8 rounded-3xl overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-accent-neon/10 to-accent-purple/10" />
+                            <div className="relative p-8 rounded-3xl overflow-hidden glass-subtle border border-white/5">
+                                <div className="absolute inset-0 bg-gradient-to-br from-[#00f0ff]/5 to-[#a855f7]/5" />
                                 <motion.div
-                                    className="absolute inset-0"
+                                    className="absolute inset-0 opacity-30"
                                     animate={{
-                                        background: [
-                                            "radial-gradient(circle at 0% 0%, rgba(0,240,255,0.1) 0%, transparent 50%)",
-                                            "radial-gradient(circle at 100% 100%, rgba(168,85,247,0.1) 0%, transparent 50%)",
-                                            "radial-gradient(circle at 0% 100%, rgba(236,72,153,0.1) 0%, transparent 50%)",
-                                            "radial-gradient(circle at 0% 0%, rgba(0,240,255,0.1) 0%, transparent 50%)",
-                                        ],
+                                        backgroundPosition: ["0% 0%", "100% 100%"],
                                     }}
-                                    transition={{ duration: 10, repeat: Infinity }}
+                                    style={{
+                                        backgroundImage: "radial-gradient(circle at center, white 1px, transparent 1px)",
+                                        backgroundSize: "20px 20px",
+                                    }}
+                                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                                 />
-                                <div className="relative">
-                                    <p className="text-white/80 text-lg italic">
+                                <div className="relative z-10">
+                                    <p className="text-white/80 text-lg italic leading-relaxed">
                                         &ldquo;The best way to predict the future is to create it.&rdquo;
                                     </p>
-                                    <p className="text-accent-neon mt-2">— Alan Kay</p>
+                                    <p className="text-[#00f0ff] mt-4 font-mono text-sm">— Alan Kay</p>
                                 </div>
                             </div>
                         </ScrollReveal>
                     </div>
                 </div>
-            </div>
-
-            {/* Background decoration */}
-            <div className="fixed inset-0 pointer-events-none">
-                <div className="absolute top-1/4 left-0 w-96 h-96 bg-accent-neon/5 rounded-full blur-[128px]" />
-                <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-accent-purple/5 rounded-full blur-[128px]" />
             </div>
         </div>
     );
