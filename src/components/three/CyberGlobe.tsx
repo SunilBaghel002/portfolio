@@ -85,9 +85,9 @@ function GlobeMesh() {
 }
 
 export default function CyberGlobe() {
-    const { isLowEnd } = usePerformance();
+    const { isLowPerformance } = usePerformance();
 
-    if (isLowEnd) return null;
+    if (isLowPerformance) return null;
 
     return (
         <div className="absolute inset-0 -z-10 opacity-60">

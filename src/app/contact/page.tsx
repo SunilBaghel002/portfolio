@@ -1,3 +1,5 @@
+"use client";
+
 import dynamic from "next/dynamic";
 import { useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
