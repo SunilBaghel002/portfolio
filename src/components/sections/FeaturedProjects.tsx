@@ -11,7 +11,7 @@ import {
 import Image from "next/image";
 import { projects, Project } from "@/data/projects";
 import { ScrollReveal } from "../animations/ScrollReveal";
-import { ArrowUpRight, Github, X, CheckCircle, ExternalLink, Calendar, Layers, Cpu } from "lucide-react";
+import { ArrowUpRight, Github, X, CheckCircle, ExternalLink, Calendar, Layers, Cpu, ChevronDown, ChevronUp } from "lucide-react";
 
 /* ── Word Reveal ── */
 function WordReveal({ text }: { text: string }) {
@@ -166,7 +166,7 @@ function CaseStudyDrawer({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/90"
       />
 
       {/* Drawer Body */}
@@ -174,7 +174,8 @@ function CaseStudyDrawer({
         initial={{ x: "100%" }}
         animate={{ x: 0 }}
         exit={{ x: "100%" }}
-        transition={{ type: "spring", damping: 30, stiffness: 300 }}
+        transition={{ type: "tween", duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        style={{ willChange: "transform" }}
         className="relative w-full max-w-2xl h-full bg-[#111111] border-l border-white/10 shadow-2xl z-10 flex flex-col"
       >
         {/* Drawer Header */}
@@ -332,9 +333,13 @@ function CaseStudyDrawer({
 /* ── Main Showcase Section ── */
 export default function FeaturedProjects() {
   const [selectedCaseStudy, setSelectedCaseStudy] = useState<Project | null>(null);
+  const [showAll, setShowAll] = useState(false);
 
-  // Filter only the 5 production-grade client projects
+  // Filter only the production-grade client projects
   const clientProjects = projects.filter((p) => p.category === "client");
+
+  // Show only top 5 projects by default
+  const visibleProjects = showAll ? clientProjects : clientProjects.slice(0, 5);
 
   const outcomesMap: Record<string, string> = {
     "PayDeskNow": "Enables retailers across India to serve underbanked communities.",
@@ -390,7 +395,7 @@ export default function FeaturedProjects() {
 
         {/* Projects Rows */}
         <div className="space-y-24 md:space-y-32">
-          {clientProjects.map((project, index) => {
+          {visibleProjects.map((project, index) => {
             const isEven = index % 2 === 0;
             const displayCategory = categoryMap[project.name] || project.type.toUpperCase();
             const outcomeText = outcomesMap[project.name] || "";
@@ -500,6 +505,18 @@ export default function FeaturedProjects() {
             );
           })}
         </div>
+
+        {clientProjects.length > 5 && (
+          <div className="mt-20 flex justify-center">
+            <button
+              onClick={() => setShowAll(!showAll)}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/10 bg-white/5 text-white font-semibold text-sm hover:bg-white/10 hover:border-[#F97316]/50 transition-all duration-300 hover:scale-[1.02] cursor-pointer"
+            >
+              {showAll ? "Show Less" : `View More Projects (${clientProjects.length - 5} More)`}
+              {showAll ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
+          </div>
+        )}
 
       </div>
 
