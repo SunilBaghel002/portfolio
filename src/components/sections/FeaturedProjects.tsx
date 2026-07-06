@@ -117,7 +117,13 @@ function CaseStudyDrawer({
     "FlashBill": "Restaurants save hours daily on manual billing and order management.",
     "Hello Pizza Cafe": "Automated customer engagement at scale, reducing manual marketing effort by 90%.",
     "Mobitel": "Enabled a new service delivery model with seamless online-to-offline experience.",
-    "Proton SMS": "Digitized entire institute operations, replacing multiple disconnected systems with one unified platform."
+    "Proton SMS": "Digitized entire institute operations, replacing multiple disconnected systems with one unified platform.",
+    "Vogue Vault": "Responsive design with instant state updates and cart drawer animations.",
+    "Homestead": "Advanced query filters and custom Map view grids.",
+    "Decora": "Fluid category filters and premium photography rendering.",
+    "Gather": "Ticket reservations and timelines optimized for high traffic.",
+    "Sankara Restaurant": "Polished digital reservation forms matching upscale dining.",
+    "Pankhuri Restaurant": "WhatsApp checkout routing for streamlined ordering."
   };
 
   const categoryMap: Record<string, string> = {
@@ -125,7 +131,13 @@ function CaseStudyDrawer({
     "FlashBill": "POS SOFTWARE",
     "Hello Pizza Cafe": "MARKETING AUTOMATION + WEBSITE",
     "Mobitel": "QUICK COMMERCE PLATFORM",
-    "Proton SMS": "SAAS PLATFORM"
+    "Proton SMS": "SAAS PLATFORM",
+    "Vogue Vault": "E-COMMERCE SHOWCASE",
+    "Homestead": "REAL ESTATE DIRECTORY",
+    "Decora": "INTERIOR DESIGN SHOWCASE",
+    "Gather": "EVENT BOOKING PORTAL",
+    "Sankara Restaurant": "FINE DINING DIGITAL PORTAL",
+    "Pankhuri Restaurant": "LOCAL DINER WEB PORTAL"
   };
 
   const outcomeText = outcomesMap[project.name] || "Delivered production-grade custom software with verified business results.";
@@ -137,7 +149,13 @@ function CaseStudyDrawer({
     "FlashBill": "A custom cross-platform POS application engineered for restaurants. Built to address the pain of connectivity loss, it keeps full billing logs, menu edits, and receipt queues offline, syncing back to the cloud database when connections resume.",
     "Hello Pizza Cafe": "A high-conversion customer website paired with a custom marketing and ordering engine. Combines Facebook/WhatsApp Graph APIs to orchestrate cohort-based promotional campaigns and parse incoming pizza orders automatically.",
     "Mobitel": "An on-demand service portal coordinating mobile repairs. Integrates Razorpay checkouts, automated tech routing sheets, and live SMS updates to create a seamless doorstep service logistics experience.",
-    "Proton SMS": "An educational institution ERP designed to replace paper trails. Facilitates grade bookings, attendance monitoring, fee reconciliation, and triggers instant WhatsApp reports directly to parents' phones."
+    "Proton SMS": "An educational institution ERP designed to replace paper trails. Facilitates grade bookings, attendance monitoring, fee reconciliation, and triggers instant WhatsApp reports directly to parents' phones.",
+    "Vogue Vault": "A high-end clothing boutique showcase demonstrating modern reactive cart workflows, smooth image gallery transitions, search filters, and checkout simulation pipelines.",
+    "Homestead": "A filterable property dashboard utilizing interactive listing searches, location coordinates mapping, and responsive contact intake forms.",
+    "Decora": "A visually gorgeous interior design showroom utilizing parallax scroll grids, design category switches, and modern layout transitions.",
+    "Gather": "An event organization landing page mapping agendas, speaker schedules, ticket booking workflows, and responsive registration counters.",
+    "Sankara Restaurant": "A premium dining digital menu and reservation booking application built with fluid transitions and fine hospitality styling.",
+    "Pankhuri Restaurant": "A diner menu catalog with WhatsApp order checkout triggers, location navigation maps, and clean contact forms."
   };
 
   return (
@@ -323,7 +341,13 @@ export default function FeaturedProjects() {
     "FlashBill": "Restaurants save hours daily on manual billing and order management.",
     "Hello Pizza Cafe": "Automated customer engagement at scale, reducing manual marketing effort by 90%.",
     "Mobitel": "Enabled a new service delivery model with seamless online-to-offline experience.",
-    "Proton SMS": "Digitized entire institute operations, replacing multiple disconnected systems with one unified platform."
+    "Proton SMS": "Digitized entire institute operations, replacing multiple disconnected systems with one unified platform.",
+    "Vogue Vault": "Responsive design with instant state updates and cart drawer animations.",
+    "Homestead": "Advanced query filters and custom Map view grids.",
+    "Decora": "Fluid category filters and premium photography rendering.",
+    "Gather": "Ticket reservations and timelines optimized for high traffic.",
+    "Sankara Restaurant": "Polished digital reservation forms matching upscale dining.",
+    "Pankhuri Restaurant": "WhatsApp checkout routing for streamlined ordering."
   };
 
   const categoryMap: Record<string, string> = {
@@ -331,7 +355,13 @@ export default function FeaturedProjects() {
     "FlashBill": "POS SOFTWARE",
     "Hello Pizza Cafe": "MARKETING AUTOMATION + WEBSITE",
     "Mobitel": "QUICK COMMERCE PLATFORM",
-    "Proton SMS": "SAAS PLATFORM"
+    "Proton SMS": "SAAS PLATFORM",
+    "Vogue Vault": "E-COMMERCE SHOWCASE",
+    "Homestead": "REAL ESTATE DIRECTORY",
+    "Decora": "INTERIOR DESIGN SHOWCASE",
+    "Gather": "EVENT BOOKING PORTAL",
+    "Sankara Restaurant": "FINE DINING DIGITAL PORTAL",
+    "Pankhuri Restaurant": "LOCAL DINER WEB PORTAL"
   };
 
   return (
