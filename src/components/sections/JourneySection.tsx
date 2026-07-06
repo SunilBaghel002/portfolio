@@ -14,6 +14,9 @@ import {
   Sparkles,
   Award,
   Zap,
+  Calendar,
+  MapPin,
+  Lightbulb,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -275,11 +278,11 @@ export default function JourneySection() {
                 </div>
               </ScrollReveal>
               <ScrollReveal delay={0.3}>
-                <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3 text-sm text-white/50 font-mono">
-                  <span>📅 {featured2.date}</span>
-                  <span>📍 {featured2.location}</span>
-                  <span className="text-[#FFD700]">🥇 ₹{featured2.prize?.toLocaleString()}</span>
-                  <span>⚡ {featured2.project}</span>
+                <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3 text-sm text-white/50 font-mono items-center">
+                  <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-[#F97316]/80" /> {featured2.date}</span>
+                  <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-[#F97316]/80" /> {featured2.location}</span>
+                  <span className="text-[#FFD700] flex items-center gap-1.5"><Trophy className="w-4 h-4 text-[#FFD700]" /> ₹{featured2.prize?.toLocaleString()}</span>
+                  <span className="flex items-center gap-1.5"><Zap className="w-4 h-4 text-[#F97316]/80" /> {featured2.project}</span>
                 </div>
               </ScrollReveal>
             </div>
@@ -579,7 +582,11 @@ export default function JourneySection() {
                       : "bg-white/10 text-white"
                   }`}
                 >
-                  {selectedHackathon.isNational ? "🥇 National Win" : "🏆 Hackathon Win"}
+                  {selectedHackathon.isNational ? (
+                    <span className="flex items-center gap-1"><Trophy className="w-3 h-3 text-black" /> National Win</span>
+                  ) : (
+                    <span className="flex items-center gap-1"><Trophy className="w-3 h-3 text-white" /> Hackathon Win</span>
+                  )}
                 </span>
                 <span className="text-xs font-mono text-white/40">{selectedHackathon.date}</span>
               </div>
@@ -587,8 +594,8 @@ export default function JourneySection() {
               <h3 className="text-2xl md:text-3xl font-serif text-white mb-2">
                 {selectedHackathon.event}
               </h3>
-              <p className="text-sm font-mono text-[#FEF3C7] mb-6">
-                📍 {selectedHackathon.location}
+              <p className="text-sm font-mono text-[#FEF3C7] mb-6 flex items-center gap-1.5">
+                <MapPin className="w-4 h-4 text-[#F97316]" /> {selectedHackathon.location}
               </p>
 
               <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/[0.04] text-xs text-white/80 mb-6">
@@ -609,8 +616,9 @@ export default function JourneySection() {
               </p>
 
               {selectedHackathon.note && (
-                <p className="text-xs text-white/40 italic mb-6">
-                  💡 {selectedHackathon.note}
+                <p className="text-xs text-white/40 italic mb-6 flex items-start gap-1.5">
+                  <Lightbulb className="w-3.5 h-3.5 text-[#FFD700]/70 mt-0.5 shrink-0" />
+                  <span>{selectedHackathon.note}</span>
                 </p>
               )}
 

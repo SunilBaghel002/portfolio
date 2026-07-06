@@ -31,9 +31,9 @@ export const projects: Project[] = [
     description:
       "A production B2B fintech platform enabling rural CSC retailers to offer AEPS, BBPS, DMT, and recharge services to their communities. Real money, real transactions, real impact.",
     highlights: [
-      { icon: "🔥", text: "240+ solo commits" },
-      { icon: "💰", text: "Real payment integrations" },
-      { icon: "🏦", text: "AEPS · BBPS · DMT · Recharge" },
+      { icon: "git-commit", text: "240+ solo commits" },
+      { icon: "coins", text: "Real payment integrations" },
+      { icon: "landmark", text: "AEPS · BBPS · DMT · Recharge" },
     ],
     tech: ["Next.js", "Node.js", "MongoDB", "Payment Gateway APIs"],
     commits: "240+",
@@ -56,10 +56,10 @@ export const projects: Project[] = [
     description:
       "An offline-first billing software for restaurants and cafés. Handles complete restaurant operations — billing, expense tracking, staff management, QR ordering, and website integration. Works flawlessly without internet.",
     highlights: [
-      { icon: "💻", text: "Offline-first architecture" },
-      { icon: "📊", text: "Complete restaurant management" },
-      { icon: "🔥", text: "120+ solo commits" },
-      { icon: "🖥️", text: "Desktop application" },
+      { icon: "laptop", text: "Offline-first architecture" },
+      { icon: "trending-up", text: "Complete restaurant management" },
+      { icon: "git-commit", text: "120+ solo commits" },
+      { icon: "monitor", text: "Desktop application" },
     ],
     tech: ["Electron.js", "Next.js", "SQLite", "Node.js"],
     commits: "120+",
@@ -82,10 +82,10 @@ export const projects: Project[] = [
     description:
       "Not your typical restaurant website. Broadcasts messages to 10,000+ customers via WhatsApp, handles orders through an interactive bot, tracks loyalty points, and connects directly to FlashBill POS for seamless order processing.",
     highlights: [
-      { icon: "📱", text: "10,000+ customer WhatsApp automation" },
-      { icon: "🤖", text: "Interactive ordering bot" },
-      { icon: "🎁", text: "Loyalty points system" },
-      { icon: "🔗", text: "Direct POS integration" },
+      { icon: "smartphone", text: "10,000+ customer WhatsApp automation" },
+      { icon: "bot", text: "Interactive ordering bot" },
+      { icon: "gift", text: "Loyalty points system" },
+      { icon: "link", text: "Direct POS integration" },
     ],
     tech: ["Next.js", "Node.js", "WhatsApp Business API", "MongoDB"],
     commits: "100+",
@@ -108,10 +108,10 @@ export const projects: Project[] = [
     description:
       "A doorstep mobile repair booking platform. Customers book from home, technicians arrive at their location, payments happen via Razorpay. Think Urban Company, but laser-focused on mobile repair.",
     highlights: [
-      { icon: "🏠", text: "Doorstep service booking" },
-      { icon: "💳", text: "Razorpay payment integration" },
-      { icon: "📍", text: "Real-time technician tracking" },
-      { icon: "🚀", text: "Live production platform" },
+      { icon: "home", text: "Doorstep service booking" },
+      { icon: "credit-card", text: "Razorpay payment integration" },
+      { icon: "map-pin", text: "Real-time technician tracking" },
+      { icon: "rocket", text: "Live production platform" },
     ],
     tech: ["Next.js", "Node.js", "MongoDB", "Razorpay"],
     commits: "50+",
@@ -134,10 +134,10 @@ export const projects: Project[] = [
     description:
       "A comprehensive institute management platform handling students, teachers, attendance, fees, exams, and communications — all in one place. Integrated WhatsApp system for instant parent-teacher-student communication.",
     highlights: [
-      { icon: "🎓", text: "Full institute operations" },
-      { icon: "📱", text: "WhatsApp integration" },
-      { icon: "💰", text: "Fee management" },
-      { icon: "📊", text: "Multi-role dashboards" },
+      { icon: "graduation-cap", text: "Full institute operations" },
+      { icon: "smartphone", text: "WhatsApp integration" },
+      { icon: "coins", text: "Fee management" },
+      { icon: "trending-up", text: "Multi-role dashboards" },
     ],
     tech: ["Next.js", "Node.js", "MongoDB", "WhatsApp API"],
     commits: "50+",
@@ -160,9 +160,9 @@ export const projects: Project[] = [
     description:
       "A fast, responsive fashion e-commerce showcase featuring cart management drawers, dynamic listing filters, and interactive visual grids.",
     highlights: [
-      { icon: "🛍️", text: "Visual storefront showcase" },
-      { icon: "🛒", text: "Interactive cart management" },
-      { icon: "🎨", text: "Sleek animated catalog filters" },
+      { icon: "shopping-bag", text: "Visual storefront showcase" },
+      { icon: "shopping-cart", text: "Interactive cart management" },
+      { icon: "palette", text: "Sleek animated catalog filters" },
     ],
     tech: ["Next.js", "Tailwind CSS", "Framer Motion", "Stripe"],
     commits: "30+",
@@ -185,9 +185,9 @@ export const projects: Project[] = [
     description:
       "A filterable property directory featuring dynamic Google Maps markers, pricing category tags, and responsive lead intake contact cards.",
     highlights: [
-      { icon: "🏠", text: "Luxury property listings" },
-      { icon: "📍", text: "Interactive location mapping" },
-      { icon: "🔍", text: "Complex property queries" },
+      { icon: "home", text: "Luxury property listings" },
+      { icon: "map-pin", text: "Interactive location mapping" },
+      { icon: "search", text: "Complex property queries" },
     ],
     tech: ["Next.js", "Tailwind CSS", "MongoDB", "Framer Motion"],
     commits: "25+",
@@ -210,9 +210,9 @@ export const projects: Project[] = [
     description:
       "A layout-focused styling showroom featuring parallax image scrolling, dynamic design collections, and smooth page transitions.",
     highlights: [
-      { icon: "✨", text: "Showcase design concepts" },
-      { icon: "🖼️", text: "Parallax project galleries" },
-      { icon: "💫", text: "Fluid layout animations" },
+      { icon: "sparkles", text: "Showcase design concepts" },
+      { icon: "layers", text: "Parallax project galleries" },
+      { icon: "sparkles", text: "Fluid layout animations" },
     ],
     tech: ["React", "Vite", "Tailwind CSS", "Framer Motion"],
     commits: "20+",
@@ -235,9 +235,9 @@ export const projects: Project[] = [
     description:
       "An organizer web portal mapping agendas, booking limits, speaker timetables, and registration counters with responsive ticketing features.",
     highlights: [
-      { icon: "📅", text: "Speaker timelines & schedules" },
-      { icon: "🎫", text: "Ticketing CTA flows" },
-      { icon: "👥", text: "Attendee tracker counts" },
+      { icon: "calendar", text: "Speaker timelines & schedules" },
+      { icon: "ticket", text: "Ticketing CTA flows" },
+      { icon: "users", text: "Attendee tracker counts" },
     ],
     tech: ["Next.js", "Tailwind CSS", "Framer Motion"],
     commits: "20+",
@@ -260,9 +260,9 @@ export const projects: Project[] = [
     description:
       "A fine dining digital storefront featuring interactive menus, chef highlights, table reservations, and smooth transitions.",
     highlights: [
-      { icon: "🍽️", text: "Digital menu catalog" },
-      { icon: "📅", text: "Table reservation manager" },
-      { icon: "✨", text: "Gourmet design aesthetics" },
+      { icon: "utensils", text: "Digital menu catalog" },
+      { icon: "calendar", text: "Table reservation manager" },
+      { icon: "sparkles", text: "Gourmet design aesthetics" },
     ],
     tech: ["Next.js", "Tailwind CSS", "Framer Motion"],
     commits: "15+",
@@ -285,9 +285,9 @@ export const projects: Project[] = [
     description:
       "A fast diner website supporting WhatsApp checkout links, filterable menu categories, and location navigation maps.",
     highlights: [
-      { icon: "📲", text: "WhatsApp cart orders" },
-      { icon: "🍕", text: "Diner menu navigation" },
-      { icon: "📍", text: "Interactive location directions" },
+      { icon: "message-square", text: "WhatsApp cart orders" },
+      { icon: "utensils", text: "Diner menu navigation" },
+      { icon: "map-pin", text: "Interactive location directions" },
     ],
     tech: ["React", "Tailwind CSS", "Framer Motion"],
     commits: "15+",
@@ -310,10 +310,10 @@ export const projects: Project[] = [
     description:
       "An affordable Indian alternative to Japan's expensive piezoelectric floor tiles. Recycled plastic bricks embedded with piezoelectric sensors generate electricity from footsteps. Complete with custom power conversion circuits, battery storage, mobile charging capability, and IoT monitoring dashboard. A genuinely cross-disciplinary project combining Civil Engineering, Electronics, Embedded Systems, IoT, and Full-Stack Development.",
     highlights: [
-      { icon: "🏆", text: "Won 4 hackathons (1 National)" },
-      { icon: "⚡", text: "Hardware + Software + IoT" },
-      { icon: "🇮🇳", text: "Made-in-India innovation" },
-      { icon: "♻️", text: "Uses recycled materials" },
+      { icon: "trophy", text: "Won 4 hackathons (1 National)" },
+      { icon: "zap", text: "Hardware + Software + IoT" },
+      { icon: "globe", text: "Made-in-India innovation" },
+      { icon: "refresh-cw", text: "Uses recycled materials" },
     ],
     tech: [
       "Piezoelectric Sensors",

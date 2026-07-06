@@ -11,7 +11,49 @@ import {
 import Image from "next/image";
 import { projects } from "@/data/projects";
 import { ScrollReveal } from "../animations/ScrollReveal";
-import { ArrowUpRight, Github } from "lucide-react";
+import {
+  ArrowUpRight, Github, Star, GitCommit, Coins, Landmark, Laptop,
+  TrendingUp, Monitor, Smartphone, Bot, Gift, Link as LinkIcon, Home, CreditCard,
+  MapPin, Rocket, GraduationCap, ShoppingBag, ShoppingCart, Palette, Search,
+  Sparkles, Utensils, MessageSquare, Trophy, Zap, Globe, RefreshCw, Ticket, Users, Layers, Calendar
+} from "lucide-react";
+
+const iconMap: Record<string, React.ComponentType<any>> = {
+  "git-commit": GitCommit,
+  "coins": Coins,
+  "landmark": Landmark,
+  "laptop": Laptop,
+  "trending-up": TrendingUp,
+  "monitor": Monitor,
+  "smartphone": Smartphone,
+  "bot": Bot,
+  "gift": Gift,
+  "link": LinkIcon,
+  "home": Home,
+  "credit-card": CreditCard,
+  "map-pin": MapPin,
+  "rocket": Rocket,
+  "graduation-cap": GraduationCap,
+  "shopping-bag": ShoppingBag,
+  "shopping-cart": ShoppingCart,
+  "palette": Palette,
+  "search": Search,
+  "sparkles": Sparkles,
+  "layers": Layers,
+  "calendar": Calendar,
+  "ticket": Ticket,
+  "users": Users,
+  "utensils": Utensils,
+  "message-square": MessageSquare,
+  "trophy": Trophy,
+  "zap": Zap,
+  "globe": Globe,
+  "refresh-cw": RefreshCw
+};
+
+function HighlightIcon({ name, className }: { name: string; className?: string }) {
+  const IconComponent = iconMap[name] || Sparkles;
+  return <IconComponent className={className} />;}
 
 /* ── Word reveal ── */
 function WordReveal({ text }: { text: string }) {
@@ -199,8 +241,8 @@ export default function Projects() {
                             </span>
                           )}
                           {project.isFlagship && (
-                            <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-gradient-to-r from-[#F97316] to-[#FEF3C7] text-black uppercase font-bold">
-                              ⭐ Flagship
+                            <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-gradient-to-r from-[#F97316] to-[#FEF3C7] text-black uppercase font-bold flex items-center gap-1">
+                              <Star className="w-2.5 h-2.5 fill-current" /> Flagship
                             </span>
                           )}
                         </div>
@@ -219,7 +261,7 @@ export default function Projects() {
                       <div className="mb-6 space-y-1.5">
                         {project.highlights.map((h) => (
                           <div key={h.text} className="flex items-center gap-2 text-sm text-white/80">
-                            <span>{h.icon}</span>
+                            <HighlightIcon name={h.icon} className="w-4 h-4 text-[#F97316]" />
                             <span>{h.text}</span>
                           </div>
                         ))}

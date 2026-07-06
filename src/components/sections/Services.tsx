@@ -2,40 +2,42 @@
 
 import { motion } from "framer-motion";
 import { ScrollReveal, StaggerContainer, StaggerItem } from "../animations/ScrollReveal";
+import { Code2, ShoppingCart, Cloud, CreditCard, MessageSquare, Monitor } from "lucide-react";
+
 
 const services = [
   {
-    icon: "💻",
+    icon: Code2,
     title: "Custom Web Applications",
     description: "Full-stack web applications tailored to your business logic. From complex dashboards to customer-facing platforms — built to scale.",
     tech: ["React", "Next.js", "Node.js", "MongoDB"],
   },
   {
-    icon: "🛒",
+    icon: ShoppingCart,
     title: "E-Commerce Platforms",
     description: "High-converting online stores with integrated payments, inventory management, and customer analytics. Built for performance and conversion.",
     tech: ["Next.js", "Stripe", "Razorpay", "MongoDB"],
   },
   {
-    icon: "☁️",
+    icon: Cloud,
     title: "SaaS Platforms",
     description: "Multi-tenant SaaS applications with subscription management, role-based access, and enterprise-grade security. From MVP to scale.",
     tech: ["Next.js", "Node.js", "PostgreSQL", "Stripe"],
   },
   {
-    icon: "💰",
+    icon: CreditCard,
     title: "Fintech Integrations",
     description: "Payment gateway integrations, AEPS/BBPS/DMT services, wallet systems, and financial transaction platforms. Built for real money movement.",
     tech: ["Node.js", "Payment APIs", "Secure Auth"],
   },
   {
-    icon: "💬",
+    icon: MessageSquare,
     title: "WhatsApp Automation",
     description: "WhatsApp Business API integrations for customer engagement, order management, and marketing automation. Scale conversations to thousands.",
     tech: ["WhatsApp API", "Node.js", "MongoDB"],
   },
   {
-    icon: "🖥️",
+    icon: Monitor,
     title: "Desktop Applications",
     description: "Cross-platform desktop software using Electron.js. Perfect for offline-first business applications like POS systems, inventory management, and enterprise tools.",
     tech: ["Electron.js", "SQLite", "Node.js"],
@@ -78,9 +80,9 @@ export default function Services() {
                 
                 <div>
                   {/* Icon */}
-                  <span className="text-4xl block mb-6 filter drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]">
-                    {service.icon}
-                  </span>
+                  <div className="mb-6 text-[#F97316] group-hover:scale-110 transition-transform duration-300 filter drop-shadow-[0_0_10px_rgba(249,115,22,0.1)]">
+                    <service.icon className="w-8 h-8" strokeWidth={1.5} />
+                  </div>
                   
                   {/* Title */}
                   <h3 className="text-xl font-serif font-medium text-white mb-4 group-hover:text-[#F97316] transition-colors">

@@ -11,7 +11,50 @@ import {
 import Image from "next/image";
 import { projects, Project } from "@/data/projects";
 import { ScrollReveal } from "../animations/ScrollReveal";
-import { ArrowUpRight, Github, X, CheckCircle, ExternalLink, Calendar, Layers, Cpu, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  ArrowUpRight, Github, X, CheckCircle, ExternalLink, Calendar, Layers, Cpu,
+  ChevronDown, ChevronUp, Target, Star, GitCommit, Coins, Landmark, Laptop,
+  TrendingUp, Monitor, Smartphone, Bot, Gift, Link as LinkIcon, Home, CreditCard,
+  MapPin, Rocket, GraduationCap, ShoppingBag, ShoppingCart, Palette, Search,
+  Sparkles, Utensils, MessageSquare, Trophy, Zap, Globe, RefreshCw, Ticket, Users
+} from "lucide-react";
+
+const iconMap: Record<string, React.ComponentType<any>> = {
+  "git-commit": GitCommit,
+  "coins": Coins,
+  "landmark": Landmark,
+  "laptop": Laptop,
+  "trending-up": TrendingUp,
+  "monitor": Monitor,
+  "smartphone": Smartphone,
+  "bot": Bot,
+  "gift": Gift,
+  "link": LinkIcon,
+  "home": Home,
+  "credit-card": CreditCard,
+  "map-pin": MapPin,
+  "rocket": Rocket,
+  "graduation-cap": GraduationCap,
+  "shopping-bag": ShoppingBag,
+  "shopping-cart": ShoppingCart,
+  "palette": Palette,
+  "search": Search,
+  "sparkles": Sparkles,
+  "layers": Layers,
+  "calendar": Calendar,
+  "ticket": Ticket,
+  "users": Users,
+  "utensils": Utensils,
+  "message-square": MessageSquare,
+  "trophy": Trophy,
+  "zap": Zap,
+  "globe": Globe,
+  "refresh-cw": RefreshCw
+};
+
+function HighlightIcon({ name, className }: { name: string; className?: string }) {
+  const IconComponent = iconMap[name] || Sparkles;
+  return <IconComponent className={className} />;}
 
 /* ── Word Reveal ── */
 function WordReveal({ text }: { text: string }) {
@@ -263,7 +306,7 @@ function CaseStudyDrawer({
                   key={i}
                   className="flex items-start gap-2.5 p-3 rounded-lg bg-white/[0.01] border border-white/[0.04] text-xs text-white/80"
                 >
-                  <span className="text-sm mt-0.5">{h.icon}</span>
+                  <HighlightIcon name={h.icon} className="w-4 h-4 text-[#F97316] mt-0.5 shrink-0" />
                   <span>{h.text}</span>
                 </li>
               ))}
@@ -429,8 +472,8 @@ export default function FeaturedProjects() {
                           / {displayCategory}
                         </span>
                         {project.isFlagship && (
-                          <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-gradient-to-r from-[#F97316] to-[#FEF3C7] text-black uppercase font-bold">
-                            ⭐ Flagship
+                          <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-gradient-to-r from-[#F97316] to-[#FEF3C7] text-black uppercase font-bold flex items-center gap-1">
+                            <Star className="w-2.5 h-2.5 fill-current" /> Flagship
                           </span>
                         )}
                       </div>
@@ -449,7 +492,7 @@ export default function FeaturedProjects() {
                     {/* Client Outcome Highlight (Orange block) */}
                     {outcomeText && (
                       <div className="mb-6 p-4 rounded-xl bg-[#F97316]/5 border border-[#F97316]/20 flex items-start gap-2.5 text-sm">
-                        <span className="text-base mt-0.5">🎯</span>
+                        <Target className="w-4 h-4 text-[#F97316] mt-0.5 shrink-0" />
                         <span className="text-white/90">
                           <strong>Outcome:</strong> {outcomeText}
                         </span>
