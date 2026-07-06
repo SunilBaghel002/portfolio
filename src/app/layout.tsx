@@ -161,7 +161,7 @@ export default function RootLayout({
         <div className="noise pointer-events-none" aria-hidden="true" />
         <ClientProviders>
           <Header />
-          <main id="main-content" className="relative z-10" role="main">
+          <main id="main-content" className="relative" role="main">
             {children}
           </main>
           <Footer />

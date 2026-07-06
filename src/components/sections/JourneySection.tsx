@@ -550,7 +550,7 @@ export default function JourneySection() {
       {/* ════════════ Detail Modal ════════════ */}
       <AnimatePresence>
         {selectedHackathon && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -632,7 +632,7 @@ export default function JourneySection() {
       {/* ════════════ Lightbox ════════════ */}
       <AnimatePresence>
         {lightboxIndex !== null && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-md">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-md">
             <button
               onClick={() => setLightboxIndex(null)}
               className="absolute top-6 right-6 p-3 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors z-[60] cursor-pointer"
