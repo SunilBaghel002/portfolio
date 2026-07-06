@@ -133,7 +133,7 @@ export default function Hero() {
                   src="/personal/profile.jpg"
                   alt="Sunil Baghel"
                   fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                  className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.03]"
                   sizes="(max-width: 768px) 100vw, 25vw"
                   priority
                 />
