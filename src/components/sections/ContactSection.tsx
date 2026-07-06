@@ -28,25 +28,18 @@ export default function ContactSection() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("https://api.web3forms.com/submit", {
+      const response = await fetch("/api/contact", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Accept: "application/json",
         },
         body: JSON.stringify({
-          access_key: process.env.NEXT_PUBLIC_WEB3FORMS_KEY || "YOUR_ACCESS_KEY_HERE",
           name: formState.name,
           email: formState.email,
-          subject: `New Project Inquiry: ${formState.projectType} (${formState.budgetRange})`,
-          message: `
-Project Type: ${formState.projectType}
-Budget Range: ${formState.budgetRange}
-Timeline: ${formState.timeline}
-
-Message Details:
-${formState.message}
-          `,
+          projectType: formState.projectType,
+          budgetRange: formState.budgetRange,
+          timeline: formState.timeline,
+          message: formState.message,
         }),
       });
 
@@ -54,7 +47,7 @@ ${formState.message}
       if (result.success) {
         setIsSubmitted(true);
       } else {
-        alert("Something went wrong. Please try sending directly to sunilbaghel93100@gmail.com");
+        alert(result.error || "Something went wrong. Please try sending directly to sunilbaghel93100@gmail.com");
       }
     } catch (error) {
       console.error(error);

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Github, Linkedin, Globe } from "lucide-react";
 import { portfolioData } from "@/lib/data";
+import Monogram from "@/components/ui/Monogram";
 
 export default function Footer() {
   return (
@@ -23,11 +24,7 @@ export default function Footer() {
           {/* Center: Monogram Logo */}
           <div className="flex items-center justify-center">
             <Link href="/#home" className="group flex items-center justify-center">
-              <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-[#F97316] to-[#FEF3C7] p-[1px] transition-transform group-hover:scale-105 duration-300">
-                <div className="w-full h-full rounded-lg bg-black flex items-center justify-center">
-                  <span className="text-sm font-bold text-white font-serif tracking-tight">S</span>
-                </div>
-              </div>
+              <Monogram size="sm" />
             </Link>
           </div>
 

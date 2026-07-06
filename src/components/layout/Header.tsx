@@ -7,6 +7,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { MagneticButton } from "../animations/MagneticButton";
+import Monogram from "@/components/ui/Monogram";
 
 const navItems = [
   { name: "Home", href: "/#home" },
@@ -88,11 +89,7 @@ export default function Header() {
               className="group flex items-center gap-2"
             >
               {/* Logo Icon */}
-              <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-[#F97316] to-[#FEF3C7] p-[1px]">
-                <div className="w-full h-full rounded-xl bg-[#0a0a0a] flex items-center justify-center">
-                  <span className="text-lg font-bold gradient-text">S</span>
-                </div>
-              </div>
+              <Monogram size="md" />
 
               {/* Logo Text - Hidden on small mobile */}
               <div className="hidden sm:block">
