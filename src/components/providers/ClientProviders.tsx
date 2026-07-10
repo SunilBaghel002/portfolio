@@ -1,15 +1,22 @@
-// components/providers/ClientProviders.tsx
 "use client";
 
-import { ReactNode, useEffect, useState, createContext, useContext } from "react";
+import {
+  ReactNode,
+  useEffect,
+  useState,
+  useRef,
+  createContext,
+  useContext,
+} from "react";
 import dynamic from "next/dynamic";
+import Lenis from "lenis";
 
 interface PerformanceContextType {
   isLowPerformance: boolean;
   prefersReducedMotion: boolean;
   isMobile: boolean;
   isLoaded: boolean;
-  deviceTier: 'low' | 'medium' | 'high';
+  deviceTier: "low" | "medium" | "high";
 }
 
 const PerformanceContext = createContext<PerformanceContextType>({
@@ -17,7 +24,7 @@ const PerformanceContext = createContext<PerformanceContextType>({
   prefersReducedMotion: false,
   isMobile: false,
   isLoaded: false,
-  deviceTier: 'high',
+  deviceTier: "high",
 });
 
 export const usePerformance = () => useContext(PerformanceContext);
@@ -27,18 +34,59 @@ const CustomCursor = dynamic(
   { ssr: false }
 );
 
-export default function ClientProviders({ children }: { children: ReactNode }) {
-  const [performanceState, setPerformanceState] = useState<PerformanceContextType>({
-    isLowPerformance: false,
-    prefersReducedMotion: false,
-    isMobile: false,
-    isLoaded: false,
-    deviceTier: 'high',
-  });
+const LoadingScreen = dynamic(
+  () => import("@/components/sections/LoadingScreen"),
+  { ssr: false }
+);
+
+function ReadingProgress() {
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
+    const updateProgress = () => {
+      const scrollTop = window.scrollY;
+      const docHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
+      if (docHeight > 0) {
+        setProgress((scrollTop / docHeight) * 100);
+      }
+    };
+
+    window.addEventListener("scroll", updateProgress, { passive: true });
+    return () => window.removeEventListener("scroll", updateProgress);
+  }, []);
+
+  return (
+    <div
+      className="reading-progress"
+      style={{ width: `${progress}%` }}
+      role="progressbar"
+      aria-valuenow={Math.round(progress)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label="Reading progress"
+    />
+  );
+}
+
+export default function ClientProviders({ children }: { children: ReactNode }) {
+  const [performanceState, setPerformanceState] =
+    useState<PerformanceContextType>({
+      isLowPerformance: false,
+      prefersReducedMotion: false,
+      isMobile: false,
+      isLoaded: false,
+      deviceTier: "high",
+    });
+
+  const [showLoading, setShowLoading] = useState(true);
+  const lenisRef = useRef<Lenis | null>(null);
+
+  // Performance detection
+  useEffect(() => {
     const detectPerformance = () => {
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
+      const isMobile =
+        /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
         window.innerWidth < 768;
 
       const prefersReducedMotion = window.matchMedia(
@@ -46,17 +94,16 @@ export default function ClientProviders({ children }: { children: ReactNode }) {
       ).matches;
 
       const cores = navigator.hardwareConcurrency || 4;
-      const memory = (navigator as any).deviceMemory || 8;
+      const memory = (navigator as unknown as { deviceMemory?: number }).deviceMemory || 8;
 
-      // Determine device tier
-      let deviceTier: 'low' | 'medium' | 'high' = 'high';
+      let deviceTier: "low" | "medium" | "high" = "high";
       if (cores <= 2 || memory <= 2) {
-        deviceTier = 'low';
+        deviceTier = "low";
       } else if (cores <= 4 || memory <= 4) {
-        deviceTier = 'medium';
+        deviceTier = "medium";
       }
 
-      const isLowPerformance = prefersReducedMotion || deviceTier === 'low';
+      const isLowPerformance = prefersReducedMotion || deviceTier === "low";
 
       setPerformanceState({
         isLowPerformance,
@@ -78,21 +125,43 @@ export default function ClientProviders({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // Lenis smooth scroll
+  useEffect(() => {
+    if (performanceState.prefersReducedMotion) return;
+
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      touchMultiplier: 2,
+    });
+
+    lenisRef.current = lenis;
+
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+
+    return () => {
+      lenis.destroy();
+    };
+  }, [performanceState.prefersReducedMotion]);
+
   const { isMobile, isLoaded } = performanceState;
 
   return (
     <PerformanceContext.Provider value={performanceState}>
-      {/* Static premium background - Zero JS, zero performance hit */}
-      <div className="fixed inset-0 -z-10 overflow-hidden bg-black">
-        {/* Simple Grid (Option 1) */}
-        <div className="absolute inset-0 grid-pattern opacity-10 pointer-events-none" />
+      {/* Loading screen */}
+      {showLoading && (
+        <LoadingScreen onComplete={() => setShowLoading(false)} />
+      )}
 
-        {/* Static soft gradients (Option 2 spotlight replacement) */}
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-[#F97316]/5 rounded-full blur-[140px] pointer-events-none" />
-        <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-[#3B82F6]/5 rounded-full blur-[160px] pointer-events-none" />
-      </div>
+      {/* Reading progress bar */}
+      <ReadingProgress />
 
-      {/* Cursor - Desktop only */}
+      {/* Custom cursor - Desktop only */}
       {isLoaded && !isMobile && <CustomCursor />}
 
       {children}

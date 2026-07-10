@@ -1,11 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Mail } from "lucide-react";
 import Image from "next/image";
+import Marquee from "@/components/animations/Marquee";
 
 const fadeInUp = {
-  initial: { opacity: 0, y: 25 },
+  initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
 };
 
@@ -13,10 +13,22 @@ const staggerContainer = {
   animate: {
     transition: {
       staggerChildren: 0.1,
-      delayChildren: 0.1,
+      delayChildren: 0.3,
     },
   },
 };
+
+const tags = ["Full-Stack", "Fintech", "SaaS", "Desktop Apps"];
+
+const marqueeItems = [
+  "Available for Work",
+  "8 Hackathon Wins",
+  "2× National Winner",
+  "560+ Solo Commits",
+  "Co-Founder @ Forgeweb",
+  "10,000+ Users Reached",
+  "385-Day GitHub Streak",
+];
 
 export default function Hero() {
   const handleScroll = (selector: string) => {
@@ -29,137 +41,318 @@ export default function Hero() {
   return (
     <section
       id="home"
-      className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-28 pb-16 bg-black"
+      className="relative min-h-screen flex flex-col overflow-hidden"
     >
-      {/* Subtle background grids */}
-      <div className="absolute inset-0 grid-pattern opacity-5 pointer-events-none" />
-      
-      {/* Background blurs */}
-      <div className="absolute top-1/4 left-1/4 w-[350px] h-[350px] bg-[#F97316]/5 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[#3B82F6]/5 rounded-full blur-[120px] pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto px-6 relative z-10 w-full">
-        <motion.div
-          className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center"
-          initial="initial"
-          animate="animate"
-          variants={staggerContainer}
-        >
-          {/* Left Column (Content - 7 cols) */}
-          <div className="lg:col-span-7 flex flex-col justify-center text-left">
-            {/* Availability Badge */}
-            <motion.div
-              variants={fadeInUp}
-              className="mb-6 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.02] border border-white/10 w-fit"
+      {/* Masthead Strip */}
+      <motion.div
+        className="pt-24 pb-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8, delay: 0.5 }}
+      >
+        <div className="container-editorial max-w-6xl">
+          <div
+            className="flex items-center justify-between py-3"
+            style={{
+              borderTop: "1px solid var(--color-border)",
+              borderBottom: "1px solid var(--color-border)",
+            }}
+          >
+            <span
+              className="tracking-[0.25em] uppercase"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.625rem",
+                color: "var(--color-text-muted)",
+                fontWeight: 600,
+              }}
             >
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-400" />
-              </span>
-              <span className="text-xs font-mono tracking-wider text-white/70 uppercase">
-                Available for new projects
-              </span>
-            </motion.div>
-
-            {/* Main Heading */}
-            <motion.h1
-              variants={fadeInUp}
-              className="text-4xl sm:text-5xl lg:text-6xl font-serif font-medium tracking-tight text-white mb-6 leading-[1.1]"
+              The Builder&apos;s Journal
+            </span>
+            <span
+              className="hidden sm:block tracking-[0.15em] uppercase"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.625rem",
+                color: "var(--color-text-muted)",
+              }}
             >
-              I build web applications <br />
-              that businesses run on.
-            </motion.h1>
-
-            {/* Subheading */}
-            <motion.p
-              variants={fadeInUp}
-              className="text-base sm:text-lg md:text-xl text-white/50 leading-relaxed font-sans max-w-xl mb-8"
+              Vol. 03 · Issue 01
+            </span>
+            <span
+              className="tracking-[0.15em] uppercase"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.625rem",
+                color: "var(--color-text-muted)",
+              }}
             >
-              Full-stack developer specializing in production-ready web applications, e-commerce platforms, SaaS products, and custom business software.
-            </motion.p>
+              July 2026
+            </span>
+          </div>
+        </div>
+      </motion.div>
 
-            {/* CTAs */}
-            <motion.div
-              variants={fadeInUp}
-              className="flex flex-col sm:flex-row items-center gap-4 mb-12 w-fit"
-            >
-              <button
-                onClick={() => handleScroll("#work")}
-                className="group relative inline-flex items-center justify-center px-6 py-3 rounded-xl bg-[#F97316] text-black font-semibold text-sm hover:bg-[#FEF3C7] transition-all w-full sm:w-auto cursor-pointer"
+      {/* Main Hero Area */}
+      <div className="flex-1 flex items-center">
+        <div className="container-editorial max-w-6xl w-full py-12 lg:py-20">
+          <motion.div
+            className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start"
+            initial="initial"
+            animate="animate"
+            variants={staggerContainer}
+          >
+            {/* Left Column (Content - 7 cols) */}
+            <div className="lg:col-span-7 flex flex-col justify-center">
+              {/* Chapter marker */}
+              <motion.div variants={fadeInUp} className="chapter-marker mb-8">
+                <span>Chapter One</span>
+              </motion.div>
+
+              {/* Main Heading */}
+              <motion.h1
+                variants={fadeInUp}
+                className="mb-8"
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontWeight: 900,
+                  fontSize: "clamp(3rem, 7vw, 6.5rem)",
+                  lineHeight: 1.05,
+                  letterSpacing: "-0.03em",
+                  color: "var(--color-text-primary)",
+                }}
               >
-                <span>View My Work</span>
-                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
-              </button>
+                Building
+                <br />
+                things that
+                <br />
+                <span className="text-highlight">work.</span>
+              </motion.h1>
 
-              <button
-                onClick={() => handleScroll("#contact")}
-                className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white/[0.04] border border-white/10 hover:border-white/20 text-white font-semibold text-sm transition-all w-full sm:w-auto cursor-pointer"
+              {/* Subheading */}
+              <motion.p
+                variants={fadeInUp}
+                className="max-w-lg mb-6"
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "1.1875rem",
+                  lineHeight: 1.7,
+                  color: "var(--color-text-secondary)",
+                }}
               >
-                <Mail className="w-4 h-4 mr-2" />
-                <span>Start a Project</span>
-              </button>
-            </motion.div>
+                I&apos;m Sunil — a full-stack developer building fintech
+                platforms, SaaS products, and desktop applications from a small
+                town in India.
+              </motion.p>
 
-            {/* Industry Strip */}
-            <motion.div
-              variants={fadeInUp}
-              className="border-t border-white/10 pt-6 flex flex-col gap-2"
-            >
-              <span className="text-[10px] font-mono text-white/30 uppercase tracking-[0.2em]">
-                Trusted by businesses across India
-              </span>
-              <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs font-mono text-white/60">
-                {["Fintech", "Restaurants", "Education", "Real Estate", "Retail"].map((ind, i) => (
-                  <span key={ind} className="flex items-center gap-1.5">
-                    {i > 0 && <span className="text-white/20">·</span>}
-                    {ind}
+              {/* Handwritten note */}
+              <motion.p
+                variants={fadeInUp}
+                className="mb-8"
+                style={{
+                  fontFamily: "var(--font-handwritten)",
+                  fontSize: "1.25rem",
+                  color: "var(--color-accent)",
+                }}
+              >
+                Currently: 3rd year CSE · Co-founder @ Forgeweb
+              </motion.p>
+
+              {/* Tags */}
+              <motion.div
+                variants={fadeInUp}
+                className="flex flex-wrap gap-2 mb-8"
+              >
+                {tags.map((tag) => (
+                  <span key={tag} className="tag">
+                    {tag}
                   </span>
                 ))}
-              </div>
-            </motion.div>
-          </div>
+              </motion.div>
 
-          {/* Right Column (Visual Card - 5 cols) */}
-          <div className="lg:col-span-5 flex justify-center lg:justify-end w-full">
+              {/* CTAs */}
+              <motion.div
+                variants={fadeInUp}
+                className="flex flex-wrap gap-3"
+              >
+                <button
+                  onClick={() => handleScroll("#about")}
+                  className="btn-primary"
+                >
+                  Read My Story
+                  <span aria-hidden="true">→</span>
+                </button>
+                <button
+                  onClick={() => handleScroll("#contact")}
+                  className="btn-secondary"
+                >
+                  Get In Touch
+                </button>
+              </motion.div>
+            </div>
+
             <motion.div
+              className="lg:col-span-5 flex flex-col items-center lg:items-center gap-8"
               variants={fadeInUp}
-              className="relative p-5 rounded-3xl bg-white/[0.015] border border-white/10 max-w-[340px] w-full group overflow-hidden shadow-2xl"
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-[#F97316]/5 rounded-full blur-[40px] pointer-events-none" />
-              
-              {/* Photo */}
-              <div className="relative aspect-square w-full rounded-2xl overflow-hidden border border-white/10 bg-zinc-950 mb-4">
-                <Image
-                  src="/personal/profile.jpg"
-                  alt="Sunil Baghel"
-                  fill
-                  className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.03]"
-                  sizes="(max-width: 768px) 100vw, 25vw"
-                  priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+              {/* Polaroid Photo */}
+              <div className="polaroid relative max-w-[280px] w-full">
+                <div className="polaroid-tape" />
+                <div className="relative aspect-[4/5] w-full overflow-hidden">
+                  <Image
+                    src="/personal/profile.png"
+                    alt="Sunil Baghel"
+                    fill
+                    className="object-cover object-top"
+                    sizes="(max-width: 768px) 70vw, 280px"
+                    priority
+                  />
+                </div>
+                <p
+                  className="mt-2 text-center"
+                  style={{
+                    fontFamily: "var(--font-handwritten)",
+                    fontSize: "1rem",
+                    color: "var(--color-text-muted)",
+                  }}
+                >
+                  That&apos;s me, 3rd year CSE
+                </p>
               </div>
 
-              {/* Bio Card Detail */}
-              <div className="space-y-1">
-                <h3 className="text-lg font-serif font-medium text-white leading-tight">
-                  Sunil Baghel
-                </h3>
-                <p className="text-xs font-mono text-[#F97316]">
-                  Co-Founder @ Forgeweb
-                </p>
-                <div className="w-full h-px bg-white/5 my-2" />
-                <p className="text-[10px] font-mono text-white/40 uppercase tracking-widest leading-relaxed">
-                  Based in India <br /> Available Worldwide
-                </p>
+              {/* Metadata Card */}
+              <div
+                className="w-full max-w-[280px] text-left"
+                style={{
+                  background: "var(--color-surface)",
+                  border: "1px solid var(--color-border-light)",
+                  borderRadius: "var(--radius-lg)",
+                  padding: "1.25rem",
+                }}
+              >
+                {/* Currently Building */}
+                <div className="mb-4">
+                  <p
+                    className="mb-1"
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "0.625rem",
+                      letterSpacing: "0.15em",
+                      textTransform: "uppercase",
+                      color: "var(--color-text-muted)",
+                    }}
+                  >
+                    Currently Building
+                  </p>
+                  <p
+                    style={{
+                      fontFamily: "var(--font-sans)",
+                      fontSize: "0.875rem",
+                      fontWeight: 500,
+                      color: "var(--color-text-primary)",
+                    }}
+                  >
+                    PayDeskNow — B2B Fintech Platform
+                  </p>
+                </div>
+
+                <div
+                  className="mb-4"
+                  style={{
+                    borderTop: "1px solid var(--color-border-light)",
+                    paddingTop: "0.75rem",
+                  }}
+                >
+                  <p
+                    className="mb-1"
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "0.625rem",
+                      letterSpacing: "0.15em",
+                      textTransform: "uppercase",
+                      color: "var(--color-text-muted)",
+                    }}
+                  >
+                    Status
+                  </p>
+                  <p
+                    className="flex items-center gap-2"
+                    style={{
+                      fontFamily: "var(--font-sans)",
+                      fontSize: "0.875rem",
+                      color: "var(--color-green)",
+                      fontWeight: 500,
+                    }}
+                  >
+                    <span className="inline-block w-2 h-2 rounded-full bg-green-500" />
+                    Available for opportunities
+                  </p>
+                </div>
+
+                <div
+                  style={{
+                    borderTop: "1px solid var(--color-border-light)",
+                    paddingTop: "0.75rem",
+                  }}
+                >
+                  <p
+                    className="mb-1"
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "0.625rem",
+                      letterSpacing: "0.15em",
+                      textTransform: "uppercase",
+                      color: "var(--color-text-muted)",
+                    }}
+                  >
+                    Location
+                  </p>
+                  <p
+                    style={{
+                      fontFamily: "var(--font-sans)",
+                      fontSize: "0.875rem",
+                      color: "var(--color-text-secondary)",
+                    }}
+                  >
+                    India · Working globally
+                  </p>
+                </div>
               </div>
             </motion.div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
 
-      {/* Bottom gradient fade */}
-      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none" />
+      {/* Bottom Marquee Ticker */}
+      <div
+        className="py-4"
+        style={{
+          borderTop: "1px solid var(--color-border)",
+          borderBottom: "1px solid var(--color-border)",
+        }}
+      >
+        <Marquee speed={25}>
+          <div className="flex items-center gap-8 px-4">
+            {marqueeItems.map((item) => (
+              <span
+                key={item}
+                className="flex items-center gap-3 whitespace-nowrap"
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "0.75rem",
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: "var(--color-text-secondary)",
+                  fontWeight: 500,
+                }}
+              >
+                <span style={{ color: "var(--color-accent)" }}>●</span>
+                {item}
+              </span>
+            ))}
+          </div>
+        </Marquee>
+      </div>
     </section>
   );
 }

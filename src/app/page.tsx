@@ -1,52 +1,58 @@
 import Hero from "@/components/sections/Hero";
-import MetricsBar from "@/components/sections/MetricsBar";
 import LazySection from "@/components/providers/LazySection";
 import {
-  DynamicFeaturedProjects,
-  DynamicServices,
-  DynamicProcess,
+  DynamicTrustBar,
   DynamicAboutSection,
-  DynamicTestimonials,
+  DynamicJourneyTimeline,
+  DynamicFeaturedProjects,
+  DynamicHackathonShowcase,
+  DynamicSkillsNotebook,
+  DynamicGitHubStats,
   DynamicContactSection,
-  DynamicSkillsPreview,
-  DynamicCallToAction,
 } from "@/components/providers/DynamicImports";
 
 export default function Home() {
   return (
     <>
-      {/* Hero loads immediately - it's above the fold */}
+      {/* 1. Hero — The Cover Page */}
       <Hero />
 
-      {/* Metrics Bar - Credibility strip */}
-      <MetricsBar />
-
-      {/* Featured Projects - Portfolio showcase */}
+      {/* 2. Trust Bar — Featured Achievements */}
       <LazySection>
-        <DynamicFeaturedProjects />
+        <DynamicTrustBar />
       </LazySection>
 
-      {/* Services - What I Build */}
-      <LazySection>
-        <DynamicServices />
-      </LazySection>
-
-      {/* Process - How I Work */}
-      <LazySection>
-        <DynamicProcess />
-      </LazySection>
-
-      {/* About - Core Profile */}
+      {/* 3. About — The Opening Chapter */}
       <LazySection>
         <DynamicAboutSection />
       </LazySection>
 
-      {/* Testimonials - Client Feedback */}
+      {/* 4. Journey — The Chapters */}
       <LazySection>
-        <DynamicTestimonials />
+        <DynamicJourneyTimeline />
       </LazySection>
 
-      {/* Contact - Lead Generation Form */}
+      {/* 5. Projects — Selected Works */}
+      <LazySection>
+        <DynamicFeaturedProjects />
+      </LazySection>
+
+      {/* 6. Hackathons — The Trophies */}
+      <LazySection>
+        <DynamicHackathonShowcase />
+      </LazySection>
+
+      {/* 7. Skills — The Toolkit */}
+      <LazySection>
+        <DynamicSkillsNotebook />
+      </LazySection>
+
+      {/* 8. GitHub — Proof of Work */}
+      <LazySection>
+        <DynamicGitHubStats />
+      </LazySection>
+
+      {/* 9. Contact — Let's Talk */}
       <LazySection>
         <DynamicContactSection />
       </LazySection>

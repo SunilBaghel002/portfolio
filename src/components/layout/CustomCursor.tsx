@@ -1,145 +1,86 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
+import { useEffect, useState, useCallback } from "react";
+import { motion, useSpring } from "framer-motion";
 
 export default function CustomCursor() {
-  const [hoverState, setHoverState] = useState<"none" | "link" | "project" | "text">("none");
-  const [isClicking, setIsClicking] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [isMobile, setIsMobile] = useState(true);
+  const [isHovering, setIsHovering] = useState(false);
 
-  // Motion values for instant tracking
-  const mouseX = useMotionValue(-100);
-  const mouseY = useMotionValue(-100);
+  // Smooth springs for trailing effect
+  const cursorX = useSpring(0, { stiffness: 450, damping: 30 });
+  const cursorY = useSpring(0, { stiffness: 450, damping: 30 });
 
-  // Smooth springs for outer ring follow lag
-  const springConfig = { damping: 30, stiffness: 350, mass: 0.8 };
-  const ringX = useSpring(mouseX, springConfig);
-  const ringY = useSpring(mouseY, springConfig);
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      cursorX.set(e.clientX);
+      cursorY.set(e.clientY);
+      if (!isVisible) setIsVisible(true);
+    },
+    [cursorX, cursorY, isVisible]
+  );
+
+  const handleMouseLeave = useCallback(() => {
+    setIsVisible(false);
+  }, []);
+
+  const handleMouseEnter = useCallback(() => {
+    setIsVisible(true);
+  }, []);
 
   useEffect(() => {
-    // Detect touch device
-    const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
-    setIsMobile(isTouch);
-    
-    if (isTouch) {
-      document.body.style.cursor = "auto";
-      return;
-    }
-
-    // Hide default cursor
-    document.body.style.cursor = "none";
-
-    const handleMouseMove = (e: MouseEvent) => {
-      mouseX.set(e.clientX);
-      mouseY.set(e.clientY);
-      
-      if (!isVisible) setIsVisible(true);
-
-      const target = e.target as HTMLElement;
-      if (!target) return;
-
-      const isLink = !!target.closest("a");
-      const isButton = !!target.closest("button, [role='button']");
-      const isProject = !!target.closest("[data-cursor='project']");
-      const isTextInput = !!target.closest("input, textarea, [contenteditable='true']");
-
-      if (isProject) {
-        setHoverState("project");
-      } else if (isLink || isButton) {
-        setHoverState("link");
-      } else if (isTextInput) {
-        setHoverState("text");
-      } else {
-        setHoverState("none");
-      }
-    };
-
-    const handleMouseDown = () => setIsClicking(true);
-    const handleMouseUp = () => setIsClicking(false);
-    const handleMouseLeave = () => setIsVisible(false);
-    const handleMouseEnter = () => setIsVisible(true);
-
-    window.addEventListener("mousemove", handleMouseMove, { passive: true });
-    window.addEventListener("mousedown", handleMouseDown, { passive: true });
-    window.addEventListener("mouseup", handleMouseUp, { passive: true });
-    document.addEventListener("mouseleave", handleMouseLeave, { passive: true });
-    document.addEventListener("mouseenter", handleMouseEnter, { passive: true });
+    window.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseleave", handleMouseLeave);
+    document.addEventListener("mouseenter", handleMouseEnter);
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mousedown", handleMouseDown);
-      window.removeEventListener("mouseup", handleMouseUp);
       document.removeEventListener("mouseleave", handleMouseLeave);
       document.removeEventListener("mouseenter", handleMouseEnter);
-      document.body.style.cursor = "auto";
     };
-  }, [mouseX, mouseY, isVisible]);
+  }, [handleMouseMove, handleMouseLeave, handleMouseEnter]);
 
-  if (isMobile) return null;
+  // Track hoverable elements to animate expansion
+  useEffect(() => {
+    const handleElementHover = () => {
+      const interactiveElements = document.querySelectorAll(
+        "a, button, [role='button'], .cursor-pointer, input, textarea, select"
+      );
+
+      interactiveElements.forEach((el) => {
+        el.addEventListener("mouseenter", () => setIsHovering(true));
+        el.addEventListener("mouseleave", () => setIsHovering(false));
+      });
+    };
+
+    const timer = setTimeout(handleElementHover, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!isVisible) return null;
 
   return (
-    <>
-      {/* Suppress default cursor for desktop */}
-      <style jsx global>{`
-        @media (min-width: 1024px) {
-          *, *::before, *::after {
-            cursor: none !important;
-          }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .custom-cursor-element {
-            display: none !important;
-          }
-          *, *::before, *::after {
-            cursor: auto !important;
-          }
-        }
-      `}</style>
-
-      {/* Inner Dot */}
+    <motion.div
+      className="pointer-events-none fixed top-0 left-0 z-[9999] hidden md:block"
+      style={{
+        x: cursorX,
+        y: cursorY,
+        translateX: "-50%",
+        translateY: "-50%",
+      }}
+    >
       <motion.div
-        className="custom-cursor-element fixed top-0 left-0 w-2 h-2 rounded-full bg-white pointer-events-none z-[9999] -translate-x-1/2 -translate-y-1/2 shadow-[0_0_8px_rgba(255,255,255,0.4)]"
+        className="rounded-full"
         style={{
-          x: mouseX,
-          y: mouseY,
-          scale: isClicking ? 0.6 : hoverState === "link" ? 1.5 : hoverState === "project" ? 0 : 1,
-          opacity: isVisible && hoverState !== "text" ? 1 : 0,
+          border: "1px solid var(--color-accent)",
+          background: "rgba(193, 68, 14, 0.05)",
         }}
-        transition={{ type: "spring", stiffness: 600, damping: 30 }}
+        animate={{
+          width: isHovering ? 32 : 18,
+          height: isHovering ? 32 : 18,
+        }}
+        transition={{ type: "spring", stiffness: 500, damping: 28 }}
       />
-
-      {/* Outer Ring */}
-      <motion.div
-        className="custom-cursor-element fixed top-0 left-0 rounded-full border border-white/40 pointer-events-none z-[9998] -translate-x-1/2 -translate-y-1/2 flex items-center justify-center overflow-hidden"
-        style={{
-          x: ringX,
-          y: ringY,
-          width: hoverState === "project" ? 80 : hoverState === "link" ? 48 : hoverState === "text" ? 2 : 32,
-          height: hoverState === "project" ? 80 : hoverState === "link" ? 48 : hoverState === "text" ? 24 : 32,
-          borderRadius: hoverState === "text" ? "1px" : "9999px",
-          backgroundColor: hoverState === "link" ? "rgba(249, 115, 22, 0.08)" : "rgba(255, 255, 255, 0)",
-          borderColor: hoverState === "link" ? "#F97316" : hoverState === "project" ? "#F97316" : hoverState === "text" ? "rgba(255,255,255,0.8)" : "rgba(255, 255, 255, 0.4)",
-          scale: isClicking ? 0.9 : 1,
-          opacity: isVisible ? 1 : 0,
-        }}
-        transition={{ type: "spring", stiffness: 350, damping: 25 }}
-      >
-        <AnimatePresence>
-          {hoverState === "project" && (
-            <motion.span
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.15 }}
-              className="text-[10px] font-mono font-bold text-[#F97316] whitespace-nowrap"
-            >
-              VIEW →
-            </motion.span>
-          )}
-        </AnimatePresence>
-      </motion.div>
-    </>
+    </motion.div>
   );
 }

@@ -1,9 +1,5 @@
-import Projects from "@/components/sections/Projects";
+import { redirect } from "next/navigation";
 
 export default function ProjectsPage() {
-  return (
-    <div className="min-h-screen pt-32">
-      <Projects />
-    </div>
-  );
+  redirect("/#work");
 }

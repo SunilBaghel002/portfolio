@@ -1,15 +1,25 @@
-// app/loading.tsx
+"use client";
+
 export default function Loading() {
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
-            <div className="flex flex-col items-center gap-4">
-                {/* Animated Logo or Spinner */}
-                <div className="relative w-16 h-16">
-                    <div className="absolute inset-0 border-2 border-[#00f0ff]/20 rounded-full" />
-                    <div className="absolute inset-0 border-2 border-transparent border-t-[#00f0ff] rounded-full animate-spin" />
-                </div>
-                <p className="text-white/50 text-sm font-mono">Loading...</p>
-            </div>
-        </div>
-    );
+  return (
+    <div
+      className="min-h-screen flex items-center justify-center"
+      style={{ background: "var(--color-background)" }}
+    >
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-8 h-8 border-2 border-[#C1440E]/30 border-t-[#C1440E] rounded-full animate-spin" />
+        <p
+          style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: "0.6875rem",
+            letterSpacing: "0.15em",
+            textTransform: "uppercase",
+            color: "var(--color-text-muted)",
+          }}
+        >
+          Loading...
+        </p>
+      </div>
+    </div>
+  );
 }

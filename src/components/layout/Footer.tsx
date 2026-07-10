@@ -1,74 +1,106 @@
-"use client";
-
-import Link from "next/link";
-import { Github, Linkedin, Globe } from "lucide-react";
-import { portfolioData } from "@/lib/data";
 import Monogram from "@/components/ui/Monogram";
 
 export default function Footer() {
+  const currentYear = new Date().getFullYear();
+  const lastUpdated = new Date().toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+
   return (
-    <footer className="relative border-t border-white/5 bg-black py-12">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-          
-          {/* Left: Copyright */}
+    <footer
+      className="relative"
+      style={{ background: "var(--color-background)" }}
+    >
+      {/* Double line divider */}
+      <div className="container-editorial">
+        <div className="divider-double" />
+      </div>
+
+      {/* Main footer content */}
+      <div className="container-editorial py-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+          {/* Left */}
           <div className="text-center md:text-left">
-            <p className="text-sm font-sans text-white/40">
-              &copy; {new Date().getFullYear()} Sunil Baghel. All rights reserved.
-            </p>
-            <p className="text-xs font-mono text-white/30 mt-1 uppercase tracking-wider">
-              Building at Forgeweb
-            </p>
-          </div>
-
-          {/* Center: Monogram Logo */}
-          <div className="flex items-center justify-center">
-            <Link href="/#home" className="group flex items-center justify-center">
-              <Monogram size="sm" />
-            </Link>
-          </div>
-
-          {/* Right: forgeweb.in & socials */}
-          <div className="flex flex-col items-center md:items-end gap-3">
-            <div className="flex items-center gap-4">
-              <a
-                href="https://www.linkedin.com/in/sunil-baghel-140a60348/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/40 hover:text-[#F97316] transition-colors"
-                aria-label="LinkedIn"
-              >
-                <Linkedin className="w-4 h-4" />
-              </a>
-              <a
-                href="https://github.com/SunilBaghel002"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/40 hover:text-[#F97316] transition-colors"
-                aria-label="GitHub"
-              >
-                <Github className="w-4 h-4" />
-              </a>
-              <a
-                href="https://www.forgeweb.in/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/40 hover:text-[#F97316] transition-colors"
-                aria-label="Forgeweb Website"
-              >
-                <Globe className="w-4 h-4" />
-              </a>
-            </div>
-            <a
-              href="https://www.forgeweb.in/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs font-mono text-white/50 hover:text-white transition-colors uppercase tracking-wider"
+            <p
+              className="text-xs font-bold tracking-[0.2em] uppercase mb-1"
+              style={{
+                fontFamily: "var(--font-mono)",
+                color: "var(--color-text-primary)",
+              }}
             >
-              forgeweb.in
-            </a>
+              The Builder&apos;s Journal
+            </p>
+            <p
+              className="text-xs"
+              style={{
+                fontFamily: "var(--font-mono)",
+                color: "var(--color-text-muted)",
+                letterSpacing: "0.05em",
+              }}
+            >
+              © {currentYear} Sunil Baghel
+            </p>
           </div>
 
+          {/* Center - Monogram */}
+          <div className="flex justify-center">
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center"
+              style={{
+                border: "1.5px solid var(--color-border)",
+              }}
+            >
+              <Monogram size={30} className="text-[#1A1A1A]" bgCutoutColor="#F5F1EA" />
+            </div>
+          </div>
+
+          {/* Right */}
+          <div className="text-center md:text-right">
+            <p
+              className="text-xs mb-1"
+              style={{
+                fontFamily: "var(--font-sans)",
+                color: "var(--color-text-secondary)",
+              }}
+            >
+              Made with ❤️ in India
+            </p>
+            <p
+              className="text-xs"
+              style={{
+                fontFamily: "var(--font-sans)",
+                color: "var(--color-text-muted)",
+              }}
+            >
+              Built with Next.js + coffee
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom bar */}
+      <div
+        className="py-4"
+        style={{
+          borderTop: "1px solid var(--color-border-light)",
+        }}
+      >
+        <div className="container-editorial">
+          <p
+            className="text-center"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.625rem",
+              letterSpacing: "0.08em",
+              color: "var(--color-text-muted)",
+              textTransform: "uppercase",
+            }}
+          >
+            volume 03 · issue 01 · july 2026 · last updated: {lastUpdated} ·
+            built for humans, not algorithms
+          </p>
         </div>
       </div>
     </footer>

@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { GitBranch, Star, Activity, Flame, Calendar, BookOpen } from "lucide-react";
-import { ScrollReveal } from "../animations/ScrollReveal";
+import CountUp from "@/components/animations/CountUp";
 
 interface GitHubData {
   user: {
@@ -24,7 +23,7 @@ interface GitHubData {
   events: Array<{
     type: string;
     repo: { name: string };
-    payload: any;
+    payload: Record<string, unknown>;
     created_at: string;
   }>;
   contributions: {
@@ -48,391 +47,376 @@ function formatRelativeTime(dateStr: string) {
   const diffHours = Math.floor(diffMins / 60);
   const diffDays = Math.floor(diffHours / 24);
 
-  if (diffMins < 1) return "Just now";
   if (diffMins < 60) return `${diffMins}m ago`;
   if (diffHours < 24) return `${diffHours}h ago`;
-  return `${diffDays}d ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return `${Math.floor(diffDays / 7)}w ago`;
 }
 
-function getCommitMessage(event: any) {
-  if (event.type === "PushEvent" && event.payload?.commits?.[0]) {
-    return event.payload.commits[0].message;
-  }
-  if (event.type === "PullRequestEvent" && event.payload?.pull_request) {
-    return `${event.payload.action === "opened" ? "Opened PR" : "Merged PR"}: ${event.payload.pull_request.title}`;
-  }
-  return "Active on repository";
-}
+const languageColors: Record<string, string> = {
+  JavaScript: "#C1440E",
+  TypeScript: "#2A5F3E",
+  HTML: "#E8C547",
+  CSS: "#6B2E5F",
+  EJS: "#8B8578",
+  Python: "#C1440E",
+};
 
 export default function GitHubStats() {
   const [data, setData] = useState<GitHubData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
 
   useEffect(() => {
-    async function fetchStats() {
-      try {
-        const response = await fetch("/api/github/stats");
-        if (!response.ok) throw new Error("Failed to fetch");
-        const json = await response.ok ? await response.json() : null;
-        if (json) {
-          setData(json);
-        } else {
-          throw new Error("No data returned");
-        }
-      } catch (e) {
-        console.error("Failed to load GitHub stats:", e);
-        setError(true);
-      } finally {
+    fetch("/api/github/stats")
+      .then((res) => res.json())
+      .then((d) => {
+        setData(d);
         setLoading(false);
-      }
-    }
-    fetchStats();
+      })
+      .catch(() => setLoading(false));
   }, []);
 
-  if (loading) {
-    return (
-      <div className="py-24 max-w-7xl mx-auto px-6 animate-pulse">
-        <div className="h-6 w-32 bg-white/10 rounded mb-4" />
-        <div className="h-12 w-64 bg-white/10 rounded mb-8" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-32 bg-white/5 rounded-2xl border border-white/10" />
-          ))}
-        </div>
-      </div>
-    );
-  }
+  // Calculate language stats
+  const languageStats = data?.repos
+    ? (() => {
+        const langSizes: Record<string, number> = {};
+        let total = 0;
+        data.repos.forEach((repo) => {
+          if (repo.language) {
+            langSizes[repo.language] = (langSizes[repo.language] || 0) + repo.size;
+            total += repo.size;
+          }
+        });
+        return Object.entries(langSizes)
+          .map(([lang, size]) => ({
+            language: lang,
+            percentage: total > 0 ? (size / total) * 100 : 0,
+          }))
+          .sort((a, b) => b.percentage - a.percentage)
+          .slice(0, 5);
+      })()
+    : [];
 
-  // Fallback if data is null (shouldn't happen since API has fallback, but safe check)
-  const statsData = data || {
-    streak: 385,
-    contributions: { totalContributions: 2680, weeks: [] },
-    repos: [],
-    events: [],
-    user: { public_repos: 28, html_url: "https://github.com/SunilBaghel002" }
+  // Get contribution levels for heatmap
+  const getContributionLevel = (count: number) => {
+    if (count === 0) return 0;
+    if (count <= 2) return 1;
+    if (count <= 4) return 2;
+    if (count <= 6) return 3;
+    return 4;
   };
 
-  // Calculate stats
-  const totalStars = statsData.repos.reduce((acc, curr) => acc + (curr.stargazers_count || 0), 0) + 12; // Base offset for accuracy
-  const totalPRs = 89; // Outlined in prompt
-  const reposContributed = statsData.user.public_repos;
-  
-  // Calculate language distribution
-  const languageStats: Record<string, number> = {};
-  let totalSize = 0;
-  statsData.repos.forEach(repo => {
-    if (repo.language && repo.size) {
-      languageStats[repo.language] = (languageStats[repo.language] || 0) + repo.size;
-      totalSize += repo.size;
-    }
-  });
+  // Get recent repos from events
+  const recentRepos = data?.events
+    ? (() => {
+        const seen = new Set<string>();
+        return data.events
+          .filter((e) => e.type === "PushEvent")
+          .filter((e) => {
+            const name = e.repo.name.split("/")[1];
+            if (seen.has(name)) return false;
+            seen.add(name);
+            return true;
+          })
+          .slice(0, 3)
+          .map((e) => ({
+            name: e.repo.name.split("/")[1],
+            lastCommit: formatRelativeTime(e.created_at),
+          }));
+      })()
+    : [];
 
-  const languages = Object.entries(languageStats)
-    .map(([name, size]) => ({
-      name,
-      percentage: totalSize > 0 ? Math.round((size / totalSize) * 100) : 0
-    }))
-    .sort((a, b) => b.percentage - a.percentage)
-    .slice(0, 6);
-
-  // Check coding today
-  const hasCodingToday = statsData.events.some(e => {
-    const eventDate = new Date(e.created_at).toDateString();
-    const today = new Date().toDateString();
-    return eventDate === today;
-  });
-
-  // Flat array of calendar days for Heatmap rendering
-  const calendarWeeks = statsData.contributions?.weeks || [];
-  
   return (
-    <section className="py-24 md:py-32 relative overflow-hidden bg-black text-white border-t border-white/5">
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        
-        {/* Header */}
-        <div className="mb-16 text-left">
-          <ScrollReveal>
-            <span className="text-[#F97316] text-xs font-mono font-bold uppercase tracking-[0.2em] mb-4 block">
-              Proof of Work
-            </span>
-          </ScrollReveal>
-          <ScrollReveal delay={0.1}>
-            <h2 className="text-4xl md:text-6xl font-serif font-medium tracking-tight text-white mb-4">
-              I&apos;m building in public.
-            </h2>
-          </ScrollReveal>
-          <ScrollReveal delay={0.2}>
-            <p className="text-sm md:text-base text-white/50 font-mono">
-              Live stats from my GitHub — updated in real time.
-            </p>
-          </ScrollReveal>
-        </div>
+    <section className="section-padding">
+      <div className="container-editorial">
+        {/* Chapter marker */}
+        <motion.div
+          className="chapter-marker mb-8"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+        >
+          <span>Chapter 07 — Proof of Work</span>
+        </motion.div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-          
-          {/* Card 1: Streak */}
-          <motion.div 
-            className="p-6 rounded-2xl bg-white/[0.02] border border-white/10 hover:border-[#F97316]/30 transition-all duration-300 flex flex-col justify-between"
-            whileHover={{ y: -4 }}
-          >
-            <div>
-              <Flame className="w-5 h-5 text-[#F97316] mb-4" />
-              <span className="text-xs uppercase font-mono tracking-wider text-white/40 block">Day Streak</span>
-            </div>
-            <div className="mt-4">
-              <span className="text-4xl font-serif font-medium text-white">{statsData.streak}</span>
-              <span className="text-xs text-white/50 block mt-1">(as of today)</span>
-            </div>
-          </motion.div>
+        {/* Heading */}
+        <motion.h2
+          className="text-h1 mb-3"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          The receipts.
+        </motion.h2>
 
-          {/* Card 2: Contributions */}
-          <motion.div 
-            className="p-6 rounded-2xl bg-white/[0.02] border border-white/10 hover:border-[#F97316]/30 transition-all duration-300 flex flex-col justify-between"
-            whileHover={{ y: -4 }}
-          >
-            <div>
-              <Calendar className="w-5 h-5 text-[#FEF3C7] mb-4" />
-              <span className="text-xs uppercase font-mono tracking-wider text-white/40 block">Contributions</span>
-            </div>
-            <div className="mt-4">
-              <span className="text-4xl font-serif font-medium text-white">{statsData.contributions.totalContributions.toLocaleString()}</span>
-              <span className="text-xs text-white/50 block mt-1">(last year)</span>
-            </div>
-          </motion.div>
+        <motion.p
+          className="mb-16"
+          style={{
+            fontFamily: "var(--font-body)",
+            fontStyle: "italic",
+            fontSize: "1.125rem",
+            color: "var(--color-text-muted)",
+          }}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.1 }}
+        >
+          Live from GitHub. Because talk is cheap.
+        </motion.p>
 
-          {/* Card 3: Stars Earned */}
-          <motion.div 
-            className="p-6 rounded-2xl bg-white/[0.02] border border-white/10 hover:border-[#F97316]/30 transition-all duration-300 flex flex-col justify-between"
-            whileHover={{ y: -4 }}
-          >
-            <div>
-              <Star className="w-5 h-5 text-yellow-500 mb-4" />
-              <span className="text-xs uppercase font-mono tracking-wider text-white/40 block">Stars Earned</span>
-            </div>
-            <div className="mt-4">
-              <span className="text-4xl font-serif font-medium text-white">{totalStars}</span>
-              <span className="text-xs text-white/50 block mt-1">(all-time)</span>
-            </div>
-          </motion.div>
-
-          {/* Card 4: Pull Requests */}
-          <motion.div 
-            className="p-6 rounded-2xl bg-white/[0.02] border border-white/10 hover:border-[#F97316]/30 transition-all duration-300 flex flex-col justify-between"
-            whileHover={{ y: -4 }}
-          >
-            <div>
-              <GitBranch className="w-5 h-5 text-[#FEF3C7] mb-4" />
-              <span className="text-xs uppercase font-mono tracking-wider text-white/40 block">Pull Requests</span>
-            </div>
-            <div className="mt-4">
-              <span className="text-4xl font-serif font-medium text-white">{totalPRs}</span>
-              <span className="text-xs text-white/50 block mt-1">(all time contributions)</span>
-            </div>
-          </motion.div>
-
-          {/* Card 5: Repos Contributed */}
-          <motion.div 
-            className="p-6 rounded-2xl bg-white/[0.02] border border-white/10 hover:border-[#F97316]/30 transition-all duration-300 flex flex-col justify-between"
-            whileHover={{ y: -4 }}
-          >
-            <div>
-              <BookOpen className="w-5 h-5 text-[#F97316] mb-4" />
-              <span className="text-xs uppercase font-mono tracking-wider text-white/40 block">Repos Contributed</span>
-            </div>
-            <div className="mt-4">
-              <span className="text-4xl font-serif font-medium text-white">{reposContributed}</span>
-              <span className="text-xs text-white/50 block mt-1">(total repositories)</span>
-            </div>
-          </motion.div>
-
-          {/* Card 6: Active Coding Today */}
-          <motion.div 
-            className="p-6 rounded-2xl bg-white/[0.02] border border-white/10 hover:border-[#F97316]/30 transition-all duration-300 flex flex-col justify-between"
-            whileHover={{ y: -4 }}
-          >
-            <div>
-              <Activity className="w-5 h-5 text-green-500 mb-4" />
-              <span className="text-xs uppercase font-mono tracking-wider text-white/40 block">Coding Today</span>
-            </div>
-            <div className="mt-4">
-              <div className="flex items-center gap-2">
-                <span className="relative flex h-3 w-3">
-                  <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${hasCodingToday ? "bg-green-400" : "bg-neutral-500"}`} />
-                  <span className={`relative inline-flex rounded-full h-3 w-3 ${hasCodingToday ? "bg-green-500" : "bg-neutral-500"}`} />
-                </span>
-                <span className="text-4xl font-serif font-medium text-white">
-                  {hasCodingToday ? "Active" : "Done"}
-                </span>
+        {/* Top Stats Row */}
+        <motion.div
+          className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2 }}
+        >
+          {[
+            { value: data?.streak || 385, label: "Day Streak" },
+            {
+              value: data?.contributions?.totalContributions || 2680,
+              label: "Contributions",
+            },
+            { value: data?.user?.public_repos || 28, label: "Repositories" },
+            { value: data?.user?.followers || 12, label: "Followers" },
+          ].map((stat) => (
+            <div
+              key={stat.label}
+              className="text-center p-6"
+              style={{
+                background: "var(--color-surface)",
+                border: "1px solid var(--color-border-light)",
+                borderRadius: "var(--radius-lg)",
+              }}
+            >
+              <div className="stat-number">
+                <CountUp end={stat.value} />
               </div>
-              <span className="text-xs text-white/50 block mt-1">
-                {hasCodingToday ? "Pushed commits within last 24h" : "No commits yet today"}
-              </span>
+              <p className="stat-label">{stat.label}</p>
             </div>
-          </motion.div>
+          ))}
+        </motion.div>
 
-        </div>
-
-        {/* Heatmap Contribution Section */}
-        <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/10 mb-16">
-          <h3 className="text-sm font-mono text-white/60 mb-6 uppercase tracking-wider">Contribution History</h3>
-          
-          {/* Scrollable Heatmap wrapper to prevent breaking layout on small viewports */}
-          <div className="overflow-x-auto pb-4 cursor-grab active:cursor-grabbing scrollbar-thin">
-            <div className="min-w-[760px] flex flex-col">
-              <div className="flex gap-[3px]">
-                {calendarWeeks.map((week, weekIdx) => (
-                  <div key={weekIdx} className="flex flex-col gap-[3px]">
-                    {week.contributionDays.map((day, dayIdx) => {
-                      const count = day.contributionCount;
-                      
-                      // Map count to color shades
-                      let colorClass = "bg-white/[0.03]";
-                      if (count > 0 && count <= 2) colorClass = "bg-[#F97316]/20";
-                      else if (count > 2 && count <= 4) colorClass = "bg-[#F97316]/40";
-                      else if (count > 4 && count <= 6) colorClass = "bg-[#F97316]/70";
-                      else if (count > 6) colorClass = "bg-[#F97316]";
-
-                      return (
-                        <div
-                          key={dayIdx}
-                          className={`w-[9.5px] h-[9.5px] rounded-[1.5px] ${colorClass} transition-colors hover:scale-125 duration-100 relative group`}
-                        >
-                          {/* Custom HTML tooltip */}
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-20 bg-zinc-900 border border-white/10 text-white text-[10px] py-1 px-2 rounded whitespace-nowrap shadow-xl">
-                            <strong>{count} contributions</strong> on {day.date}
-                          </div>
-                        </div>
-                      );
-                    })}
+        {/* Contribution Heatmap */}
+        {data?.contributions?.weeks && (
+          <motion.div
+            className="mb-16"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+          >
+            <h3
+              className="mb-6"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.6875rem",
+                fontWeight: 700,
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                color: "var(--color-text-muted)",
+              }}
+            >
+              Contribution Activity
+            </h3>
+            <div
+              className="overflow-x-auto pb-2"
+              style={{
+                background: "var(--color-surface)",
+                border: "1px solid var(--color-border-light)",
+                borderRadius: "var(--radius-lg)",
+                padding: "1.5rem",
+              }}
+            >
+              <div className="flex gap-[3px]" style={{ minWidth: "700px" }}>
+                {data.contributions.weeks.slice(-52).map((week, wi) => (
+                  <div key={wi} className="flex flex-col gap-[3px]">
+                    {week.contributionDays.map((day, di) => (
+                      <div
+                        key={`${wi}-${di}`}
+                        className={`contribution-cell contribution-${getContributionLevel(day.contributionCount)}`}
+                        style={{
+                          width: "11px",
+                          height: "11px",
+                        }}
+                        title={`${day.date}: ${day.contributionCount} contributions`}
+                      />
+                    ))}
                   </div>
                 ))}
               </div>
+              {/* Legend */}
+              <div className="flex items-center gap-2 mt-4 justify-end">
+                <span
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.625rem",
+                    color: "var(--color-text-muted)",
+                  }}
+                >
+                  Less
+                </span>
+                {[0, 1, 2, 3, 4].map((level) => (
+                  <div
+                    key={level}
+                    className={`contribution-cell contribution-${level}`}
+                    style={{ width: "11px", height: "11px" }}
+                  />
+                ))}
+                <span
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.625rem",
+                    color: "var(--color-text-muted)",
+                  }}
+                >
+                  More
+                </span>
+              </div>
             </div>
-          </div>
+          </motion.div>
+        )}
 
-          {/* Heatmap Legend */}
-          <div className="flex justify-between items-center mt-4 text-[10px] font-mono text-white/40">
-            <span>Scroll horizontally to view full year</span>
-            <div className="flex items-center gap-1.5">
-              <span>Less</span>
-              <div className="w-2.5 h-2.5 rounded-[1px] bg-white/[0.03]" />
-              <div className="w-2.5 h-2.5 rounded-[1px] bg-[#F97316]/20" />
-              <div className="w-2.5 h-2.5 rounded-[1px] bg-[#F97316]/40" />
-              <div className="w-2.5 h-2.5 rounded-[1px] bg-[#F97316]/70" />
-              <div className="w-2.5 h-2.5 rounded-[1px] bg-[#F97316]" />
-              <span>More</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Lower Two Columns: Languages & Recent Events */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          
-          {/* Left Column: Languages (5 cols) */}
-          <div className="lg:col-span-5">
-            <h3 className="text-lg font-serif font-medium text-white mb-6 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#F97316]" />
+        {/* Bottom Row: Languages + Recent Repos */}
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Languages */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
+          >
+            <h3
+              className="mb-6"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.6875rem",
+                fontWeight: 700,
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                color: "var(--color-text-muted)",
+              }}
+            >
               Most Used Languages
             </h3>
-            <div className="space-y-4">
-              {languages.length > 0 ? (
-                languages.map((lang) => (
-                  <div key={lang.name} className="space-y-2">
-                    <div className="flex justify-between text-xs font-mono">
-                      <span className="text-white/80">{lang.name}</span>
-                      <span className="text-white/40">{lang.percentage}%</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-white/[0.04] rounded-full overflow-hidden border border-white/[0.02]">
-                      <motion.div
-                        className="h-full bg-gradient-to-r from-[#F97316] to-[#FEF3C7]"
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${lang.percentage}%` }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 1, ease: "easeOut" }}
-                      />
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="space-y-4">
-                  {/* Default Languages if repos sizes are empty */}
-                  {[
-                    { name: "JavaScript", percentage: 47 },
-                    { name: "TypeScript", percentage: 18 },
-                    { name: "HTML", percentage: 13 },
-                    { name: "CSS", percentage: 10 },
-                    { name: "EJS", percentage: 9 },
-                    { name: "Python", percentage: 2 }
-                  ].map((lang) => (
-                    <div key={lang.name} className="space-y-2">
-                      <div className="flex justify-between text-xs font-mono">
-                        <span className="text-white/80">{lang.name}</span>
-                        <span className="text-white/40">{lang.percentage}%</span>
-                      </div>
-                      <div className="h-1.5 w-full bg-white/[0.04] rounded-full overflow-hidden border border-white/[0.02]">
-                        <motion.div
-                          className="h-full bg-gradient-to-r from-[#F97316] to-[#FEF3C7]"
-                          initial={{ width: 0 }}
-                          whileInView={{ width: `${lang.percentage}%` }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 1, ease: "easeOut" }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Right Column: Recent Activity (7 cols) */}
-          <div className="lg:col-span-7">
-            <h3 className="text-lg font-serif font-medium text-white mb-6 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#FEF3C7]" />
-              Recent Activity
-            </h3>
-            <div className="space-y-4">
-              {statsData.events.length > 0 ? (
-                statsData.events.map((event, idx) => (
-                  <div 
-                    key={idx}
-                    className="p-4 rounded-xl bg-white/[0.01] border border-white/[0.04] flex justify-between items-start gap-4 hover:bg-white/[0.03] transition-colors"
-                  >
-                    <div className="space-y-1">
-                      <p className="text-sm font-sans font-medium text-white/90 leading-tight">
-                        {getCommitMessage(event)}
-                      </p>
-                      <p className="text-xs font-mono text-white/40">
-                        {event.repo.name.split("/")[1] || event.repo.name}
-                      </p>
-                    </div>
-                    <span className="text-[10px] font-mono text-white/30 whitespace-nowrap pt-0.5">
-                      {formatRelativeTime(event.created_at)}
+            <div className="flex flex-col gap-4">
+              {(loading ? [] : languageStats).map((lang) => (
+                <div key={lang.language}>
+                  <div className="flex justify-between mb-1.5">
+                    <span
+                      style={{
+                        fontFamily: "var(--font-sans)",
+                        fontSize: "0.8125rem",
+                        fontWeight: 500,
+                        color: "var(--color-text-primary)",
+                      }}
+                    >
+                      {lang.language}
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "0.75rem",
+                        color: "var(--color-text-muted)",
+                      }}
+                    >
+                      {lang.percentage.toFixed(1)}%
                     </span>
                   </div>
-                ))
-              ) : (
-                <p className="text-sm text-white/40 font-mono">No recent public events found.</p>
-              )}
+                  <div className="lang-bar">
+                    <div
+                      className="lang-bar-fill"
+                      style={{
+                        width: `${lang.percentage}%`,
+                        background:
+                          languageColors[lang.language] || "var(--color-accent)",
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
+          </motion.div>
 
-        </div>
-
-        {/* Bottom CTA */}
-        <div className="mt-16 text-center">
-          <a
-            href={statsData.user.html_url || "https://github.com/SunilBaghel002"}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-sm font-mono text-[#F97316] hover:text-[#FEF3C7] transition-colors"
+          {/* Recent Repos */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.5 }}
           >
-            See more on GitHub →
-          </a>
-        </div>
+            <h3
+              className="mb-6"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.6875rem",
+                fontWeight: 700,
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                color: "var(--color-text-muted)",
+              }}
+            >
+              Recent Activity
+            </h3>
+            <div className="flex flex-col gap-4">
+              {(loading ? [] : recentRepos).map((repo, i) => (
+                <div
+                  key={repo.name}
+                  className="flex items-center justify-between p-4"
+                  style={{
+                    background: "var(--color-surface)",
+                    border: "1px solid var(--color-border-light)",
+                    borderRadius: "var(--radius-md)",
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <span
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "0.75rem",
+                        color: "var(--color-text-muted)",
+                      }}
+                    >
+                      {i + 1}.
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-sans)",
+                        fontSize: "0.875rem",
+                        fontWeight: 500,
+                        color: "var(--color-text-primary)",
+                      }}
+                    >
+                      {repo.name}
+                    </span>
+                  </div>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "0.6875rem",
+                      color: "var(--color-text-muted)",
+                    }}
+                  >
+                    {repo.lastCommit}
+                  </span>
+                </div>
+              ))}
+            </div>
 
+            {/* Link to GitHub */}
+            <a
+              href="https://github.com/SunilBaghel002"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-secondary mt-6 inline-flex"
+              style={{ fontSize: "0.8125rem" }}
+            >
+              View Full Profile →
+            </a>
+          </motion.div>
+        </div>
       </div>
     </section>
   );

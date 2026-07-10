@@ -1,125 +1,281 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ScrollReveal } from "../animations/ScrollReveal";
-import Image from "next/image";
-import { CheckCircle2, Clock, Calendar, Globe } from "lucide-react";
+import { MapPin, GraduationCap, Briefcase, Rocket, Zap } from "lucide-react";
+
+const quickFacts = [
+  { icon: MapPin, label: "Based in", value: "India" },
+  { icon: GraduationCap, label: "Studying", value: "CSE, 3rd Year" },
+  { icon: Briefcase, label: "Role", value: "Co-Founder @ Forgeweb" },
+  { icon: Rocket, label: "Building", value: "PayDeskNow" },
+  { icon: Zap, label: "Streak", value: "385 days" },
+];
+
+const availableFor = [
+  "Full-time roles",
+  "Internships",
+  "Client projects",
+  "Collaborations",
+];
 
 export default function AboutSection() {
-  const specs = [
-    "Full-stack web development",
-    "Payment gateway integrations",
-    "Marketing automation systems",
-    "Offline-first desktop apps",
-  ];
-
   return (
-    <section id="about" className="py-24 md:py-32 bg-black text-white border-t border-white/5 relative overflow-hidden">
-      {/* Background decoration blur */}
-      <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#F97316]/5 rounded-full blur-[100px] pointer-events-none" />
+    <section id="about" className="section-padding">
+      <div className="container-editorial">
+        {/* Chapter marker */}
+        <motion.div
+          className="chapter-marker mb-8"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+        >
+          <span>Chapter 02 — About</span>
+        </motion.div>
 
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-          
-          {/* Left Column (60% - 7 cols) */}
-          <div className="lg:col-span-7 flex flex-col justify-center">
-            <ScrollReveal>
-              <span className="text-[#F97316] text-xs font-mono font-bold uppercase tracking-[0.2em] mb-4 block">
-                About
-              </span>
-            </ScrollReveal>
-            
-            <ScrollReveal delay={0.1}>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-medium tracking-tight text-white mb-6 leading-tight">
-                Building serious software <br />
-                with a small team.
-              </h2>
-            </ScrollReveal>
+        {/* Heading */}
+        <motion.h2
+          className="text-h1 mb-4"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
+          How a factory worker
+          <br />
+          became a developer.
+        </motion.h2>
 
-            <ScrollReveal delay={0.2}>
-              <div className="space-y-4 text-base text-white/75 leading-relaxed font-sans mb-8">
-                <p>
-                  I&apos;m Sunil Baghel, Co-Founder of Forgeweb — a web development agency delivering production-grade software to businesses across India.
-                </p>
-                <p>
-                  Over the past 2 years, I&apos;ve shipped fintech platforms, POS systems, marketing automation tools, and custom SaaS applications. My focus is simple: build software that businesses can actually run on.
-                </p>
-                <p>
-                  I work with a small, focused team. No handoffs to junior developers. No unnecessary complexity. Just clean, maintainable code that solves real problems.
-                </p>
+        {/* Subhead */}
+        <motion.p
+          className="mb-16 max-w-2xl"
+          style={{
+            fontFamily: "var(--font-body)",
+            fontStyle: "italic",
+            fontSize: "1.125rem",
+            color: "var(--color-text-muted)",
+            lineHeight: 1.7,
+          }}
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.1, duration: 0.6 }}
+        >
+          An honest account of the two years that changed everything.
+        </motion.p>
+
+        {/* Article + Sidebar */}
+        <div className="grid lg:grid-cols-12 gap-12 lg:gap-16">
+          {/* Article Content */}
+          <motion.div
+            className="lg:col-span-7 content-width"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+          >
+            {/* Drop cap paragraph */}
+            <p
+              className="drop-cap mb-6"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "1.125rem",
+                lineHeight: 1.8,
+                color: "var(--color-text-secondary)",
+              }}
+            >
+              I never planned to be a developer. In May 2023, the day after my
+              Class 12 board exams ended, I was in a factory manufacturing hose
+              pipes for cars. Two months of that bought me my first phone.
+            </p>
+
+            <p
+              className="mb-6"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "1.125rem",
+                lineHeight: 1.8,
+                color: "var(--color-text-secondary)",
+              }}
+            >
+              By September 2023, I was at a Tier 3 engineering college in
+              India — a place I&apos;d never planned to be. But a friend was
+              preparing for JEE, so I tried too. Scored 94 percentile in
+              January 2024. Then 90 in April. Both with zero preparation.
+            </p>
+
+            <p
+              className="mb-6"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "1.125rem",
+                lineHeight: 1.8,
+                color: "var(--color-text-secondary)",
+              }}
+            >
+              May 2024 was the turning point.{" "}
+              <em>&quot;Sunil, this isn&apos;t going to work,&quot;</em> I told
+              myself. <em>&quot;Start coding.&quot;</em>
+            </p>
+
+            <p
+              className="mb-6"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "1.125rem",
+                lineHeight: 1.8,
+                color: "var(--color-text-secondary)",
+              }}
+            >
+              But I didn&apos;t have a laptop. So I learned to code on my
+              phone. Frontend Mentor challenges on a 5-inch screen. Not
+              glamorous. But it worked.
+            </p>
+
+            <p
+              className="mb-6"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "1.125rem",
+                lineHeight: 1.8,
+                color: "var(--color-text-secondary)",
+              }}
+            >
+              September 2024 — my birthday — I bought my first laptop. Half
+              from savings, half from my father. Everything changed. Within
+              four months, I won my first hackathon. National level. At Sharda
+              University. Knowing only HTML, CSS, and JavaScript. I walked out
+              with ₹25,000 and a feeling I couldn&apos;t explain.
+            </p>
+
+            <p
+              className="mb-8"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "1.125rem",
+                lineHeight: 1.8,
+                color: "var(--color-text-secondary)",
+              }}
+            >
+              In 2025, I won 7 more hackathons, co-founded{" "}
+              <strong>Forgeweb</strong> with Aryan, started shipping production
+              apps for real clients, and built Smart Power — a project that
+              generates electricity from footsteps. Today, I&apos;m looking
+              for the next challenge. Something that matters.
+            </p>
+
+            {/* Pull quote */}
+            <blockquote className="pull-quote">
+              &quot;The gap between &apos;factory worker&apos; and &apos;shipping
+              code&apos; isn&apos;t talent. It&apos;s just refusing to wait for
+              permission.&quot;
+            </blockquote>
+          </motion.div>
+
+          {/* Sidebar */}
+          <motion.div
+            className="lg:col-span-5 lg:col-start-9"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+          >
+            <div className="lg:sticky lg:top-32 flex flex-col gap-8">
+              {/* Quick Facts */}
+              <div
+                style={{
+                  background: "var(--color-surface)",
+                  border: "1px solid var(--color-border-light)",
+                  borderRadius: "var(--radius-lg)",
+                  padding: "1.5rem",
+                }}
+              >
+                <h3
+                  className="mb-4"
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.6875rem",
+                    fontWeight: 700,
+                    letterSpacing: "0.15em",
+                    textTransform: "uppercase",
+                    color: "var(--color-text-muted)",
+                  }}
+                >
+                  Quick Facts
+                </h3>
+                <div className="flex flex-col gap-3">
+                  {quickFacts.map((fact) => {
+                    const Icon = fact.icon;
+                    return (
+                      <div key={fact.label} className="flex items-center gap-3">
+                        <Icon className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                        <div>
+                          <span
+                            style={{
+                              fontFamily: "var(--font-sans)",
+                              fontSize: "0.75rem",
+                              color: "var(--color-text-muted)",
+                            }}
+                          >
+                            {fact.label}:{" "}
+                          </span>
+                          <span
+                            style={{
+                              fontFamily: "var(--font-sans)",
+                              fontSize: "0.8125rem",
+                              fontWeight: 500,
+                              color: "var(--color-text-primary)",
+                            }}
+                          >
+                            {fact.value}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </ScrollReveal>
 
-            {/* Specializations */}
-            <ScrollReveal delay={0.3}>
-              <div>
-                <h4 className="text-xs font-mono font-bold text-white/40 uppercase tracking-widest mb-4">
-                  Specializations:
-                </h4>
-                <ul className="grid sm:grid-cols-2 gap-3.5">
-                  {specs.map((spec) => (
-                    <li key={spec} className="flex items-center gap-2.5 text-sm text-white/80">
-                      <CheckCircle2 className="w-4 h-4 text-[#F97316]" />
-                      <span>{spec}</span>
-                    </li>
+              {/* Available For */}
+              <div
+                style={{
+                  background: "var(--color-surface)",
+                  border: "1px solid var(--color-border-light)",
+                  borderRadius: "var(--radius-lg)",
+                  padding: "1.5rem",
+                }}
+              >
+                <h3
+                  className="mb-4"
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.6875rem",
+                    fontWeight: 700,
+                    letterSpacing: "0.15em",
+                    textTransform: "uppercase",
+                    color: "var(--color-text-muted)",
+                  }}
+                >
+                  Available For
+                </h3>
+                <div className="flex flex-col gap-2">
+                  {availableFor.map((item) => (
+                    <p
+                      key={item}
+                      className="flex items-center gap-2"
+                      style={{
+                        fontFamily: "var(--font-sans)",
+                        fontSize: "0.8125rem",
+                        color: "var(--color-text-secondary)",
+                      }}
+                    >
+                      <span style={{ color: "var(--color-accent)" }}>→</span>
+                      {item}
+                    </p>
                   ))}
-                </ul>
-              </div>
-            </ScrollReveal>
-          </div>
-
-          {/* Right Column (40% - 5 cols) */}
-          <div className="lg:col-span-5 flex flex-col items-center w-full">
-            <ScrollReveal direction="right" className="w-full max-w-[340px]">
-              <div className="relative p-5 rounded-3xl bg-white/[0.015] border border-white/10 w-full group overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[#F97316]/5 rounded-full blur-[40px] pointer-events-none" />
-                
-                {/* Visual headshot */}
-                <div className="relative aspect-square w-full rounded-2xl overflow-hidden border border-white/10 bg-zinc-950 mb-6">
-                  <Image
-                    src="/personal/personal.jpeg"
-                    alt="Sunil Baghel Personal"
-                    fill
-                    className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.03]"
-                    sizes="(max-width: 768px) 100vw, 25vw"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
                 </div>
-
-                {/* Status Cards */}
-                <div className="space-y-4">
-                  {/* Availability */}
-                  <div className="flex items-start gap-3">
-                    <Calendar className="w-5 h-5 text-[#F97316] flex-shrink-0 mt-0.5" />
-                    <div>
-                      <span className="text-[10px] font-mono text-white/30 uppercase block">Current Availability</span>
-                      <span className="text-xs font-semibold text-white/80">Taking on 2 new projects for Q1 2026</span>
-                    </div>
-                  </div>
-
-                  {/* Response Time */}
-                  <div className="flex items-start gap-3">
-                    <Clock className="w-5 h-5 text-[#F97316] flex-shrink-0 mt-0.5" />
-                    <div>
-                      <span className="text-[10px] font-mono text-white/30 uppercase block">Response Time</span>
-                      <span className="text-xs font-semibold text-white/80">Within 24 hours</span>
-                    </div>
-                  </div>
-
-                  {/* Based in */}
-                  <div className="flex items-start gap-3">
-                    <Globe className="w-5 h-5 text-[#F97316] flex-shrink-0 mt-0.5" />
-                    <div>
-                      <span className="text-[10px] font-mono text-white/30 uppercase block">Based In</span>
-                      <span className="text-xs font-semibold text-white/80">India · Working Globally</span>
-                    </div>
-                  </div>
-                </div>
-
               </div>
-            </ScrollReveal>
-          </div>
-
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>

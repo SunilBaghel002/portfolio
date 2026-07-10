@@ -1,577 +1,296 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
-import {
-  motion,
-  useMotionValue,
-  useSpring,
-  useTransform,
-  AnimatePresence,
-} from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { projects, Project } from "@/data/projects";
-import { ScrollReveal } from "../animations/ScrollReveal";
-import {
-  ArrowUpRight, Github, X, CheckCircle, ExternalLink, Calendar, Layers, Cpu,
-  ChevronDown, ChevronUp, Target, Star, GitCommit, Coins, Landmark, Laptop,
-  TrendingUp, Monitor, Smartphone, Bot, Gift, Link as LinkIcon, Home, CreditCard,
-  MapPin, Rocket, GraduationCap, ShoppingBag, ShoppingCart, Palette, Search,
-  Sparkles, Utensils, MessageSquare, Trophy, Zap, Globe, RefreshCw, Ticket, Users
-} from "lucide-react";
+import { projects } from "@/data/projects";
 
-const iconMap: Record<string, React.ComponentType<any>> = {
-  "git-commit": GitCommit,
-  "coins": Coins,
-  "landmark": Landmark,
-  "laptop": Laptop,
-  "trending-up": TrendingUp,
-  "monitor": Monitor,
-  "smartphone": Smartphone,
-  "bot": Bot,
-  "gift": Gift,
-  "link": LinkIcon,
-  "home": Home,
-  "credit-card": CreditCard,
-  "map-pin": MapPin,
-  "rocket": Rocket,
-  "graduation-cap": GraduationCap,
-  "shopping-bag": ShoppingBag,
-  "shopping-cart": ShoppingCart,
-  "palette": Palette,
-  "search": Search,
-  "sparkles": Sparkles,
-  "layers": Layers,
-  "calendar": Calendar,
-  "ticket": Ticket,
-  "users": Users,
-  "utensils": Utensils,
-  "message-square": MessageSquare,
-  "trophy": Trophy,
-  "zap": Zap,
-  "globe": Globe,
-  "refresh-cw": RefreshCw
-};
+type FilterType = "all" | "client" | "hardware";
 
-function HighlightIcon({ name, className }: { name: string; className?: string }) {
-  const IconComponent = iconMap[name] || Sparkles;
-  return <IconComponent className={className} />;}
+const filters: { label: string; value: FilterType }[] = [
+  { label: "All", value: "all" },
+  { label: "Client Work", value: "client" },
+  { label: "Innovation", value: "hardware" },
+];
 
-/* ── Word Reveal ── */
-function WordReveal({ text }: { text: string }) {
-  return (
-    <span>
-      {text.split(" ").map((word, i) => (
-        <motion.span
-          key={i}
-          className="inline-block mr-1.5"
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
-          transition={{ duration: 0.3, delay: i * 0.01, ease: [0.22, 1, 0.36, 1] }}
-        >
-          {word}
-        </motion.span>
-      ))}
-    </span>
-  );
-}
-
-/* ── 3D Tilt Image ── */
-function ProjectImage({
-  src,
-  title,
-  onClick,
-}: {
-  src: string;
-  title: string;
-  onClick: () => void;
-}) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const xSpring = useSpring(x, { stiffness: 120, damping: 20 });
-  const ySpring = useSpring(y, { stiffness: 120, damping: 20 });
-  const rotateX = useTransform(ySpring, [-0.5, 0.5], [6, -6]);
-  const rotateY = useTransform(xSpring, [-0.5, 0.5], [-6, 6]);
-
-  const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!containerRef.current) return;
-    const r = containerRef.current.getBoundingClientRect();
-    x.set((e.clientX - r.left) / r.width - 0.5);
-    y.set((e.clientY - r.top) / r.height - 0.5);
-  };
-  
-  const onLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
-  return (
-    <motion.div
-      ref={containerRef}
-      onMouseMove={onMove}
-      onMouseLeave={onLeave}
-      onClick={onClick}
-      data-cursor="project"
-      style={{ rotateX, rotateY, transformStyle: "preserve-3d", perspective: 1000 }}
-      className="relative aspect-[4/3] w-full rounded-2xl overflow-hidden shadow-2xl bg-zinc-950 border border-white/10 group cursor-pointer"
-    >
-      <div className="absolute inset-0 bg-gradient-to-br from-[#F97316]/10 to-transparent z-10 pointer-events-none transition-opacity duration-500 group-hover:opacity-0" />
-      <Image
-        src={src}
-        alt={title}
-        fill
-        className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-        sizes="(max-width:1024px) 100vw, 45vw"
-        loading="lazy"
-      />
-      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-300" />
-      <div className="absolute inset-0 shadow-[inset_0_0_80px_rgba(0,0,0,0.6)] pointer-events-none" />
-      
-      {/* View Case Study Badge on Hover */}
-      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
-        <span className="px-5 py-2.5 rounded-full bg-white text-black font-semibold text-xs tracking-wider uppercase shadow-xl flex items-center gap-1.5 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-          View Case Study <ArrowUpRight className="w-3.5 h-3.5" />
-        </span>
-      </div>
-    </motion.div>
-  );
-}
-
-/* ── Case Study Drawer Slide-Over ── */
-function CaseStudyDrawer({
-  project,
-  onClose,
-}: {
-  project: Project;
-  onClose: () => void;
-}) {
-  // Prevent body scroll when drawer is open
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, []);
-
-  // Map user-friendly category/client outcome based on project name
-  const outcomesMap: Record<string, string> = {
-    "PayDeskNow": "Enables retailers across India to serve underbanked communities.",
-    "FlashBill": "Restaurants save hours daily on manual billing and order management.",
-    "Hello Pizza Cafe": "Automated customer engagement at scale, reducing manual marketing effort by 90%.",
-    "Mobitel": "Enabled a new service delivery model with seamless online-to-offline experience.",
-    "Proton SMS": "Digitized entire institute operations, replacing multiple disconnected systems with one unified platform.",
-    "Vogue Vault": "Responsive design with instant state updates and cart drawer animations.",
-    "Homestead": "Advanced query filters and custom Map view grids.",
-    "Decora": "Fluid category filters and premium photography rendering.",
-    "Gather": "Ticket reservations and timelines optimized for high traffic.",
-    "Sankara Restaurant": "Polished digital reservation forms matching upscale dining.",
-    "Pankhuri Restaurant": "WhatsApp checkout routing for streamlined ordering."
-  };
-
-  const categoryMap: Record<string, string> = {
-    "PayDeskNow": "FINTECH PLATFORM",
-    "FlashBill": "POS SOFTWARE",
-    "Hello Pizza Cafe": "MARKETING AUTOMATION + WEBSITE",
-    "Mobitel": "QUICK COMMERCE PLATFORM",
-    "Proton SMS": "SAAS PLATFORM",
-    "Vogue Vault": "E-COMMERCE SHOWCASE",
-    "Homestead": "REAL ESTATE DIRECTORY",
-    "Decora": "INTERIOR DESIGN SHOWCASE",
-    "Gather": "EVENT BOOKING PORTAL",
-    "Sankara Restaurant": "FINE DINING DIGITAL PORTAL",
-    "Pankhuri Restaurant": "LOCAL DINER WEB PORTAL"
-  };
-
-  const outcomeText = outcomesMap[project.name] || "Delivered production-grade custom software with verified business results.";
-  const displayCategory = categoryMap[project.name] || project.type.toUpperCase();
-
-  // Mocked details to make the case study look extremely professional
-  const overviewMap: Record<string, string> = {
-    "PayDeskNow": "A robust financial system designed to bridge the digital gap in rural India. The application features micro-banking terminal integration allowing merchants to execute instant cash outs, DMT logs, and dynamic commission cuts directly from the POS interface.",
-    "FlashBill": "A custom cross-platform POS application engineered for restaurants. Built to address the pain of connectivity loss, it keeps full billing logs, menu edits, and receipt queues offline, syncing back to the cloud database when connections resume.",
-    "Hello Pizza Cafe": "A high-conversion customer website paired with a custom marketing and ordering engine. Combines Facebook/WhatsApp Graph APIs to orchestrate cohort-based promotional campaigns and parse incoming pizza orders automatically.",
-    "Mobitel": "An on-demand service portal coordinating mobile repairs. Integrates Razorpay checkouts, automated tech routing sheets, and live SMS updates to create a seamless doorstep service logistics experience.",
-    "Proton SMS": "An educational institution ERP designed to replace paper trails. Facilitates grade bookings, attendance monitoring, fee reconciliation, and triggers instant WhatsApp reports directly to parents' phones.",
-    "Vogue Vault": "A high-end clothing boutique showcase demonstrating modern reactive cart workflows, smooth image gallery transitions, search filters, and checkout simulation pipelines.",
-    "Homestead": "A filterable property dashboard utilizing interactive listing searches, location coordinates mapping, and responsive contact intake forms.",
-    "Decora": "A visually gorgeous interior design showroom utilizing parallax scroll grids, design category switches, and modern layout transitions.",
-    "Gather": "An event organization landing page mapping agendas, speaker schedules, ticket booking workflows, and responsive registration counters.",
-    "Sankara Restaurant": "A premium dining digital menu and reservation booking application built with fluid transitions and fine hospitality styling.",
-    "Pankhuri Restaurant": "A diner menu catalog with WhatsApp order checkout triggers, location navigation maps, and clean contact forms."
-  };
-
-  return (
-    <div className="fixed inset-0 z-[100] flex justify-end">
-      {/* Backdrop overlay */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-        className="absolute inset-0 bg-black/90"
-      />
-
-      {/* Drawer Body */}
-      <motion.div
-        initial={{ x: "100%" }}
-        animate={{ x: 0 }}
-        exit={{ x: "100%" }}
-        transition={{ type: "tween", duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-        style={{ willChange: "transform" }}
-        className="relative w-full max-w-2xl h-full bg-[#111111] border-l border-white/10 shadow-2xl z-10 flex flex-col"
-      >
-        {/* Drawer Header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/5 bg-zinc-950">
-          <div>
-            <span className="text-[10px] font-mono tracking-widest text-[#F97316] font-bold uppercase">
-              {displayCategory}
-            </span>
-            <h3 className="text-2xl font-serif text-white mt-1">{project.name}</h3>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2.5 rounded-full bg-white/5 hover:bg-white/10 text-white transition-all cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Drawer Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-8 space-y-8 scrollbar-thin">
-          
-          {/* Main Visual Image */}
-          <div className="relative aspect-[16/9] w-full rounded-xl overflow-hidden border border-white/10 shadow-lg bg-zinc-900">
-            <Image
-              src={project.image}
-              alt={project.name}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 600px"
-              loading="lazy"
-            />
-          </div>
-
-          {/* Quick Metrics grid */}
-          <div className="grid grid-cols-3 gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-            <div>
-              <span className="text-[10px] font-mono text-white/40 uppercase block mb-1">Scope</span>
-              <span className="text-xs font-semibold text-white/80">{project.type}</span>
-            </div>
-            <div>
-              <span className="text-[10px] font-mono text-white/40 uppercase block mb-1">Timeline</span>
-              <span className="text-xs font-semibold text-white/80 flex items-center gap-1">
-                <Calendar className="w-3.5 h-3.5 text-white/30" />
-                {project.year}
-              </span>
-            </div>
-            <div>
-              <span className="text-[10px] font-mono text-white/40 uppercase block mb-1">Code Quality</span>
-              <span className="text-xs font-semibold text-[#F97316] flex items-center gap-1">
-                <Cpu className="w-3.5 h-3.5 text-[#F97316]/40" />
-                {project.commits || "Production"}
-              </span>
-            </div>
-          </div>
-
-          {/* Client Outcome Highlight (Orange accent block) */}
-          <div className="p-5 rounded-2xl bg-[#F97316]/5 border border-[#F97316]/20">
-            <h4 className="text-xs font-mono font-bold text-[#F97316] uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <CheckCircle className="w-4 h-4" />
-              Client Outcome &amp; Impact
-            </h4>
-            <p className="text-base text-white/90 font-serif italic">
-              &ldquo;{outcomeText}&rdquo;
-            </p>
-          </div>
-
-          {/* Project Details */}
-          <div className="space-y-4">
-            <h4 className="text-xs font-mono font-bold text-white/40 uppercase tracking-widest">
-              Overview
-            </h4>
-            <p className="text-sm text-white/70 leading-relaxed font-sans">
-              {overviewMap[project.name] || project.description}
-            </p>
-          </div>
-
-          {/* Core Features Delivered */}
-          <div className="space-y-4">
-            <h4 className="text-xs font-mono font-bold text-white/40 uppercase tracking-widest">
-              Core Features Delivered
-            </h4>
-            <ul className="grid sm:grid-cols-2 gap-3">
-              {project.highlights.map((h, i) => (
-                <li 
-                  key={i}
-                  className="flex items-start gap-2.5 p-3 rounded-lg bg-white/[0.01] border border-white/[0.04] text-xs text-white/80"
-                >
-                  <HighlightIcon name={h.icon} className="w-4 h-4 text-[#F97316] mt-0.5 shrink-0" />
-                  <span>{h.text}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Technical Implementation */}
-          <div className="space-y-4">
-            <h4 className="text-xs font-mono font-bold text-white/40 uppercase tracking-widest">
-              Technology Stack
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {project.tech.map((tag) => (
-                <span
-                  key={tag}
-                  className="px-3.5 py-1.5 bg-white/[0.03] border border-white/[0.06] rounded-full text-xs font-mono text-white/70"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Drawer Footer Actions */}
-        <div className="p-6 border-t border-white/5 bg-zinc-950 flex items-center justify-end gap-4">
-          {project.links.github && (
-            <a
-              href={project.links.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs text-white/50 hover:text-white transition-colors"
-            >
-              <Github className="w-4 h-4" />
-              Source Code
-            </a>
-          )}
-          {project.links.live ? (
-            <a
-              href={project.links.live}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#F97316] text-black font-semibold text-xs hover:bg-[#FEF3C7] transition-all"
-            >
-              Visit Live Site <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          ) : (
-            <button
-              onClick={() => {
-                onClose();
-                const element = document.querySelector("#contact");
-                if (element) {
-                  element.scrollIntoView({ behavior: "smooth" });
-                }
-              }}
-              className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs transition-all cursor-pointer"
-            >
-              Inquire About Project
-            </button>
-          )}
-        </div>
-      </motion.div>
-    </div>
-  );
-}
-
-/* ── Main Showcase Section ── */
 export default function FeaturedProjects() {
-  const [selectedCaseStudy, setSelectedCaseStudy] = useState<Project | null>(null);
-  const [showAll, setShowAll] = useState(false);
+  const [filter, setFilter] = useState<FilterType>("all");
 
-  // Filter only the production-grade client projects
-  const clientProjects = projects.filter((p) => p.category === "client");
+  // Show only the 6 main projects
+  const mainProjectIds = [
+    "paydesknow",
+    "flashbill",
+    "hello-pizza-cafe",
+    "mobitel",
+    "proton-sms",
+    "smart-power",
+  ];
 
-  // Show only top 5 projects by default
-  const visibleProjects = showAll ? clientProjects : clientProjects.slice(0, 5);
-
-  const outcomesMap: Record<string, string> = {
-    "PayDeskNow": "Enables retailers across India to serve underbanked communities.",
-    "FlashBill": "Restaurants save hours daily on manual billing and order management.",
-    "Hello Pizza Cafe": "Automated customer engagement at scale, reducing manual marketing effort by 90%.",
-    "Mobitel": "Enabled a new service delivery model with seamless online-to-offline experience.",
-    "Proton SMS": "Digitized entire institute operations, replacing multiple disconnected systems with one unified platform.",
-    "Vogue Vault": "Responsive design with instant state updates and cart drawer animations.",
-    "Homestead": "Advanced query filters and custom Map view grids.",
-    "Decora": "Fluid category filters and premium photography rendering.",
-    "Gather": "Ticket reservations and timelines optimized for high traffic.",
-    "Sankara Restaurant": "Polished digital reservation forms matching upscale dining.",
-    "Pankhuri Restaurant": "WhatsApp checkout routing for streamlined ordering."
-  };
-
-  const categoryMap: Record<string, string> = {
-    "PayDeskNow": "FINTECH PLATFORM",
-    "FlashBill": "POS SOFTWARE",
-    "Hello Pizza Cafe": "MARKETING AUTOMATION + WEBSITE",
-    "Mobitel": "QUICK COMMERCE PLATFORM",
-    "Proton SMS": "SAAS PLATFORM",
-    "Vogue Vault": "E-COMMERCE SHOWCASE",
-    "Homestead": "REAL ESTATE DIRECTORY",
-    "Decora": "INTERIOR DESIGN SHOWCASE",
-    "Gather": "EVENT BOOKING PORTAL",
-    "Sankara Restaurant": "FINE DINING DIGITAL PORTAL",
-    "Pankhuri Restaurant": "LOCAL DINER WEB PORTAL"
-  };
+  const filteredProjects = projects
+    .filter((p) => mainProjectIds.includes(p.id))
+    .filter((p) => filter === "all" || p.category === filter);
 
   return (
-    <section id="work" className="py-24 md:py-32 relative bg-black text-white border-t border-white/5">
-      <div className="max-w-7xl mx-auto px-6">
-        
-        {/* Section Heading */}
-        <div className="mb-20 text-left md:max-w-xl">
-          <ScrollReveal>
-            <span className="text-[#F97316] text-xs font-mono font-bold uppercase tracking-[0.2em] mb-4 block">
-              Selected Work
-            </span>
-          </ScrollReveal>
-          <ScrollReveal delay={0.1}>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-medium tracking-tight text-white mb-4">
-              Real projects. <br />
-              Real clients. Real results.
-            </h2>
-          </ScrollReveal>
-          <ScrollReveal delay={0.2}>
-            <p className="text-base text-white/50 leading-relaxed">
-              Curated case studies of production software systems deployed for business operations.
-            </p>
-          </ScrollReveal>
-        </div>
+    <section id="work" className="section-padding">
+      <div className="container-editorial">
+        {/* Chapter marker */}
+        <motion.div
+          className="chapter-marker mb-8"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+        >
+          <span>Chapter 04 — Selected Work</span>
+        </motion.div>
 
-        {/* Projects Rows */}
-        <div className="space-y-24 md:space-y-32">
-          {visibleProjects.map((project, index) => {
-            const isEven = index % 2 === 0;
-            const displayCategory = categoryMap[project.name] || project.type.toUpperCase();
-            const outcomeText = outcomesMap[project.name] || "";
+        {/* Heading */}
+        <motion.h2
+          className="text-h1 mb-3"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          Things I&apos;ve shipped.
+        </motion.h2>
 
-            return (
-              <div key={project.id} className="relative">
-                {index > 0 && <div className="w-full h-px bg-white/10 mb-20 md:mb-32" />}
+        <motion.p
+          className="mb-10"
+          style={{
+            fontFamily: "var(--font-body)",
+            fontStyle: "italic",
+            fontSize: "1.125rem",
+            color: "var(--color-text-muted)",
+          }}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.1 }}
+        >
+          Real projects. Real clients. Real users.
+        </motion.p>
 
-                <div
-                  className={`flex flex-col gap-12 lg:gap-20 items-center ${
-                    isEven ? "lg:flex-row" : "lg:flex-row-reverse"
-                  }`}
+        {/* Filter tabs */}
+        <motion.div
+          className="flex gap-2 mb-16"
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2 }}
+        >
+          {filters.map((f) => (
+            <button
+              key={f.value}
+              onClick={() => setFilter(f.value)}
+              className="px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 cursor-pointer"
+              style={{
+                fontFamily: "var(--font-sans)",
+                background:
+                  filter === f.value
+                    ? "var(--color-accent)"
+                    : "var(--color-surface)",
+                color: filter === f.value ? "#fff" : "var(--color-text-secondary)",
+                border: `1px solid ${
+                  filter === f.value
+                    ? "var(--color-accent)"
+                    : "var(--color-border-light)"
+                }`,
+              }}
+            >
+              {f.label}
+            </button>
+          ))}
+        </motion.div>
+
+        {/* Project Cards */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={filter}
+            className="flex flex-col gap-24"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {filteredProjects.map((project, i) => {
+              const isEven = i % 2 === 0;
+
+              return (
+                <motion.article
+                  key={project.id}
+                  className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center"
+                  data-cursor="view"
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-80px" }}
+                  transition={{
+                    duration: 0.7,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
                 >
-                  {/* Content (55% width) */}
-                  <div className="w-full lg:w-[55%] flex flex-col justify-center">
-                    
-                    {/* Outlined Project Number & Category Tag */}
-                    <div className="flex items-center gap-4 mb-4 flex-wrap">
-                      <span 
-                        className="font-serif text-7xl md:text-8xl font-light leading-none select-none"
+                  {/* Content */}
+                  <div
+                    className={`lg:col-span-6 ${
+                      isEven ? "" : "lg:order-2"
+                    }`}
+                  >
+                    {/* Project number & type */}
+                    <div className="flex items-center gap-3 mb-4">
+                      <span
                         style={{
-                          WebkitTextStroke: "1px rgba(255, 255, 255, 0.15)",
-                          color: "transparent"
+                          fontFamily: "var(--font-mono)",
+                          fontSize: "0.6875rem",
+                          letterSpacing: "0.1em",
+                          color: "var(--color-text-muted)",
+                          textTransform: "uppercase",
                         }}
                       >
                         {project.number}
                       </span>
-
-                      <div className="flex flex-wrap gap-2 items-center">
-                        <span className="text-[10px] font-mono tracking-widest text-[#F97316] font-bold uppercase">
-                          / {displayCategory}
-                        </span>
-                        {project.isFlagship && (
-                          <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-gradient-to-r from-[#F97316] to-[#FEF3C7] text-black uppercase font-bold flex items-center gap-1">
-                            <Star className="w-2.5 h-2.5 fill-current" /> Flagship
-                          </span>
-                        )}
-                      </div>
+                      <span
+                        className="w-8 h-px"
+                        style={{ background: "var(--color-border)" }}
+                      />
+                      <span
+                        style={{
+                          fontFamily: "var(--font-mono)",
+                          fontSize: "0.6875rem",
+                          letterSpacing: "0.08em",
+                          color: "var(--color-accent)",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {project.isFlagship ? "Flagship" : project.type}
+                      </span>
                     </div>
 
-                    {/* Project Name */}
-                    <h3 className="text-3xl md:text-4xl lg:text-5xl font-serif font-medium text-white mb-4">
+                    {/* Project name */}
+                    <h3
+                      className="mb-3"
+                      style={{
+                        fontFamily: "var(--font-display)",
+                        fontSize: "clamp(1.75rem, 3vw, 2.5rem)",
+                        fontWeight: 500,
+                        color: "var(--color-text-primary)",
+                        lineHeight: 1.15,
+                      }}
+                    >
                       {project.name}
                     </h3>
 
-                    {/* Description */}
-                    <p className="text-base md:text-lg text-white/70 leading-relaxed font-sans mb-6">
-                      <WordReveal text={project.description} />
+                    {/* Tagline */}
+                    <p
+                      className="mb-4"
+                      style={{
+                        fontFamily: "var(--font-body)",
+                        fontStyle: "italic",
+                        fontSize: "1.0625rem",
+                        color: "var(--color-text-muted)",
+                      }}
+                    >
+                      &quot;{project.tagline}&quot;
                     </p>
 
-                    {/* Client Outcome Highlight (Orange block) */}
-                    {outcomeText && (
-                      <div className="mb-6 p-4 rounded-xl bg-[#F97316]/5 border border-[#F97316]/20 flex items-start gap-2.5 text-sm">
-                        <Target className="w-4 h-4 text-[#F97316] mt-0.5 shrink-0" />
-                        <span className="text-white/90">
-                          <strong>Outcome:</strong> {outcomeText}
-                        </span>
-                      </div>
-                    )}
+                    {/* Description */}
+                    <p
+                      className="mb-6"
+                      style={{
+                        fontFamily: "var(--font-body)",
+                        fontSize: "1rem",
+                        lineHeight: 1.7,
+                        color: "var(--color-text-secondary)",
+                      }}
+                    >
+                      {project.description}
+                    </p>
 
-                    {/* Tech Pills */}
-                    <div className="flex flex-wrap gap-2 mb-8">
-                      {project.tech.map((tag) => (
+                    {/* Highlights */}
+                    <div className="flex flex-wrap gap-x-6 gap-y-2 mb-6">
+                      {project.highlights.slice(0, 3).map((h) => (
                         <span
-                          key={tag}
-                          className="font-mono text-xs text-white/50 bg-white/[0.04] border border-white/[0.06] px-3.5 py-1.5 rounded-full"
+                          key={h.text}
+                          className="flex items-center gap-2"
+                          style={{
+                            fontFamily: "var(--font-sans)",
+                            fontSize: "0.8125rem",
+                            color: "var(--color-text-secondary)",
+                          }}
                         >
-                          {tag}
+                          <span style={{ color: "var(--color-accent)" }}>
+                            ●
+                          </span>
+                          {h.text}
                         </span>
                       ))}
                     </div>
 
-                    {/* Actions */}
-                    <div className="flex items-center gap-6">
-                      <button
-                        onClick={() => setSelectedCaseStudy(project)}
-                        className="group text-sm font-semibold flex items-center gap-1.5 text-[#F97316] hover:text-[#FEF3C7] transition-colors cursor-pointer"
-                      >
-                        View Case Study
-                        <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                      </button>
+                    {/* Tech pills */}
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      {project.tech.map((t) => (
+                        <span key={t} className="skill-pill">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
 
+                    {/* Links */}
+                    <div className="flex gap-3">
                       {project.links.live && (
                         <a
                           href={project.links.live}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="group text-sm font-semibold flex items-center gap-1.5 text-white/50 hover:text-white transition-colors"
+                          className="btn-primary"
+                          style={{ fontSize: "0.8125rem", padding: "0.625rem 1.25rem" }}
                         >
                           Live Site
+                          <span aria-hidden="true">→</span>
+                        </a>
+                      )}
+                      {project.links.github && (
+                        <a
+                          href={project.links.github}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-secondary"
+                          style={{ fontSize: "0.8125rem", padding: "0.625rem 1.25rem" }}
+                        >
+                          GitHub
                         </a>
                       )}
                     </div>
-
                   </div>
 
-                  {/* Image (45% width) */}
-                  <div className="w-full lg:w-[45%]">
-                    <ProjectImage
-                      src={project.image}
-                      title={project.name}
-                      onClick={() => setSelectedCaseStudy(project)}
-                    />
+                  {/* Image */}
+                  <div
+                    className={`lg:col-span-6 ${
+                      isEven ? "lg:order-2" : ""
+                    }`}
+                  >
+                    <div
+                      className="relative aspect-[4/3] rounded-xl overflow-hidden group"
+                      style={{
+                        background: "var(--color-surface)",
+                        border: "1px solid var(--color-border-light)",
+                        transform: `rotate(${isEven ? "1" : "-1"}deg)`,
+                        transition: "transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s ease",
+                        boxShadow: "0 8px 32px rgba(0,0,0,0.06)",
+                      }}
+                    >
+                      <Image
+                        src={project.image}
+                        alt={project.name}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                      />
+                    </div>
                   </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {clientProjects.length > 5 && (
-          <div className="mt-20 flex justify-center">
-            <button
-              onClick={() => setShowAll(!showAll)}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/10 bg-white/5 text-white font-semibold text-sm hover:bg-white/10 hover:border-[#F97316]/50 transition-all duration-300 hover:scale-[1.02] cursor-pointer"
-            >
-              {showAll ? "Show Less" : `View More Projects (${clientProjects.length - 5} More)`}
-              {showAll ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            </button>
-          </div>
-        )}
-
+                </motion.article>
+              );
+            })}
+          </motion.div>
+        </AnimatePresence>
       </div>
-
-      {/* Case Study Slide-Over Drawer */}
-      <AnimatePresence>
-        {selectedCaseStudy && (
-          <CaseStudyDrawer
-            project={selectedCaseStudy}
-            onClose={() => setSelectedCaseStudy(null)}
-          />
-        )}
-      </AnimatePresence>
     </section>
   );
 }
